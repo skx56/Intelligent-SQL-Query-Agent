@@ -1,0 +1,77 @@
+{
+  "Single_Agent": {
+    "total_questions": 3,
+    "execution_valid_rate": 0.6666666666666666,
+    "execution_accuracy": 0.6666666666666666,
+    "exact_set_match_rate": 0.6666666666666666,
+    "avg_component_score": 0.6666666666666666,
+    "select_match_rate": 1.0,
+    "from_match_rate": 0.3333333333333333,
+    "where_match_rate": 0.6666666666666666,
+    "groupby_match_rate": 0.6666666666666666,
+    "avg_time_per_question": 3.349705378214518,
+    "total_time": 10.049116134643555,
+    "by_hardness": {
+      "easy": {
+        "total": 1,
+        "correct": 1,
+        "accuracy": 1.0
+      },
+      "medium": {
+        "total": 2,
+        "correct": 1,
+        "accuracy": 0.5
+      }
+    }
+  },
+  "Multi_Agent": {
+    "total_questions": 3,
+    "execution_valid_rate": 0.6666666666666666,
+    "execution_accuracy": 0.6666666666666666,
+    "exact_set_match_rate": 0.6666666666666666,
+    "avg_component_score": 0.8333333333333334,
+    "select_match_rate": 1.0,
+    "from_match_rate": 1.0,
+    "where_match_rate": 0.6666666666666666,
+    "groupby_match_rate": 0.6666666666666666,
+    "avg_time_per_question": 9.171653588612875,
+    "total_time": 27.514960765838623,
+    "by_hardness": {
+      "easy": {
+        "total": 1,
+        "correct": 1,
+        "accuracy": 1.0
+      },
+      "medium": {
+        "total": 2,
+        "correct": 1,
+        "accuracy": 0.5
+      }
+    }
+  },
+  "Multi_Agent_RAG": {
+    "total_questions": 3,
+    "execution_valid_rate": 1.0,
+    "execution_accuracy": 0.6666666666666666,
+    "exact_set_match_rate": 0.6666666666666666,
+    "avg_component_score": 0.75,
+    "select_match_rate": 1.0,
+    "from_match_rate": 0.6666666666666666,
+    "where_match_rate": 0.6666666666666666,
+    "groupby_match_rate": 0.6666666666666666,
+    "avg_time_per_question": 8.573159376780191,
+    "total_time": 25.719478130340576,
+    "by_hardness": {
+      "easy": {
+        "total": 1,
+        "correct": 1,
+        "accuracy": 1.0
+      },
+      "medium": {
+        "total": 2,
+        "correct": 1,
+        "accuracy": 0.5
+      }
+    }
+  }
+}

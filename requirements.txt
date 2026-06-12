@@ -1,0 +1,39 @@
+# Multi-Agent RAG Text-to-SQL System
+# Python 3.10+ required
+
+# Core Dependencies
+langchain>=0.2.0
+langchain-community>=0.2.0
+langgraph>=0.2.0
+langchain-ollama>=0.1.0
+
+# Vector Store & Embeddings
+faiss-cpu>=1.7.4
+sentence-transformers>=2.2.2
+
+# Database
+sqlalchemy>=2.0.0
+
+# Data Processing
+pandas>=2.0.0
+numpy>=1.24.0
+
+# HTTP Client (for Ollama)
+requests>=2.28.0
+
+# Utilities
+python-dotenv>=1.0.0
+tqdm>=4.65.0
+rich>=13.0.0
+
+# Evaluation & Visualization
+matplotlib>=3.7.0
+seaborn>=0.12.0
+scikit-learn>=1.3.0
+
+# Web UI
+streamlit>=1.28.0
+plotly>=5.18.0
+
+# SQL Processing
+sqlglot>=23.0.0

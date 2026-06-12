@@ -1,0 +1,187 @@
+# ============================================
+# Multi-Agent RAG Text-to-SQL System
+# .gitignore
+# ============================================
+
+# ============================================
+# Python
+# ============================================
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# ============================================
+# Virtual Environments
+# ============================================
+venv/
+ENV/
+env/
+.venv/
+.ENV/
+text2sql_env/
+text2sql_venv/
+*.env
+
+# ============================================
+# IDE / Editor
+# ============================================
+.idea/
+.vscode/
+.cursor/
+*.swp
+*.swo
+*~
+.project
+.pydevproject
+.settings/
+*.sublime-project
+*.sublime-workspace
+
+# ============================================
+# Jupyter Notebook
+# ============================================
+.ipynb_checkpoints/
+*.ipynb_checkpoints
+notebooks/.ipynb_checkpoints/
+
+# ============================================
+# OS Generated Files
+# ============================================
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+
+# ============================================
+# Vector Store / Embeddings (Large Files)
+# ============================================
+data/vector_stores/
+*.faiss
+*.index
+*.pkl
+*.pickle
+
+# ============================================
+# Model Files (Large)
+# ============================================
+*.bin
+*.pt
+*.pth
+*.onnx
+*.h5
+models/
+
+# ============================================
+# Logs
+# ============================================
+*.log
+logs/
+*.out
+*.err
+
+# ============================================
+# Temporary Files
+# ============================================
+*.tmp
+*.temp
+*.bak
+*.cache
+.cache/
+tmp/
+temp/
+
+# ============================================
+# Results (Optional - uncomment to exclude)
+# ============================================
+# Uncomment below lines if you don't want to include evaluation results
+# results/
+# results/**/*.json
+# results/**/*.html
+# results/**/*.png
+
+# All results are included for demonstration purposes
+# If you want to exclude large files, uncomment below:
+# results/*/detailed_results.json
+# results/combined/
+
+# ============================================
+# Spider Dataset (Large - 1GB+)
+# ============================================
+# Uncomment if dataset is too large for GitHub
+data/spider_data/
+
+# Keep the structure but exclude large files
+data/spider_data/__MACOSX/
+*.sqlite.bak
+
+# ============================================
+# Secrets / Credentials
+# ============================================
+.env
+.env.local
+.env.*.local
+*.pem
+*.key
+secrets/
+credentials/
+
+# ============================================
+# Test / Coverage
+# ============================================
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+.pytest_cache/
+cover/
+
+# ============================================
+# Documentation Build
+# ============================================
+docs/_build/
+site/
+
+# ============================================
+# Misc
+# ============================================
+*.manifest
+*.spec
+pip-log.txt
+pip-delete-this-directory.txt
+
+# ============================================
+# Local configuration overrides
+# ============================================
+config/local_config.py
+config/*.local.py
+

@@ -1,0 +1,282 @@
+ID,Question,Hardness,Gold SQL,Single_Agent_SQL,Single_Agent_Correct,Single_Agent_Time,Multi_Agent_SQL,Multi_Agent_Correct,Multi_Agent_Time,Multi_Agent_RAG_SQL,Multi_Agent_RAG_Correct,Multi_Agent_RAG_Time
+1,what are all the addresses including line 1 and line 2?,easy,"SELECT line_1 ,  line_2 FROM addresses","SELECT 
+    A.line_1,
+    A.line_2
+FROM 
+    Addresses A
+JOIN 
+    Students S ON A.address_id = S.current_address_id OR A.address_id = S.permanent_address_id;",No,6.1,SELECT * FROM Addresses;,No,6.3,"SELECT line_1, line_2 FROM Addresses;",Yes,6.5
+2,What is the first and second line for all addresses?,easy,"SELECT line_1 ,  line_2 FROM addresses","SELECT T1.line_1, T1.line_2 FROM Addresses AS T1",Yes,2.0,"SELECT line_1, line_2 FROM Addresses;",Yes,6.4,"SELECT line_1, line_2 FROM Addresses ORDER BY address_id LIMIT 1;",No,7.0
+3,How many courses in total are listed?,easy,SELECT count(*) FROM Courses,SELECT COUNT(DISTINCT T1.course_id) FROM Courses AS T1 INNER JOIN Student_Enrolment_Courses AS T2 ON T1.course_id = T2.course_id,No,2.6,SELECT COUNT(*) FROM Courses;,Yes,5.8,SELECT COUNT(*) FROM Courses;,Yes,5.1
+4,How many courses are there?,easy,SELECT count(*) FROM Courses,SELECT COUNT(DISTINCT T1.course_id) FROM Courses AS T1 INNER JOIN Student_Enrolment_Courses AS T2 ON T1.course_id = T2.course_id,No,2.7,SELECT COUNT(*) FROM Courses;,Yes,6.3,SELECT COUNT(*) FROM Courses;,Yes,5.1
+5,How is the math course described?,easy,SELECT course_description FROM Courses WHERE course_name  =  'math',SELECT T1.course_description FROM Courses AS T1 INNER JOIN Student_Enrolment_Courses AS T2 ON T1.course_id = T2.course_id WHERE T1.course_name = 'Math',No,2.8,SELECT c.course_description FROM Courses AS c WHERE c.course_name = 'math';,Yes,6.6,SELECT c.course_description FROM Courses AS c WHERE c.course_name = 'math';,Yes,5.8
+6,What are the descriptions for all the math courses?,easy,SELECT course_description FROM Courses WHERE course_name  =  'math',SELECT T1.course_description FROM Courses AS T1 INNER JOIN Student_Enrolment_Courses AS T2 ON T1.course_id = T2.course_id WHERE T1.course_name LIKE '%math%',Yes,2.9,SELECT c.course_description FROM Courses AS c WHERE c.course_name LIKE '%Math%';,Yes,7.1,SELECT course_description FROM Courses WHERE course_name = 'Math';,No,6.2
+7,What is the zip code of the address in the city Port Chelsea?,easy,SELECT zip_postcode FROM Addresses WHERE city  =  'Port Chelsea',SELECT T1.zip_postcode FROM Addresses AS T1 INNER JOIN Departments AS T2 ON T1.department_id = T2.department_id WHERE T2.department_name = 'Port Chelsea',No,2.8,SELECT T1.zip_postcode FROM Addresses AS T1 JOIN Cities AS T2 ON T1.city = T2.city_name WHERE T2.city_name = 'Port Chelsea';,No,7.3,SELECT T1.zip_postcode FROM Addresses AS T1 JOIN Cities AS T2 ON T1.city = T2.city_name WHERE T2.city_name = 'Port Chelsea';,No,58.9
+8,What is the zip code for Port Chelsea?,easy,SELECT zip_postcode FROM Addresses WHERE city  =  'Port Chelsea',SELECT T1.zip_postcode FROM Addresses AS T1 INNER JOIN Courses AS T2 ON T1.address_id = T2.course_id WHERE T2.course_name = 'Port Chelsea',No,2.8,SELECT T1.zip_postcode FROM Addresses AS T1 WHERE T1.line_1 = 'Port Chelsea';,No,7.8,SELECT zip_postcode FROM Addresses WHERE line_1 = 'Port Chelsea';,No,7.4
+9,Which department offers the most number of degrees? List department name and id.,medium,"SELECT T2.department_name ,  T1.department_id FROM Degree_Programs AS T1 JOIN Departments AS T2 ON T1.department_id  =  T2.department_id GROUP BY T1.department_id ORDER BY count(*) DESC LIMIT 1","SELECT D.department_name, D.department_id 
+FROM Departments D 
+JOIN Degree_Programs DP ON D.department_id = DP.department_id 
+GROUP BY D.department_id 
+ORDER BY COUNT(DP.degree_program_id) DESC 
+LIMIT 1;",Yes,3.6,"SELECT d.department_name, d.department_id FROM Departments AS d JOIN Degree_Programs AS dp ON d.department_id = dp.department_id GROUP BY d.department_id ORDER BY COUNT(dp.degree_program_id) DESC LIMIT 1;",Yes,9.6,"SELECT d.department_name, d.department_id FROM Degree_Programs AS dp JOIN Departments AS d ON dp.department_id = d.department_id GROUP BY d.department_id ORDER BY COUNT(*) DESC LIMIT 1;",Yes,8.3
+10,What is the name and id of the department with the most number of degrees ?,medium,"select t2.department_name ,  t1.department_id from degree_programs as t1 join departments as t2 on t1.department_id  =  t2.department_id group by t1.department_id order by count(*) desc limit 1","SELECT D.department_name, D.department_id 
+FROM Departments D 
+JOIN Degree_Programs DP ON D.department_id = DP.department_id 
+GROUP BY D.department_id 
+ORDER BY COUNT(DP.degree_program_id) DESC 
+LIMIT 1;",Yes,3.4,"SELECT d.department_name, d.department_id FROM Departments AS d JOIN Degree_Programs AS dp ON d.department_id = dp.department_id GROUP BY d.department_id ORDER BY COUNT(dp.degree_program_id) DESC LIMIT 1;",Yes,9.1,"SELECT d.department_name, dp.degree_program_id FROM Degree_Programs AS dp JOIN Departments AS d ON dp.department_id = d.department_id GROUP BY dp.degree_program_id ORDER BY COUNT(*) DESC LIMIT 1;",No,8.5
+11,How many departments offer any degree?,easy,SELECT count(DISTINCT department_id) FROM Degree_Programs,"SELECT COUNT(DISTINCT T1.department_id) 
+FROM Departments AS T1 
+JOIN Degree_Programs AS T2 ON T1.department_id = T2.department_id",Yes,2.9,SELECT COUNT(DISTINCT d.department_id) FROM Departments AS d JOIN Degree_Programs AS dp ON d.department_id = dp.department_id;,Yes,8.3,SELECT COUNT(DISTINCT d.department_id) FROM Departments AS d JOIN Degree_Programs AS dp ON d.department_id = dp.department_id;,Yes,7.3
+12,How many different departments offer degrees?,easy,SELECT count(DISTINCT department_id) FROM Degree_Programs,SELECT COUNT(DISTINCT T1.department_id) FROM Departments AS T1 INNER JOIN Degree_Programs AS T2 ON T1.department_id = T2.department_id,Yes,2.7,SELECT COUNT(DISTINCT department_id) FROM Departments;,No,7.8,SELECT COUNT(DISTINCT T1.department_id) FROM Departments AS T1 JOIN Degree_Programs AS T2 ON T1.department_id = T2.department_id;,Yes,8.9
+13,How many different degree names are offered?,easy,SELECT count(DISTINCT degree_summary_name) FROM Degree_Programs,"SELECT COUNT(DISTINCT T1.degree_summary_name) 
+FROM Degree_Programs AS T1 
+JOIN Courses AS T2 ON T1.course_id = T2.course_id",No,3.5,SELECT COUNT(DISTINCT degree_summary_name) FROM Degree_Programs;,Yes,9.5,SELECT COUNT(DISTINCT degree_summary_name) FROM Degree_Programs;,Yes,10.1
+14,How many different degrees are offered?,easy,SELECT count(DISTINCT degree_summary_name) FROM Degree_Programs,SELECT COUNT(DISTINCT degree_summary_name) FROM Degree_Programs,Yes,3.7,SELECT COUNT(DISTINCT degree_summary_name) FROM Degree_Programs;,Yes,10.0,SELECT COUNT(*) FROM Degree_Programs;,No,8.0
+15,How many degrees does the engineering department offer?,medium,SELECT count(*) FROM Departments AS T1 JOIN Degree_Programs AS T2 ON T1.department_id  =  T2.department_id WHERE T1.department_name  =  'engineer',"SELECT COUNT(DISTINCT T1.degree_program_id) 
+FROM Degree_Programs AS T1 
+JOIN Departments AS T2 ON T1.department_id = T2.department_id 
+WHERE T2.department_name = 'Engineering'",Yes,3.8,SELECT COUNT(DISTINCT T2.degree_program_id) FROM Departments AS T1 JOIN Degree_Programs AS T2 ON T1.department_id = T2.department_id WHERE T1.department_name = 'Engineering';,Yes,12.4,SELECT COUNT(*) FROM Degree_Programs WHERE department_id = 'engineering';,Yes,8.6
+16,How many degrees does the engineering department have?,medium,SELECT count(*) FROM Departments AS T1 JOIN Degree_Programs AS T2 ON T1.department_id  =  T2.department_id WHERE T1.department_name  =  'engineer',"SELECT COUNT(DISTINCT T1.department_name) 
+FROM Departments AS T1 
+JOIN Degree_Programs AS T2 ON T1.department_id = T2.department_id 
+WHERE T1.department_name = 'Engineering'",Yes,3.7,SELECT COUNT(DISTINCT degree_program_id) FROM Degree_Programs WHERE department_id = (SELECT department_id FROM Departments WHERE department_name = 'Engineering');,Yes,9.5,SELECT COUNT(*) FROM Degree_Programs WHERE department_id = 'engineering';,Yes,7.1
+17,What are the names and descriptions of all the sections?,easy,"SELECT section_name ,  section_description FROM Sections","SELECT T1.section_name, T1.section_description 
+FROM Sections AS T1 
+JOIN Courses AS T2 ON T1.course_id = T2.course_id",Yes,2.6,"SELECT section_name, section_description FROM Sections;",Yes,7.4,"SELECT section_name, section_description FROM Sections;",Yes,6.0
+18,What are the names and descriptions for all the sections?,easy,"SELECT section_name ,  section_description FROM Sections","SELECT s.section_name, s.section_description 
+FROM Sections s 
+JOIN Courses c ON s.course_id = c.course_id;",Yes,2.5,"SELECT section_name, section_description FROM Sections;",Yes,6.9,"SELECT section_name, section_description FROM Sections;",Yes,6.1
+19,List the section_name in reversed lexicographical order.,easy,SELECT section_name FROM Sections ORDER BY section_name DESC,SELECT DISTINCT T2.section_name FROM Student_Enrolment_Courses AS T1 INNER JOIN Sections AS T2 ON T1.course_id = T2.course_id ORDER BY T2.section_name DESC,No,2.9,SELECT section_name FROM Sections ORDER BY section_name DESC;,Yes,7.9,SELECT section_name FROM Sections ORDER BY section_name DESC;,Yes,7.1
+20,What are the names of the sections in reverse alphabetical order?,easy,SELECT section_name FROM Sections ORDER BY section_name DESC,SELECT T1.section_name FROM Sections AS T1 INNER JOIN Courses AS T2 ON T1.course_id = T2.course_id ORDER BY T1.section_name DESC,Yes,2.8,SELECT section_name FROM Sections ORDER BY section_name DESC;,Yes,7.8,SELECT section_name FROM Sections ORDER BY section_name ASC LIMIT 1;,No,7.3
+21,What is the semester which most student registered in? Show both the name and the id.,medium,"SELECT T1.semester_name ,  T1.semester_id FROM Semesters AS T1 JOIN Student_Enrolment AS T2 ON T1.semester_id  =  T2.semester_id GROUP BY T1.semester_id ORDER BY count(*) DESC LIMIT 1","SELECT 
+  s.semester_name,
+  s.semester_id
+FROM 
+  Student_Enrolment se
+JOIN 
+  Semesters s ON se.semester_id = s.semester_id
+GROUP BY 
+  s.semester_id
+ORDER BY 
+  COUNT(se.student_id) DESC
+LIMIT 1;",Yes,5.1,"SELECT s.semester_name, s.semester_id FROM Students AS s JOIN Student_Enrolment AS se ON s.student_id = se.student_id GROUP BY s.semester_id ORDER BY COUNT(se.student_id) DESC LIMIT 1;",No,10.8,"SELECT s.semester_name, s.semester_id FROM Student_Enrolment AS se JOIN Semesters AS s ON se.semester_id = s.semester_id GROUP BY se.semester_id ORDER BY COUNT(se.student_id) DESC LIMIT 1;",Yes,10.3
+22,"For each semester, what is the name and id of the one with the most students registered?",medium,"SELECT T1.semester_name ,  T1.semester_id FROM Semesters AS T1 JOIN Student_Enrolment AS T2 ON T1.semester_id  =  T2.semester_id GROUP BY T1.semester_id ORDER BY count(*) DESC LIMIT 1","SELECT 
+  s.semester_name,
+  s.semester_id,
+  COUNT(se.student_enrolment_id) AS num_students
+FROM 
+  Semesters s
+JOIN 
+  Student_Enrolment se ON s.semester_id = se.semester_id
+GROUP BY 
+  s.semester_name, s.semester_id
+ORDER BY 
+  num_students DESC
+LIMIT 1;",No,6.6,"SELECT s.semester_name, s.semester_id FROM Students AS s JOIN Student_Enrolment AS se ON s.student_id = se.student_id GROUP BY s.semester_id ORDER BY COUNT(se.student_id) DESC LIMIT 1;",No,10.9,"SELECT s.semester_name, s.semester_id FROM Semesters AS s JOIN Student_Enrolment AS se ON s.semester_id = se.semester_id GROUP BY s.semester_id ORDER BY COUNT(se.student_id) DESC LIMIT 1;",Yes,21.2
+23,What is the description of the department whose name has the substring the computer?,easy,SELECT department_description FROM Departments WHERE department_name LIKE '%computer%',"SELECT T1.department_description 
+FROM Departments AS T1 
+JOIN Degree_Programs AS T2 ON T1.department_id = T2.department_id 
+WHERE T2.degree_summary_name LIKE '%Computer%'",No,3.9,SELECT d.department_description FROM Departments AS d WHERE d.department_name LIKE '%computer%';,Yes,9.9,SELECT department_description FROM Departments WHERE department_name LIKE '%computer%';,Yes,8.6
+24,What is the department description for the one whose name has the word computer?,easy,SELECT department_description FROM Departments WHERE department_name LIKE '%computer%',"SELECT T2.department_description 
+FROM Courses AS T1 
+JOIN Departments AS T2 ON T1.course_id = T2.department_id 
+WHERE T1.course_name LIKE '%computer%'",No,3.0,SELECT T1.department_description FROM Departments AS T1 JOIN Degree_Programs AS T2 ON T1.department_id = T2.department_id WHERE T2.degree_summary_name LIKE '%computer%';,No,9.8,SELECT department_description FROM Departments WHERE department_name LIKE '%computer%';,Yes,8.4
+25,Find the kind of program which most number of students are enrolled in?,medium,SELECT T1.degree_summary_name FROM Degree_Programs AS T1 JOIN Student_Enrolment AS T2 ON T1.degree_program_id  =  T2.degree_program_id GROUP BY T1.degree_summary_name ORDER BY count(*) DESC LIMIT 1,"SELECT dp.degree_summary_name 
+FROM Degree_Programs dp 
+JOIN Student_Enrolment se ON dp.degree_program_id = se.degree_program_id 
+GROUP BY dp.degree_program_id 
+ORDER BY COUNT(se.student_id) DESC 
+LIMIT 1;",Yes,4.2,SELECT dp.degree_summary_name FROM Degree_Programs AS dp JOIN Student_Enrolment AS se ON dp.degree_program_id = se.degree_program_id GROUP BY dp.degree_program_id ORDER BY COUNT(se.student_id) DESC LIMIT 1;,Yes,10.2,"SELECT p.degree_program_id, COUNT(p.degree_program_id) FROM Student_Enrolment AS e JOIN Student_Enrolment_Courses AS sec ON e.student_enrolment_id = sec.student_enrolment_id JOIN programs AS p ON e.degree_program_id = p.program_id GROUP BY p.degree_program_id ORDER BY COUNT(p.degree_program_id) DESC LIMIT 1;",No,124.8
+26,What is the degree summary name that has the most number of students enrolled?,medium,SELECT T1.degree_summary_name FROM Degree_Programs AS T1 JOIN Student_Enrolment AS T2 ON T1.degree_program_id  =  T2.degree_program_id GROUP BY T1.degree_summary_name ORDER BY count(*) DESC LIMIT 1,"SELECT dp.degree_summary_name 
+FROM Degree_Programs dp 
+JOIN Student_Enrolment se ON dp.degree_program_id = se.degree_program_id 
+GROUP BY dp.degree_summary_name 
+ORDER BY COUNT(se.student_id) DESC 
+LIMIT 1;",Yes,4.0,SELECT ds.degree_summary_name FROM Degree_Programs AS dp JOIN Student_Enrolment AS se ON dp.degree_program_id = se.degree_program_id GROUP BY ds.degree_summary_name ORDER BY COUNT(se.student_id) DESC LIMIT 1;,No,11.2,SELECT c.degree_summary_name FROM Degree_Programs AS c JOIN Student_Enrolment AS se ON c.degree_program_id = se.degree_program_id GROUP BY c.degree_summary_name ORDER BY COUNT(se.degree_program_id) DESC LIMIT 1;,Yes,87.8
+27,Find the program which most number of students are enrolled in. List both the id and the summary.,medium,"SELECT T1.degree_program_id ,  T1.degree_summary_name FROM Degree_Programs AS T1 JOIN Student_Enrolment AS T2 ON T1.degree_program_id  =  T2.degree_program_id GROUP BY T1.degree_program_id ORDER BY count(*) DESC LIMIT 1","SELECT 
+  dp.degree_program_id,
+  dp.degree_summary_name AS program_name
+FROM 
+  Student_Enrolment SE
+JOIN 
+  Degree_Programs dp ON SE.degree_program_id = dp.degree_program_id
+GROUP BY 
+  dp.degree_program_id, dp.degree_summary_name
+ORDER BY 
+  COUNT(SE.student_id) DESC
+LIMIT 1;",Yes,4.8,"SELECT dp.degree_program_id, dp.degree_summary_name FROM Degree_Programs AS dp JOIN Student_Enrolment AS se ON dp.degree_program_id = se.degree_program_id GROUP BY dp.degree_program_id ORDER BY COUNT(se.student_id) DESC LIMIT 1;",Yes,9.9,"SELECT dp.degree_summary_name, COUNT(e.student_id) AS num_students FROM Student_Enrolment AS e JOIN Degree_Programs AS dp ON e.degree_program_id = dp.degree_program_id GROUP BY dp.degree_program_id ORDER BY num_students DESC LIMIT 1;",No,9.8
+28,What is the program id and the summary of the degree that has the most students enrolled?,medium,"SELECT T1.degree_program_id ,  T1.degree_summary_name FROM Degree_Programs AS T1 JOIN Student_Enrolment AS T2 ON T1.degree_program_id  =  T2.degree_program_id GROUP BY T1.degree_program_id ORDER BY count(*) DESC LIMIT 1","SELECT 
+  dp.degree_program_id,
+  dp.degree_summary_name,
+  COUNT(se.student_enrolment_id) AS num_students
+FROM 
+  Student_Enrolment se
+JOIN 
+  Degree_Programs dp ON se.degree_program_id = dp.degree_program_id
+GROUP BY 
+  dp.degree_program_id, dp.degree_summary_name
+ORDER BY 
+  num_students DESC
+LIMIT 1;",No,5.1,"SELECT T1.degree_program_id, T1.degree_summary_name FROM Degree_Programs AS T1 INNER JOIN Student_Enrolment AS T2 ON T1.degree_program_id = T2.degree_program_id GROUP BY T1.degree_program_id ORDER BY COUNT(T2.student_enrolment_id) DESC LIMIT 1;",Yes,11.4,"SELECT dp.degree_program_id, dp.degree_summary_name FROM Degree_Programs AS dp JOIN Student_Enrolment AS se ON dp.degree_program_id = se.degree_program_id GROUP BY dp.degree_program_id ORDER BY COUNT(se.student_enrolment_id) DESC LIMIT 1;",Yes,10.3
+29,"Which student has enrolled for the most times in any program? List the id, first name, middle name, last name, the number of enrollments and student id.",medium,"SELECT T1.student_id ,  T1.first_name ,  T1.middle_name ,  T1.last_name ,  count(*) ,  T1.student_id FROM Students AS T1 JOIN Student_Enrolment AS T2 ON T1.student_id  =  T2.student_id GROUP BY T1.student_id ORDER BY count(*) DESC LIMIT 1","SELECT 
+  S.student_id,
+  S.first_name,
+  S.middle_name,
+  S.last_name,
+  COUNT(DISTINCT E.student_enrolment_id) AS num_enrollments
+FROM 
+  Students S
+JOIN 
+  Student_Enrolment E ON S.student_id = E.student_id
+GROUP BY 
+  S.student_id, S.first_name, S.Middle_name, S.last_name
+ORDER BY 
+  num_enrollments DESC LIMIT 1;",No,7.2,"SELECT s.student_id, s.first_name, s.middle_name, s.last_name, COUNT(se.student_enrolment_id) AS num_enrollments FROM students AS s JOIN student_enrolment AS se ON s.student_id = se.student_id GROUP BY s.student_id ORDER BY num_enrollments DESC LIMIT 1;",Yes,12.7,"SELECT s.first_name, s.middle_name, s.last_name, COUNT(se.degree_program_id) AS num_enrollments, se.student_id FROM Students AS s JOIN Student_Enrolment AS se ON s.student_id = se.student_id GROUP BY s.student_id ORDER BY num_enrollments DESC LIMIT 1;",Yes,12.9
+30,"What is the first, middle, and last name, along with the id and number of enrollments, for the student who enrolled the most in any program?",medium,"SELECT T1.student_id ,  T1.first_name ,  T1.middle_name ,  T1.last_name ,  count(*) ,  T1.student_id FROM Students AS T1 JOIN Student_Enrolment AS T2 ON T1.student_id  =  T2.student_id GROUP BY T1.student_id ORDER BY count(*) DESC LIMIT 1","SELECT 
+  S.student_id,
+  S.first_name,
+  S.middle_name,
+  S.last_name,
+  COUNT(DISTINCT E.student_enrolment_id) AS num_enrollments
+FROM Students S
+JOIN Student_Enrolment E ON S.student_id = E.student_id
+GROUP BY S.student_id, S.first_name, S.Middle_name, S.last_name
+ORDER BY num_enrollments DESC LIMIT 1;",No,6.9,"SELECT s.student_id, s.first_name, s.middle_name, s.last_name, COUNT(se.student_enrolment_id) AS num_enrollments FROM students AS s JOIN Student_Enrolment AS se ON s.student_id = se.student_id GROUP BY s.student_id, s.first_name, s.middle_name, s.last_name ORDER BY num_enrollments DESC LIMIT 1;",No,14.5,"SELECT s.student_id, s.first_name, s.middle_name, s.last_name, se.degree_program_id, COUNT(se.student_enrolment_id) FROM Students AS s JOIN Student_Enrolment AS se ON s.student_id = se.student_id GROUP BY s.student_id ORDER BY COUNT(se.student_enrolment_id) DESC LIMIT 1;",No,12.5
+31,What are all the course names of the courses which ever have students enrolled in?,medium,SELECT DISTINCT T1.course_name FROM Courses AS T1 JOIN Student_Enrolment_Courses AS T2 ON T1.course_id  =  T2.course_id,"SELECT T1.course_name 
+FROM Courses AS T1 
+JOIN Student_Enrolment_Courses AS T2 ON T1.course_id = T2.course_id",Yes,3.3,SELECT c.course_name FROM Courses AS c JOIN Student_Enrolment_Courses AS sec ON c.course_id = sec.course_id;,Yes,9.1,SELECT c.course_name FROM Courses AS c JOIN Student_Enrolment_Courses AS sec ON c.course_id = sec.course_id;,Yes,8.2
+32,What are the names of all courses that have some students enrolled?,medium,SELECT DISTINCT T1.course_name FROM Courses AS T1 JOIN Student_Enrolment_Courses AS T2 ON T1.course_id  =  T2.course_id,"SELECT C.course_name 
+FROM Courses C 
+JOIN Student_Enrolment_Courses SEC ON C.course_id = SEC.course_id 
+WHERE SEC.student_enrolment_id IS NOT NULL;",Yes,3.3,SELECT c.course_name FROM Courses AS c JOIN Student_Enrolment_Courses AS sec ON c.course_id = sec.course_id GROUP BY c.course_name HAVING COUNT(sec.student_enrolment_id) > 0;,Yes,10.6,SELECT c.course_name FROM Courses AS c JOIN Student_Enrolment_Courses AS sec ON c.course_id = sec.course_id GROUP BY c.course_id HAVING COUNT(sec.student_course_id) > 0;,Yes,9.6
+33,What's the name of the course with most number of enrollments?,medium,SELECT  T1.course_name FROM Courses AS T1 JOIN Student_Enrolment_Courses AS T2 ON T1.course_id  =  T2.course_id GROUP BY T1.course_name ORDER BY count(*) DESC LIMIT 1,"SELECT C.course_name 
+FROM Student_Enrolment_Courses SEC 
+JOIN Courses C ON SEC.course_id = C.course_id 
+GROUP BY SEC.course_id 
+ORDER BY COUNT(SEC.student_enrolment_id) DESC 
+LIMIT 1;",No,3.8,SELECT c.course_name FROM Courses AS c JOIN Student_Enrolment_Courses AS sec ON c.course_id = sec.course_id GROUP BY c.course_name ORDER BY COUNT(sec.student_enrolment_id) DESC LIMIT 1;,Yes,11.6,SELECT c.course_name FROM Student_Enrolment_Courses AS sec JOIN Courses AS c ON sec.course_id = c.course_id GROUP BY c.course_id ORDER BY COUNT(*) DESC LIMIT 1;,No,10.6
+34,What is the name of the course with the most students enrolled?,medium,SELECT  T1.course_name FROM Courses AS T1 JOIN Student_Enrolment_Courses AS T2 ON T1.course_id  =  T2.course_id GROUP BY T1.course_name ORDER BY count(*) DESC LIMIT 1,"SELECT C.course_name 
+FROM Courses C 
+JOIN Student_Enrolment_Courses SEC ON C.course_id = SEC.course_id 
+GROUP BY C.course_name 
+ORDER BY COUNT(SEC.student_course_id) DESC 
+LIMIT 1;",Yes,4.4,SELECT c.course_name FROM Student_Enrolment_Courses AS sec JOIN Courses AS c ON sec.course_id = c.course_id GROUP BY c.course_name ORDER BY COUNT(sec.student_enrolment_id) DESC LIMIT 1;,Yes,12.0,SELECT c.course_name FROM Courses AS c JOIN Student_Enrolment_Courses AS sec ON c.course_id = sec.course_id GROUP BY c.course_id ORDER BY COUNT(sec.student_course_id) DESC LIMIT 1;,No,11.6
+35,What is the phone number of the man with the first name Timmothy and the last name Ward?,easy,SELECT cell_mobile_number FROM Students WHERE first_name  =  'Timmothy' AND last_name  =  'Ward',"SELECT T1.cell_mobile_number 
+FROM Students AS T1 
+JOIN Student_Enrolment_Courses AS T2 ON T1.student_id = T2.student_id 
+JOIN Courses AS T3 ON T2.course_id = T3.course_id 
+WHERE T1.first_name = 'Timmothy' AND T1.last_name = 'Ward';",No,5.7,SELECT cell_mobile_number FROM Students WHERE first_name = 'Timmothy' AND last_name = 'Ward';,Yes,10.4,SELECT cell_mobile_number FROM Students WHERE first_name = 'Timmothy' AND last_name = 'Ward';,Yes,13.3
+36,What is the mobile phone number of the student named Timmothy Ward ?,easy,select cell_mobile_number from students where first_name  =  'timmothy' and last_name  =  'ward',"SELECT T1.cell_mobile_number 
+FROM Students AS T1 
+JOIN Student_Enrolment_Courses AS T2 ON T1.student_id = T2.student_id 
+JOIN Courses AS T3 ON T2.course_id = T3.course_id 
+WHERE T1.first_name = 'Timmothy' AND T1.last_name = 'Ward';",No,5.5,SELECT cell_mobile_number FROM Students WHERE first_name = 'Timmothy' AND last_name = 'Ward';,No,9.8,SELECT cell_mobile_number FROM Students WHERE first_name = 'Timmothy' AND last_name = 'Ward';,No,8.9
+37,"Who is the first student to register? List the first name, middle name and last name.",easy,"SELECT first_name ,  middle_name ,  last_name FROM Students ORDER BY date_first_registered ASC LIMIT 1","SELECT T1.first_name, T1.middle_name, T1.last_name 
+FROM Students AS T1 
+WHERE T1.student_id = (SELECT student_id FROM Students ORDER BY date_first_registered LIMIT 1)",Yes,3.4,"SELECT T1.first_name, T1.middle_name, T1.last_name FROM Students AS T1 WHERE T1.date_first_registered = (SELECT MIN(date_first_registered) FROM Students);",Yes,10.7,"SELECT first_name, middle_name, last_name FROM Students ORDER BY date_first_registered ASC LIMIT 1;",Yes,9.7
+38,"What is the first, middle, and last name of the first student to register?",easy,"SELECT first_name ,  middle_name ,  last_name FROM Students ORDER BY date_first_registered ASC LIMIT 1","SELECT T1.first_name, T1.middle_name, T1.last_name FROM Students AS T1 INNER JOIN Student_Enrolment AS T2 ON T1.student_id = T2.student_id ORDER BY T2.student_enrolment_id LIMIT 1",No,4.1,"SELECT first_name, middle_name, last_name FROM Students WHERE date_first_registered = (SELECT MIN(date_first_registered) FROM Students);",Yes,11.1,"SELECT first_name, middle_name, last_name FROM Students ORDER BY date_first_registered ASC LIMIT 1;",Yes,9.3
+39,"Who is the earliest graduate of the school? List the first name, middle name and last name.",easy,"SELECT first_name ,  middle_name ,  last_name FROM Students ORDER BY date_left ASC LIMIT 1","SELECT T1.first_name, T1.middle_name, T1.last_name 
+FROM Students AS T1 
+JOIN Student_Enrolment AS T2 ON T1.student_id = T2.student_id 
+JOIN Degree_Programs AS T3 ON T2.degree_program_id = T3.degree_program_id 
+JOIN Courses AS T4 ON T3.course_id = T4.course_id 
+JOIN Sections AS T5 ON T4.course_id = T5.course_id 
+JOIN Semesters AS T6 ON T5.section_id = T6.semester_id 
+WHERE T1.date_left IS NULL",No,7.6,"SELECT T1.first_name, T1.middle_name, T1.last_name FROM Students AS T1 INNER JOIN Student_Enrolment AS T2 ON T1.student_id = T2.student_id INNER JOIN Degree_Programs AS T3 ON T2.degree_program_id = T3.degree_program_id ORDER BY T2.semester_id ASC LIMIT 1;",No,13.2,"SELECT T1.first_name, T1.middle_name, T1.last_name FROM Students AS T1 INNER JOIN Student_Enrolment AS T2 ON T1.student_id = T2.student_id ORDER BY T2.date_first_registered ASC LIMIT 1;",No,95.3
+40,"What is the first, middle, and last name of the earliest school graduate?",easy,"SELECT first_name ,  middle_name ,  last_name FROM Students ORDER BY date_left ASC LIMIT 1","SELECT T1.first_name, T1.middle_name, T1.last_name 
+FROM Students AS T1 
+JOIN Student_Enrolment AS T2 ON T1.student_id = T2.student_id 
+JOIN Degree_Programs AS T3 ON T2.degree_program_id = T3.degree_program_id 
+JOIN Sections AS T4 ON T3.department_id = T4.course_id 
+JOIN Courses AS T5 ON T4.course_id = T5.course_id 
+WHERE T2.semester_id = (SELECT MIN(semester_id) FROM Student_Enrolment);",No,7.0,"SELECT T1.first_name, T1.middle_name, T1.last_name FROM Students AS T1 INNER JOIN Student_Enrolment AS T2 ON T1.student_id = T2.student_id ORDER BY T2.semester_id LIMIT 1;",No,11.7,"SELECT T1.first_name, T1.middle_name, T1.last_name FROM Students AS T1 JOIN Student_Enrolment AS T2 ON T1.student_id = T2.student_id ORDER BY date_first_registered LIMIT 1;",Yes,14.2
+41,Whose permanent address is different from his or her current address? List his or her first name.,easy,SELECT first_name FROM Students WHERE current_address_id != permanent_address_id,"SELECT DISTINCT T1.first_name 
+FROM Students AS T1 
+JOIN Addresses AS T2 ON T1.current_address_id = T2.address_id 
+JOIN Addresses AS T3 ON T1.permanent_address_id = T3.address_id 
+WHERE T2.line_1 != T3.line_1 OR T2.line_2 != T3.line_2 OR T2.line_3 != T3.line_3;",Yes,9.4,SELECT DISTINCT T1.first_name FROM Students AS T1 JOIN Addresses AS T2 ON T1.current_address_id = T2.address_id WHERE T1.permanent_address_id <> T2.address_id;,Yes,14.9,SELECT DISTINCT S.first_name FROM Students AS S WHERE S.current_address_id <> S.permanent_address_id;,Yes,11.4
+42,What is the first name of the student whose permanent address is different from his or her current one?,easy,SELECT first_name FROM Students WHERE current_address_id != permanent_address_id,"SELECT T1.first_name 
+FROM Students AS T1 
+JOIN Addresses AS T2 ON T1.permanent_address_id = T2.address_id 
+WHERE T1.current_address_id != T2.address_id",Yes,4.4,SELECT T1.first_name FROM Students AS T1 JOIN Addresses AS T2 ON T1.current_address_id = T2.address_id WHERE T1.permanent_address_id <> T1.current_address_id;,Yes,14.3,SELECT first_name FROM Students WHERE permanent_address_id <> current_address_id;,Yes,11.5
+43,Which address holds the most number of students currently? List the address id and all lines.,medium,"SELECT T1.address_id ,  T1.line_1 ,  T1.line_2 FROM Addresses AS T1 JOIN Students AS T2 ON T1.address_id  =  T2.current_address_id GROUP BY T1.address_id ORDER BY count(*) DESC LIMIT 1","SELECT A.address_id, A.line_1, A.line_2, A.line_3
+FROM Students S
+JOIN Addresses A ON S.current_address_id = A.address_id
+GROUP BY A.address_id
+ORDER BY COUNT(S.student_id) DESC
+LIMIT 1;",No,5.1,"SELECT T1.line_1, T1.line_2, T1.line_3 FROM Addresses AS T1 INNER JOIN Students AS T2 ON T1.address_id = T2.current_address_id GROUP BY T1.address_id ORDER BY COUNT(T2.student_id) DESC LIMIT 1;",No,13.5,"SELECT c.current_address_id, c.lines FROM Students AS s JOIN current_address AS c ON s.current_address_id = c.id GROUP BY c.current_address_id ORDER BY COUNT(*) DESC LIMIT 1;",No,79.2
+44,"What is the id, line 1, and line 2 of the address with the most students?",medium,"SELECT T1.address_id ,  T1.line_1 ,  T1.line_2 FROM Addresses AS T1 JOIN Students AS T2 ON T1.address_id  =  T2.current_address_id GROUP BY T1.address_id ORDER BY count(*) DESC LIMIT 1","SELECT A.address_id, A.line_1, A.line_2
+FROM Addresses A
+JOIN Students S ON A.address_id = S.current_address_id
+GROUP BY A.address_id
+ORDER BY COUNT(S.student_id) DESC
+LIMIT 1;",Yes,3.9,"SELECT T1.address_id, T1.line_1, T1.line_2 FROM Addresses AS T1 INNER JOIN Students AS T2 ON T1.address_id = T2.current_address_id ORDER BY T2.student_id DESC LIMIT 1;",No,10.4,"SELECT a.id, a.line_1, a.line_2 FROM Students AS s JOIN Address AS a ON s.current_address_id = a.id GROUP BY a.id ORDER BY COUNT(s.student_id) DESC LIMIT 3;",No,101.8
+45,"On average, when were the transcripts printed?",easy,SELECT avg(transcript_date) FROM Transcripts,SELECT AVG(transcript_date) FROM Transcripts,Yes,2.6,SELECT AVG(transcript_date) FROM Transcripts;,Yes,8.2,SELECT AVG(transcript_date) FROM Transcripts;,Yes,7.1
+46,What is the average transcript date?,easy,SELECT avg(transcript_date) FROM Transcripts,SELECT AVG(transcript_date) FROM Transcripts;,Yes,2.0,SELECT AVG(transcript_date) FROM Transcripts;,Yes,8.4,SELECT AVG(transcript_date) FROM Transcripts;,Yes,7.5
+47,When is the first transcript released? List the date and details.,easy,"SELECT transcript_date ,  other_details FROM Transcripts ORDER BY transcript_date ASC LIMIT 1","SELECT T1.transcript_date, T1.other_details FROM Transcripts AS T1 INNER JOIN Transcript_Contents AS T2 ON T1.transcript_id = T2.transcript_id ORDER BY T1.transcript_date LIMIT 1",Yes,3.4,"SELECT T1.transcript_date, T1.other_details FROM Transcripts AS T1;",No,12.2,"SELECT T.transcript_date, T.other_details FROM Transcripts AS T ORDER BY T.transcript_date ASC LIMIT 1;",Yes,9.8
+48,"What is the earliest date of a transcript release, and what details can you tell me?",easy,"SELECT transcript_date ,  other_details FROM Transcripts ORDER BY transcript_date ASC LIMIT 1","SELECT T1.transcript_date, 
+       T1.other_details 
+FROM Transcripts AS T1 
+JOIN Transcript_Contents AS T2 ON T1.transcript_id = T2.transcript_id 
+JOIN Student_Courses AS T3 ON T2.student_course_id = T3.student_course_id 
+WHERE T1.transcript_date IS NOT NULL 
+ORDER BY T1.transcript_date ASC LIMIT 1;",No,7.3,"SELECT MIN(trancript_date) AS earliest_release_date, other_details FROM Transcripts;",No,11.8,"SELECT T.transcript_date, T.other_details FROM Transcripts AS T WHERE T.transcript_date = (SELECT MIN(transcript_date) FROM Transcripts);",Yes,10.3
+49,How many transcripts are released?,easy,SELECT count(*) FROM Transcripts,SELECT COUNT(*) FROM Transcripts WHERE transcript_date IS NOT NULL,Yes,3.2,SELECT COUNT(*) FROM Transcripts;,Yes,10.1,SELECT COUNT(*) FROM Transcripts;,Yes,8.1
+50,How many transcripts are listed?,easy,SELECT count(*) FROM Transcripts,SELECT COUNT(*) FROM Transcripts,Yes,2.3,SELECT COUNT(*) FROM Transcripts;,Yes,8.6,SELECT COUNT(*) FROM Transcripts;,Yes,7.6
+51,What is the last transcript release date?,easy,SELECT transcript_date FROM Transcripts ORDER BY transcript_date DESC LIMIT 1,SELECT T1.transcript_date FROM Transcripts AS T1 INNER JOIN Transcript_Contents AS T2 ON T1.transcript_id = T2.transcript_id ORDER BY T2.student_course_id DESC LIMIT 1,No,3.3,SELECT transcript_date FROM Transcripts ORDER BY transcript_date DESC LIMIT 1;,Yes,9.7,SELECT MAX(transcript_date) FROM Transcripts;,Yes,7.8
+52,When was the last transcript released?,easy,SELECT transcript_date FROM Transcripts ORDER BY transcript_date DESC LIMIT 1,SELECT T2.transcript_date FROM Student_Enrolment_Courses AS T1 INNER JOIN Transcript_Contents AS T2 ON T1.student_course_id = T2.student_course_id ORDER BY T2.transcript_date DESC LIMIT 1,No,3.6,SELECT MAX(transcript_date) FROM Transcript;,No,10.0,SELECT MAX(transcript_date) FROM Transcripts;,Yes,8.0
+53,How many times at most can a course enrollment result show in different transcripts? Also show the course enrollment id.,medium,"SELECT count(*) ,  student_course_id FROM Transcript_Contents GROUP BY student_course_id ORDER BY count(*) DESC LIMIT 1","SELECT COUNT(DISTINCT T1.student_course_id) AS max_enrolments,
+       T1.student_course_id
+FROM Student_Enrolment_Courses AS T1
+JOIN Student_Enrolment AS T2 ON T1.student_enrolment_id = T2.student_enrolment_id
+JOIN Courses AS T3 ON T1.course_id = T3.course_id
+GROUP BY T1.student_course_id;",No,6.2,SELECT COUNT(DISTINCT student_course_id) FROM Student_Enrolment_Courses LIMIT 1;,No,11.5,"SELECT COUNT(DISTINCT c.student_course_id) AS max_count, e.student_course_id FROM Transcript_Contents AS tc JOIN course_enrollments AS e ON tc.student_course_id = e.course_id GROUP BY e.student_course_id;",No,88.9
+54,What is the maximum number of times that a course shows up in different transcripts and what is that course's enrollment id?,medium,"SELECT count(*) ,  student_course_id FROM Transcript_Contents GROUP BY student_course_id ORDER BY count(*) DESC LIMIT 1","SELECT 
+  C.course_id,
+  COUNT(TCC.student_course_id) AS max_transcript_enrolments
+FROM 
+  Student_Enrolment_Courses SEC
+JOIN 
+  Courses C ON SEC.course_id = C.course_id
+JOIN 
+  Transcript_Contents TCC ON SEC.student_course_id = TCC.student_course_id
+GROUP BY 
+  C.course_id
+ORDER BY 
+  max_transcript_enrolments DESC
+LIMIT 1;",No,6.2,"SELECT MAX(CASE WHEN NOT tc.student_course_id IS NULL THEN sc.student_enrolment_id END) AS max_enrolments, sc.student_enrolment_id FROM Student_Enrolment_Courses AS sec JOIN Courses AS c ON sec.course_id = c.course_id JOIN Transcript_Contents AS tc ON sec.student_course_id = tc.student_course_id;",No,12.0,SELECT MAX(c.student_course_id) FROM Transcript_Contents AS c JOIN Transcripts AS t ON c.transcript_id = t.transcript_id;,No,33.1
+55,"Show the date of the transcript which shows the least number of results, also list the id.",medium,"SELECT T2.transcript_date ,  T1.transcript_id FROM Transcript_Contents AS T1 JOIN Transcripts AS T2 ON T1.transcript_id  =  T2.transcript_id GROUP BY T1.transcript_id ORDER BY count(*) ASC LIMIT 1",SELECT T1.transcript_date FROM Transcripts AS T1 INNER JOIN Transcript_Contents AS T2 ON T1.transcript_id = T2.transcript_id GROUP BY T1.transcript_date ORDER BY COUNT(T2.student_course_id) LIMIT 1,No,4.1,"SELECT MIN(transcript_date) AS min_transcript_date, transcript_id FROM Transcript_Contents GROUP BY transcript_id;",No,10.3,"SELECT MIN(transcript_date) AS min_date, transcript_id FROM Transcripts GROUP BY transcript_id ORDER BY COUNT(*) ASC LIMIT 1;",No,8.7
+56,What is the date and id of the transcript with the least number of results?,medium,"SELECT T2.transcript_date ,  T1.transcript_id FROM Transcript_Contents AS T1 JOIN Transcripts AS T2 ON T1.transcript_id  =  T2.transcript_id GROUP BY T1.transcript_id ORDER BY count(*) ASC LIMIT 1","SELECT T1.transcript_date, T1.transcript_id FROM Transcripts AS T1 INNER JOIN Transcript_Contents AS T2 ON T1.transcript_id = T2.transcript_id GROUP BY T1.transcript_id ORDER BY COUNT(T2.student_course_id) LIMIT 1;",Yes,4.3,"SELECT MIN(transcript_date) AS min_transcript_date, transcript_id FROM Transcript_Contents GROUP BY transcript_id ORDER BY COUNT(*) LIMIT 1;",No,11.1,"SELECT MIN(transcript_id), MIN(transcript_date) FROM Transcripts;",No,8.9
+57,How many different addresses do the students currently live?,easy,SELECT count(DISTINCT current_address_id) FROM Students,SELECT COUNT(DISTINCT T1.address_id) FROM Addresses AS T1 INNER JOIN Students AS T2 ON T1.address_id = T2.current_address_id,Yes,3.5,SELECT COUNT(DISTINCT T1.address_id) FROM Students AS T1 JOIN Addresses AS T2 ON T1.current_address_id = T2.address_id;,No,11.1,SELECT COUNT(DISTINCT T1.address_id) FROM Students AS T1 JOIN Addresses AS T2 ON T1.current_address_id = T2.address_id;,No,77.6
+58,What are the different addresses that have students living there?,easy,SELECT count(DISTINCT current_address_id) FROM Students,"SELECT DISTINCT T1.line_1, T1.line_2, T1.line_3, T1.city, T1.zip_postcode, T1.state_province_county, T1.country 
+FROM Addresses AS T1 
+JOIN Students AS T2 ON T1.address_id = T2.current_address_id OR T1.address_id = T2.permanent_address_id;",No,5.7,SELECT DISTINCT a.* FROM Addresses AS a JOIN Students AS s ON a.address_id = s.current_address_id OR a.address_id = s.permanent_address_id;,No,9.3,"SELECT DISTINCT a.line_1, a.line_2, a.line_3 FROM Addresses AS a JOIN Students AS s ON a.address_id = s.current_address_id;",No,8.5
+59,List all the student details in reversed lexicographical order.,easy,SELECT other_student_details FROM Students ORDER BY other_student_details DESC,"SELECT 
+  s.first_name,
+  s.middle_name,
+  s.last_name,
+  s.cell_mobile_number,
+  s.email_address,
+  s.ssn,
+  s.date_first_registered,
+  s.date_left,
+  s.other_student_details
+FROM Students s
+ORDER BY s.first_name DESC, s.middle_name DESC, s.last_name DESC;",No,5.6,"SELECT first_name, middle_name, last_name FROM Students ORDER BY first_name DESC;",No,11.0,SELECT other_student_details FROM Students ORDER BY other_student_details DESC;,Yes,7.8
+60,What other details can you tell me about students in reverse alphabetical order?,easy,SELECT other_student_details FROM Students ORDER BY other_student_details DESC,"SELECT T1.other_student_details 
+FROM Students AS T1 
+ORDER BY T1.first_name DESC",Yes,2.7,SELECT other_student_details FROM Students ORDER BY last_name DESC;,Yes,10.3,"SELECT c.first_name, c.middle_name, c.last_name FROM Students AS c ORDER BY last_name DESC;",No,11.1
+61,Describe the section h.,easy,SELECT section_description FROM Sections WHERE section_name  =  'h',SELECT T2.section_name FROM Student_Enrolment_Courses AS T1 INNER JOIN Sections AS T2 ON T1.course_id = T2.course_id WHERE T2.section_name = 'h',No,4.2,SELECT section_name FROM Sections WHERE section_name = 'h';,No,10.6,SELECT section_description FROM Sections WHERE section_name = 'h';,Yes,7.3
+62,What is the description for the section named h?,easy,SELECT section_description FROM Sections WHERE section_name  =  'h',"SELECT T2.section_description 
+FROM Sections AS T1 
+JOIN Courses AS T2 ON T1.course_id = T2.course_id 
+WHERE T1.section_name = 'h';",No,3.3,SELECT s.section_description FROM Sections AS s WHERE s.section_name = 'h';,Yes,10.4,SELECT section_description FROM Sections WHERE section_name = 'h';,Yes,9.5
+63,Find the first name of the students who permanently live in the country Haiti or have the cell phone number 09700166582 .,medium,select t1.first_name from students as t1 join addresses as t2 on t1.permanent_address_id  =  t2.address_id where t2.country  =  'haiti' or t1.cell_mobile_number  =  '09700166582',"SELECT T1.first_name 
+FROM Students AS T1 
+JOIN Addresses AS T2 ON T1.permanent_address_id = T2.address_id 
+WHERE T2.country = 'Haiti' OR T1.cell_mobile_number = '09700166582';",No,5.3,SELECT T1.first_name FROM Students AS T1 INNER JOIN Addresses AS T2 ON T1.current_address_id = T2.address_id WHERE T2.country = 'Haiti' OR T1.cell_mobile_number = '09700166582';,Yes,12.8,SELECT DISTINCT T1.first_name FROM Students AS T1 JOIN Country AS T2 ON T1.current_address_id = T2.Code WHERE T2.Name = 'Haiti' OR T1.cell_mobile_number = '09700166582';,No,96.7
+64,What are the first names of the students who live in Haiti permanently or have the cell phone number 09700166582 ?,medium,select t1.first_name from students as t1 join addresses as t2 on t1.permanent_address_id  =  t2.address_id where t2.country  =  'haiti' or t1.cell_mobile_number  =  '09700166582',"SELECT T1.first_name 
+FROM Students AS T1 
+JOIN Addresses AS T2 ON T1.permanent_address_id = T2.address_id 
+WHERE T2.country = 'Haiti' OR T1.cell_mobile_number = '09700166582';",No,4.0,SELECT T1.first_name FROM Students AS T1 JOIN Addresses AS T2 ON T1.current_address_id = T2.address_id WHERE T2.country = 'Haiti' OR T1.cell_mobile_number = '09700166582';,Yes,10.3,SELECT DISTINCT first_name FROM Students WHERE permanent_address_id = 12345 OR cell_mobile_number = '09700166582';,Yes,62.0

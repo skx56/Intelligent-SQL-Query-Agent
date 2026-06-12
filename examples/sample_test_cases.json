@@ -1,0 +1,59 @@
+[
+  {
+    "question": "How many singers are there?",
+    "db_path": "data/spider/database/concert_singer/concert_singer.sqlite",
+    "relevant_tables": ["singer"],
+    "query_type": "COUNT",
+    "gold_sql": "SELECT COUNT(*) FROM singer;"
+  },
+  {
+    "question": "List all concert names and their locations",
+    "db_path": "data/spider/database/concert_singer/concert_singer.sqlite",
+    "relevant_tables": ["concert"],
+    "query_type": "SELECT",
+    "gold_sql": "SELECT concert_Name, Location FROM concert;"
+  },
+  {
+    "question": "What is the average age of all singers?",
+    "db_path": "data/spider/database/concert_singer/concert_singer.sqlite",
+    "relevant_tables": ["singer"],
+    "query_type": "AGGREGATE",
+    "gold_sql": "SELECT AVG(Age) FROM singer;"
+  },
+  {
+    "question": "Find the name and country of singers older than 40",
+    "db_path": "data/spider/database/concert_singer/concert_singer.sqlite",
+    "relevant_tables": ["singer"],
+    "query_type": "FILTER",
+    "gold_sql": "SELECT Name, Country FROM singer WHERE Age > 40;"
+  },
+  {
+    "question": "List all singers ordered by age from youngest to oldest",
+    "db_path": "data/spider/database/concert_singer/concert_singer.sqlite",
+    "relevant_tables": ["singer"],
+    "query_type": "ORDERBY",
+    "gold_sql": "SELECT * FROM singer ORDER BY Age ASC;"
+  },
+  {
+    "question": "Count how many concerts were held in each location",
+    "db_path": "data/spider/database/concert_singer/concert_singer.sqlite",
+    "relevant_tables": ["concert"],
+    "query_type": "GROUPBY",
+    "gold_sql": "SELECT Location, COUNT(*) FROM concert GROUP BY Location;"
+  },
+  {
+    "question": "Find singers who performed in concerts in 2015",
+    "db_path": "data/spider/database/concert_singer/concert_singer.sqlite",
+    "relevant_tables": ["singer", "singer_in_concert", "concert"],
+    "query_type": "JOIN",
+    "gold_sql": "SELECT DISTINCT s.Name FROM singer s JOIN singer_in_concert sc ON s.Singer_ID = sc.Singer_ID JOIN concert c ON sc.Concert_ID = c.Concert_ID WHERE c.Year = 2015;"
+  },
+  {
+    "question": "What is the name of the youngest singer?",
+    "db_path": "data/spider/database/concert_singer/concert_singer.sqlite",
+    "relevant_tables": ["singer"],
+    "query_type": "ORDERBY",
+    "gold_sql": "SELECT Name FROM singer ORDER BY Age LIMIT 1;"
+  }
+]
+

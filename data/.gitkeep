@@ -1,0 +1,16 @@
+# Spider dataset should be placed here
+# Download from: https://yale-lily.github.io/spider
+# 
+# Expected structure:
+# data/
+# └── spider/
+#     ├── database/
+#     │   ├── academic/
+#     │   │   └── academic.sqlite
+#     │   ├── concert_singer/
+#     │   │   └── concert_singer.sqlite
+#     │   └── ...
+#     ├── train_spider.json
+#     ├── dev.json
+#     └── tables.json
+

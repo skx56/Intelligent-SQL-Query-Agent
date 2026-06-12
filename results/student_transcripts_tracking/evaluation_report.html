@@ -1,0 +1,2289 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Text-to-SQL Evaluation - student_transcripts_tracking</title>
+    <style>
+        :root {
+            --primary: #6366f1;
+            --success: #22c55e;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --bg: #0f172a;
+            --card: #1e293b;
+            --text: #e2e8f0;
+            --muted: #94a3b8;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            padding: 2rem;
+        }
+        .container { max-width: 1400px; margin: 0 auto; }
+        h1 {
+            font-size: 2.5rem;
+            background: linear-gradient(135deg, #6366f1, #a855f7);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 0.5rem;
+        }
+        h2 {
+            color: var(--primary);
+            margin: 2rem 0 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid var(--primary);
+        }
+        .subtitle { color: var(--muted); margin-bottom: 2rem; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem; }
+        .card {
+            background: var(--card);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+        }
+        .card h3 { font-size: 1rem; color: var(--muted); margin-bottom: 0.5rem; }
+        .card .value {
+            font-size: 2.5rem;
+            font-weight: bold;
+        }
+        .success { color: var(--success); }
+        .warning { color: var(--warning); }
+        .danger { color: var(--danger); }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1rem 0;
+            background: var(--card);
+            border-radius: 0.5rem;
+            overflow: hidden;
+        }
+        th, td { padding: 1rem; text-align: left; border-bottom: 1px solid rgba(255,255,255,0.1); }
+        th { background: rgba(99, 102, 241, 0.2); font-weight: 600; }
+        tr:hover { background: rgba(255,255,255,0.05); }
+        .badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        .badge-success { background: rgba(34, 197, 94, 0.2); color: var(--success); }
+        .badge-danger { background: rgba(239, 68, 68, 0.2); color: var(--danger); }
+        .badge-easy { background: rgba(34, 197, 94, 0.2); color: var(--success); }
+        .badge-medium { background: rgba(245, 158, 11, 0.2); color: var(--warning); }
+        .sql-box {
+            background: #0d1117;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            font-family: 'Fira Code', monospace;
+            font-size: 0.85rem;
+            overflow-x: auto;
+            margin: 0.5rem 0;
+            border-left: 3px solid var(--primary);
+        }
+        .progress-bar {
+            height: 8px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 0.5rem;
+        }
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary), #a855f7);
+            border-radius: 4px;
+        }
+        .question-card {
+            background: var(--card);
+            border-radius: 0.75rem;
+            padding: 1.25rem;
+            margin: 1rem 0;
+        }
+        .pipeline-results {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        .pipeline-result {
+            background: rgba(0,0,0,0.2);
+            padding: 1rem;
+            border-radius: 0.5rem;
+        }
+        .pipeline-result h4 { font-size: 0.9rem; margin-bottom: 0.5rem; }
+        .chart-container {
+            background: var(--card);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            margin: 1rem 0;
+        }
+        .chart-container img { max-width: 100%; height: auto; border-radius: 0.5rem; }
+        @media (max-width: 768px) {
+            .pipeline-results { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🤖 Multi-Agent RAG Text-to-SQL</h1>
+        <p class="subtitle">Evaluation Report | Database: <strong>student_transcripts_tracking</strong> | 2025-12-21 19:32 | Total: 64 questions</p>
+        
+        <h2>📊 Summary - 3 Pipeline Comparison</h2>
+        <div class="grid">
+
+            <div class="card">
+                <h3>Single Agent</h3>
+                <div class="value danger">48.4%</div>
+                <p style="color: var(--muted); font-size: 0.9rem;">Execution Accuracy</p>
+                <div class="progress-bar"><div class="progress-fill" style="width: 48.4375%"></div></div>
+                <div style="margin-top: 1rem; display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; font-size: 0.85rem;">
+                    <div>Set Match: <strong>48.4%</strong></div>
+                    <div>Component: <strong>75.0%</strong></div>
+                    <div>Avg Time: <strong>4.2s</strong></div>
+                    <div>Total: <strong>64 Q</strong></div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>Multi Agent</h3>
+                <div class="value warning">60.9%</div>
+                <p style="color: var(--muted); font-size: 0.9rem;">Execution Accuracy</p>
+                <div class="progress-bar"><div class="progress-fill" style="width: 60.9375%"></div></div>
+                <div style="margin-top: 1rem; display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; font-size: 0.85rem;">
+                    <div>Set Match: <strong>60.9%</strong></div>
+                    <div>Component: <strong>79.4%</strong></div>
+                    <div>Avg Time: <strong>10.1s</strong></div>
+                    <div>Total: <strong>64 Q</strong></div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>Multi Agent RAG</h3>
+                <div class="value warning">62.5%</div>
+                <p style="color: var(--muted); font-size: 0.9rem;">Execution Accuracy</p>
+                <div class="progress-bar"><div class="progress-fill" style="width: 62.5%"></div></div>
+                <div style="margin-top: 1rem; display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; font-size: 0.85rem;">
+                    <div>Set Match: <strong>62.5%</strong></div>
+                    <div>Component: <strong>80.6%</strong></div>
+                    <div>Avg Time: <strong>21.6s</strong></div>
+                    <div>Total: <strong>64 Q</strong></div>
+                </div>
+            </div>
+
+        </div>
+        
+        <h2>📈 Detailed Comparison Table</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Pipeline</th>
+                    <th>Execution Accuracy</th>
+                    <th>Exact Set Match</th>
+                    <th>SELECT Match</th>
+                    <th>FROM Match</th>
+                    <th>WHERE Match</th>
+                    <th>GROUP BY Match</th>
+                    <th>ORDER BY Match</th>
+                    <th>Avg Time</th>
+                </tr>
+            </thead>
+            <tbody>
+
+                <tr>
+                    <td><strong>Single Agent</strong></td>
+                    <td><span class="badge badge-danger">48.4%</span></td>
+                    <td>48.4%</td>
+                    <td>96.9%</td>
+                    <td>48.4%</td>
+                    <td>81.2%</td>
+                    <td>85.9%</td>
+                    <td>62.5%</td>
+                    <td>4.2s</td>
+                </tr>
+
+                <tr>
+                    <td><strong>Multi Agent</strong></td>
+                    <td><span class="badge badge-danger">60.9%</span></td>
+                    <td>60.9%</td>
+                    <td>84.4%</td>
+                    <td>73.4%</td>
+                    <td>89.1%</td>
+                    <td>90.6%</td>
+                    <td>59.4%</td>
+                    <td>10.1s</td>
+                </tr>
+
+                <tr>
+                    <td><strong>Multi Agent RAG</strong></td>
+                    <td><span class="badge badge-danger">62.5%</span></td>
+                    <td>62.5%</td>
+                    <td>87.5%</td>
+                    <td>71.9%</td>
+                    <td>89.1%</td>
+                    <td>85.9%</td>
+                    <td>68.8%</td>
+                    <td>21.6s</td>
+                </tr>
+
+            </tbody>
+        </table>
+        
+        <h2>📊 Charts</h2>
+        <div class="grid">
+            <div class="chart-container">
+                <h3>Accuracy Comparison</h3>
+                <img src="charts/accuracy_comparison.png" alt="Accuracy">
+            </div>
+            <div class="chart-container">
+                <h3>Time Comparison</h3>
+                <img src="charts/time_comparison.png" alt="Time">
+            </div>
+            <div class="chart-container">
+                <h3>Component Breakdown</h3>
+                <img src="charts/component_breakdown.png" alt="Components">
+            </div>
+            <div class="chart-container">
+                <h3>By Difficulty Level</h3>
+                <img src="charts/accuracy_by_difficulty.png" alt="Difficulty">
+            </div>
+        </div>
+        
+        <h2>📝 All Question Results</h2>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q1</strong>
+                <span class="badge badge-easy">EASY</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">what are all the addresses including line 1 and line 2?</p>
+            <div class="sql-box">Gold: SELECT line_1 ,  line_2 FROM addresses</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 6.1s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT 
+    A.line_1,
+    A.line_2
+FROM 
+    Addresses A
+JOIN 
+    Students S ON A.address_id = S.cu...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 6.3s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT * FROM Addresses;</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 6.5s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT line_1, line_2 FROM Addresses;</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q2</strong>
+                <span class="badge badge-easy">EASY</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">What is the first and second line for all addresses?</p>
+            <div class="sql-box">Gold: SELECT line_1 ,  line_2 FROM addresses</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 2.0s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT T1.line_1, T1.line_2 FROM Addresses AS T1</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 6.4s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT line_1, line_2 FROM Addresses;</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 7.0s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT line_1, line_2 FROM Addresses ORDER BY address_id LIMIT 1;</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q3</strong>
+                <span class="badge badge-easy">EASY</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">How many courses in total are listed?</p>
+            <div class="sql-box">Gold: SELECT count(*) FROM Courses</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 2.6s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT COUNT(DISTINCT T1.course_id) FROM Courses AS T1 INNER JOIN Student_Enrolment_Courses AS T2 ON...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 5.8s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT COUNT(*) FROM Courses;</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 5.1s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT COUNT(*) FROM Courses;</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q4</strong>
+                <span class="badge badge-easy">EASY</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">How many courses are there?</p>
+            <div class="sql-box">Gold: SELECT count(*) FROM Courses</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 2.7s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT COUNT(DISTINCT T1.course_id) FROM Courses AS T1 INNER JOIN Student_Enrolment_Courses AS T2 ON...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 6.3s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT COUNT(*) FROM Courses;</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 5.1s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT COUNT(*) FROM Courses;</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q5</strong>
+                <span class="badge badge-easy">EASY</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">How is the math course described?</p>
+            <div class="sql-box">Gold: SELECT course_description FROM Courses WHERE course_name  =  'math'</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 2.8s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT T1.course_description FROM Courses AS T1 INNER JOIN Student_Enrolment_Courses AS T2 ON T1.cou...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 6.6s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT c.course_description FROM Courses AS c WHERE c.course_name = 'math';</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 5.8s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT c.course_description FROM Courses AS c WHERE c.course_name = 'math';</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q6</strong>
+                <span class="badge badge-easy">EASY</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">What are the descriptions for all the math courses?</p>
+            <div class="sql-box">Gold: SELECT course_description FROM Courses WHERE course_name  =  'math'</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 2.9s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT T1.course_description FROM Courses AS T1 INNER JOIN Student_Enrolment_Courses AS T2 ON T1.cou...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 7.1s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT c.course_description FROM Courses AS c WHERE c.course_name LIKE '%Math%';</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 6.2s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT course_description FROM Courses WHERE course_name = 'Math';</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q7</strong>
+                <span class="badge badge-easy">EASY</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">What is the zip code of the address in the city Port Chelsea?</p>
+            <div class="sql-box">Gold: SELECT zip_postcode FROM Addresses WHERE city  =  'Port Chelsea'</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 2.8s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT T1.zip_postcode FROM Addresses AS T1 INNER JOIN Departments AS T2 ON T1.department_id = T2.de...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 7.3s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT T1.zip_postcode FROM Addresses AS T1 JOIN Cities AS T2 ON T1.city = T2.city_name WHERE T2.cit...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 58.9s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT T1.zip_postcode FROM Addresses AS T1 JOIN Cities AS T2 ON T1.city = T2.city_name WHERE T2.cit...</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q8</strong>
+                <span class="badge badge-easy">EASY</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">What is the zip code for Port Chelsea?</p>
+            <div class="sql-box">Gold: SELECT zip_postcode FROM Addresses WHERE city  =  'Port Chelsea'</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 2.8s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT T1.zip_postcode FROM Addresses AS T1 INNER JOIN Courses AS T2 ON T1.address_id = T2.course_id...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 7.8s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT T1.zip_postcode FROM Addresses AS T1 WHERE T1.line_1 = 'Port Chelsea';</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 7.4s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT zip_postcode FROM Addresses WHERE line_1 = 'Port Chelsea';</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q9</strong>
+                <span class="badge badge-medium">MEDIUM</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">Which department offers the most number of degrees? List department name and id.</p>
+            <div class="sql-box">Gold: SELECT T2.department_name ,  T1.department_id FROM Degree_Programs AS T1 JOIN Departments AS T2 ON T1.department_id  =  T2.department_id GROUP BY T1.department_id ORDER BY count(*) DESC LIMIT 1</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 3.6s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT D.department_name, D.department_id 
+FROM Departments D 
+JOIN Degree_Programs DP ON D.departme...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 9.6s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT d.department_name, d.department_id FROM Departments AS d JOIN Degree_Programs AS dp ON d.depa...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 8.3s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT d.department_name, d.department_id FROM Degree_Programs AS dp JOIN Departments AS d ON dp.dep...</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q10</strong>
+                <span class="badge badge-medium">MEDIUM</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">What is the name and id of the department with the most number of degrees ?</p>
+            <div class="sql-box">Gold: select t2.department_name ,  t1.department_id from degree_programs as t1 join departments as t2 on t1.department_id  =  t2.department_id group by t1.department_id order by count(*) desc limit 1</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 3.4s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT D.department_name, D.department_id 
+FROM Departments D 
+JOIN Degree_Programs DP ON D.departme...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 9.1s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT d.department_name, d.department_id FROM Departments AS d JOIN Degree_Programs AS dp ON d.depa...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 8.5s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT d.department_name, dp.degree_program_id FROM Degree_Programs AS dp JOIN Departments AS d ON d...</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q11</strong>
+                <span class="badge badge-easy">EASY</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">How many departments offer any degree?</p>
+            <div class="sql-box">Gold: SELECT count(DISTINCT department_id) FROM Degree_Programs</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 2.9s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT COUNT(DISTINCT T1.department_id) 
+FROM Departments AS T1 
+JOIN Degree_Programs AS T2 ON T1.de...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 8.3s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT COUNT(DISTINCT d.department_id) FROM Departments AS d JOIN Degree_Programs AS dp ON d.departm...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 7.3s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT COUNT(DISTINCT d.department_id) FROM Departments AS d JOIN Degree_Programs AS dp ON d.departm...</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q12</strong>
+                <span class="badge badge-easy">EASY</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">How many different departments offer degrees?</p>
+            <div class="sql-box">Gold: SELECT count(DISTINCT department_id) FROM Degree_Programs</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 2.7s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT COUNT(DISTINCT T1.department_id) FROM Departments AS T1 INNER JOIN Degree_Programs AS T2 ON T...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 7.8s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT COUNT(DISTINCT department_id) FROM Departments;</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 8.9s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT COUNT(DISTINCT T1.department_id) FROM Departments AS T1 JOIN Degree_Programs AS T2 ON T1.depa...</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q13</strong>
+                <span class="badge badge-easy">EASY</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">How many different degree names are offered?</p>
+            <div class="sql-box">Gold: SELECT count(DISTINCT degree_summary_name) FROM Degree_Programs</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 3.5s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT COUNT(DISTINCT T1.degree_summary_name) 
+FROM Degree_Programs AS T1 
+JOIN Courses AS T2 ON T1....</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 9.5s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT COUNT(DISTINCT degree_summary_name) FROM Degree_Programs;</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 10.1s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT COUNT(DISTINCT degree_summary_name) FROM Degree_Programs;</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q14</strong>
+                <span class="badge badge-easy">EASY</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">How many different degrees are offered?</p>
+            <div class="sql-box">Gold: SELECT count(DISTINCT degree_summary_name) FROM Degree_Programs</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 3.7s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT COUNT(DISTINCT degree_summary_name) FROM Degree_Programs</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 10.0s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT COUNT(DISTINCT degree_summary_name) FROM Degree_Programs;</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 8.0s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT COUNT(*) FROM Degree_Programs;</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q15</strong>
+                <span class="badge badge-medium">MEDIUM</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">How many degrees does the engineering department offer?</p>
+            <div class="sql-box">Gold: SELECT count(*) FROM Departments AS T1 JOIN Degree_Programs AS T2 ON T1.department_id  =  T2.department_id WHERE T1.department_name  =  'engineer'</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 3.8s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT COUNT(DISTINCT T1.degree_program_id) 
+FROM Degree_Programs AS T1 
+JOIN Departments AS T2 ON T...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 12.4s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT COUNT(DISTINCT T2.degree_program_id) FROM Departments AS T1 JOIN Degree_Programs AS T2 ON T1....</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 8.6s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT COUNT(*) FROM Degree_Programs WHERE department_id = 'engineering';</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q16</strong>
+                <span class="badge badge-medium">MEDIUM</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">How many degrees does the engineering department have?</p>
+            <div class="sql-box">Gold: SELECT count(*) FROM Departments AS T1 JOIN Degree_Programs AS T2 ON T1.department_id  =  T2.department_id WHERE T1.department_name  =  'engineer'</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 3.7s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT COUNT(DISTINCT T1.department_name) 
+FROM Departments AS T1 
+JOIN Degree_Programs AS T2 ON T1....</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 9.5s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT COUNT(DISTINCT degree_program_id) FROM Degree_Programs WHERE department_id = (SELECT departme...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 7.1s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT COUNT(*) FROM Degree_Programs WHERE department_id = 'engineering';</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q17</strong>
+                <span class="badge badge-easy">EASY</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">What are the names and descriptions of all the sections?</p>
+            <div class="sql-box">Gold: SELECT section_name ,  section_description FROM Sections</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 2.6s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT T1.section_name, T1.section_description 
+FROM Sections AS T1 
+JOIN Courses AS T2 ON T1.course...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 7.4s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT section_name, section_description FROM Sections;</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 6.0s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT section_name, section_description FROM Sections;</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q18</strong>
+                <span class="badge badge-easy">EASY</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">What are the names and descriptions for all the sections?</p>
+            <div class="sql-box">Gold: SELECT section_name ,  section_description FROM Sections</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 2.5s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT s.section_name, s.section_description 
+FROM Sections s 
+JOIN Courses c ON s.course_id = c.cou...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 6.9s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT section_name, section_description FROM Sections;</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 6.1s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT section_name, section_description FROM Sections;</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q19</strong>
+                <span class="badge badge-easy">EASY</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">List the section_name in reversed lexicographical order.</p>
+            <div class="sql-box">Gold: SELECT section_name FROM Sections ORDER BY section_name DESC</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 2.9s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT DISTINCT T2.section_name FROM Student_Enrolment_Courses AS T1 INNER JOIN Sections AS T2 ON T1...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 7.9s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT section_name FROM Sections ORDER BY section_name DESC;</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 7.1s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT section_name FROM Sections ORDER BY section_name DESC;</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q20</strong>
+                <span class="badge badge-easy">EASY</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">What are the names of the sections in reverse alphabetical order?</p>
+            <div class="sql-box">Gold: SELECT section_name FROM Sections ORDER BY section_name DESC</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 2.8s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT T1.section_name FROM Sections AS T1 INNER JOIN Courses AS T2 ON T1.course_id = T2.course_id O...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 7.8s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT section_name FROM Sections ORDER BY section_name DESC;</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 7.3s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT section_name FROM Sections ORDER BY section_name ASC LIMIT 1;</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q21</strong>
+                <span class="badge badge-medium">MEDIUM</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">What is the semester which most student registered in? Show both the name and the id.</p>
+            <div class="sql-box">Gold: SELECT T1.semester_name ,  T1.semester_id FROM Semesters AS T1 JOIN Student_Enrolment AS T2 ON T1.semester_id  =  T2.semester_id GROUP BY T1.semester_id ORDER BY count(*) DESC LIMIT 1</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 5.1s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT 
+  s.semester_name,
+  s.semester_id
+FROM 
+  Student_Enrolment se
+JOIN 
+  Semesters s ON se.se...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 10.8s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT s.semester_name, s.semester_id FROM Students AS s JOIN Student_Enrolment AS se ON s.student_i...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 10.3s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT s.semester_name, s.semester_id FROM Student_Enrolment AS se JOIN Semesters AS s ON se.semeste...</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q22</strong>
+                <span class="badge badge-medium">MEDIUM</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">For each semester, what is the name and id of the one with the most students registered?</p>
+            <div class="sql-box">Gold: SELECT T1.semester_name ,  T1.semester_id FROM Semesters AS T1 JOIN Student_Enrolment AS T2 ON T1.semester_id  =  T2.semester_id GROUP BY T1.semester_id ORDER BY count(*) DESC LIMIT 1</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 6.6s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT 
+  s.semester_name,
+  s.semester_id,
+  COUNT(se.student_enrolment_id) AS num_students
+FROM 
+ ...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 10.9s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT s.semester_name, s.semester_id FROM Students AS s JOIN Student_Enrolment AS se ON s.student_i...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 21.2s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT s.semester_name, s.semester_id FROM Semesters AS s JOIN Student_Enrolment AS se ON s.semester...</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q23</strong>
+                <span class="badge badge-easy">EASY</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">What is the description of the department whose name has the substring the computer?</p>
+            <div class="sql-box">Gold: SELECT department_description FROM Departments WHERE department_name LIKE '%computer%'</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 3.9s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT T1.department_description 
+FROM Departments AS T1 
+JOIN Degree_Programs AS T2 ON T1.departmen...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 9.9s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT d.department_description FROM Departments AS d WHERE d.department_name LIKE '%computer%';</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 8.6s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT department_description FROM Departments WHERE department_name LIKE '%computer%';</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q24</strong>
+                <span class="badge badge-easy">EASY</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">What is the department description for the one whose name has the word computer?</p>
+            <div class="sql-box">Gold: SELECT department_description FROM Departments WHERE department_name LIKE '%computer%'</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 3.0s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT T2.department_description 
+FROM Courses AS T1 
+JOIN Departments AS T2 ON T1.course_id = T2.de...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 9.8s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT T1.department_description FROM Departments AS T1 JOIN Degree_Programs AS T2 ON T1.department_...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 8.4s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT department_description FROM Departments WHERE department_name LIKE '%computer%';</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q25</strong>
+                <span class="badge badge-medium">MEDIUM</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">Find the kind of program which most number of students are enrolled in?</p>
+            <div class="sql-box">Gold: SELECT T1.degree_summary_name FROM Degree_Programs AS T1 JOIN Student_Enrolment AS T2 ON T1.degree_program_id  =  T2.degree_program_id GROUP BY T1.degree_summary_name ORDER BY count(*) DESC LIMIT 1</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 4.2s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT dp.degree_summary_name 
+FROM Degree_Programs dp 
+JOIN Student_Enrolment se ON dp.degree_progr...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 10.2s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT dp.degree_summary_name FROM Degree_Programs AS dp JOIN Student_Enrolment AS se ON dp.degree_p...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 124.8s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT p.degree_program_id, COUNT(p.degree_program_id) FROM Student_Enrolment AS e JOIN Student_Enro...</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q26</strong>
+                <span class="badge badge-medium">MEDIUM</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">What is the degree summary name that has the most number of students enrolled?</p>
+            <div class="sql-box">Gold: SELECT T1.degree_summary_name FROM Degree_Programs AS T1 JOIN Student_Enrolment AS T2 ON T1.degree_program_id  =  T2.degree_program_id GROUP BY T1.degree_summary_name ORDER BY count(*) DESC LIMIT 1</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 4.0s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT dp.degree_summary_name 
+FROM Degree_Programs dp 
+JOIN Student_Enrolment se ON dp.degree_progr...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 11.2s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT ds.degree_summary_name FROM Degree_Programs AS dp JOIN Student_Enrolment AS se ON dp.degree_p...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 87.8s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT c.degree_summary_name FROM Degree_Programs AS c JOIN Student_Enrolment AS se ON c.degree_prog...</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q27</strong>
+                <span class="badge badge-medium">MEDIUM</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">Find the program which most number of students are enrolled in. List both the id and the summary.</p>
+            <div class="sql-box">Gold: SELECT T1.degree_program_id ,  T1.degree_summary_name FROM Degree_Programs AS T1 JOIN Student_Enrolment AS T2 ON T1.degree_program_id  =  T2.degree_program_id GROUP BY T1.degree_program_id ORDER BY count(*) DESC LIMIT 1</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 4.8s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT 
+  dp.degree_program_id,
+  dp.degree_summary_name AS program_name
+FROM 
+  Student_Enrolment S...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 9.9s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT dp.degree_program_id, dp.degree_summary_name FROM Degree_Programs AS dp JOIN Student_Enrolmen...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 9.8s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT dp.degree_summary_name, COUNT(e.student_id) AS num_students FROM Student_Enrolment AS e JOIN ...</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q28</strong>
+                <span class="badge badge-medium">MEDIUM</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">What is the program id and the summary of the degree that has the most students enrolled?</p>
+            <div class="sql-box">Gold: SELECT T1.degree_program_id ,  T1.degree_summary_name FROM Degree_Programs AS T1 JOIN Student_Enrolment AS T2 ON T1.degree_program_id  =  T2.degree_program_id GROUP BY T1.degree_program_id ORDER BY count(*) DESC LIMIT 1</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 5.1s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT 
+  dp.degree_program_id,
+  dp.degree_summary_name,
+  COUNT(se.student_enrolment_id) AS num_st...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 11.4s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT T1.degree_program_id, T1.degree_summary_name FROM Degree_Programs AS T1 INNER JOIN Student_En...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 10.3s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT dp.degree_program_id, dp.degree_summary_name FROM Degree_Programs AS dp JOIN Student_Enrolmen...</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q29</strong>
+                <span class="badge badge-medium">MEDIUM</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">Which student has enrolled for the most times in any program? List the id, first name, middle name, last name, the number of enrollments and student id.</p>
+            <div class="sql-box">Gold: SELECT T1.student_id ,  T1.first_name ,  T1.middle_name ,  T1.last_name ,  count(*) ,  T1.student_id FROM Students AS T1 JOIN Student_Enrolment AS T2 ON T1.student_id  =  T2.student_id GROUP BY T1.student_id ORDER BY count(*) DESC LIMIT 1</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 7.2s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT 
+  S.student_id,
+  S.first_name,
+  S.middle_name,
+  S.last_name,
+  COUNT(DISTINCT E.student_e...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 12.7s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT s.student_id, s.first_name, s.middle_name, s.last_name, COUNT(se.student_enrolment_id) AS num...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 12.9s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT s.first_name, s.middle_name, s.last_name, COUNT(se.degree_program_id) AS num_enrollments, se....</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q30</strong>
+                <span class="badge badge-medium">MEDIUM</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">What is the first, middle, and last name, along with the id and number of enrollments, for the student who enrolled the most in any program?</p>
+            <div class="sql-box">Gold: SELECT T1.student_id ,  T1.first_name ,  T1.middle_name ,  T1.last_name ,  count(*) ,  T1.student_id FROM Students AS T1 JOIN Student_Enrolment AS T2 ON T1.student_id  =  T2.student_id GROUP BY T1.student_id ORDER BY count(*) DESC LIMIT 1</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 6.9s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT 
+  S.student_id,
+  S.first_name,
+  S.middle_name,
+  S.last_name,
+  COUNT(DISTINCT E.student_e...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 14.5s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT s.student_id, s.first_name, s.middle_name, s.last_name, COUNT(se.student_enrolment_id) AS num...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 12.5s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT s.student_id, s.first_name, s.middle_name, s.last_name, se.degree_program_id, COUNT(se.studen...</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q31</strong>
+                <span class="badge badge-medium">MEDIUM</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">What are all the course names of the courses which ever have students enrolled in?</p>
+            <div class="sql-box">Gold: SELECT DISTINCT T1.course_name FROM Courses AS T1 JOIN Student_Enrolment_Courses AS T2 ON T1.course_id  =  T2.course_id</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 3.3s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT T1.course_name 
+FROM Courses AS T1 
+JOIN Student_Enrolment_Courses AS T2 ON T1.course_id = T2...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 9.1s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT c.course_name FROM Courses AS c JOIN Student_Enrolment_Courses AS sec ON c.course_id = sec.co...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 8.2s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT c.course_name FROM Courses AS c JOIN Student_Enrolment_Courses AS sec ON c.course_id = sec.co...</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q32</strong>
+                <span class="badge badge-medium">MEDIUM</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">What are the names of all courses that have some students enrolled?</p>
+            <div class="sql-box">Gold: SELECT DISTINCT T1.course_name FROM Courses AS T1 JOIN Student_Enrolment_Courses AS T2 ON T1.course_id  =  T2.course_id</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 3.3s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT C.course_name 
+FROM Courses C 
+JOIN Student_Enrolment_Courses SEC ON C.course_id = SEC.course...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 10.6s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT c.course_name FROM Courses AS c JOIN Student_Enrolment_Courses AS sec ON c.course_id = sec.co...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 9.6s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT c.course_name FROM Courses AS c JOIN Student_Enrolment_Courses AS sec ON c.course_id = sec.co...</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q33</strong>
+                <span class="badge badge-medium">MEDIUM</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">What's the name of the course with most number of enrollments?</p>
+            <div class="sql-box">Gold: SELECT  T1.course_name FROM Courses AS T1 JOIN Student_Enrolment_Courses AS T2 ON T1.course_id  =  T2.course_id GROUP BY T1.course_name ORDER BY count(*) DESC LIMIT 1</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 3.8s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT C.course_name 
+FROM Student_Enrolment_Courses SEC 
+JOIN Courses C ON SEC.course_id = C.course...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 11.6s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT c.course_name FROM Courses AS c JOIN Student_Enrolment_Courses AS sec ON c.course_id = sec.co...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 10.6s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT c.course_name FROM Student_Enrolment_Courses AS sec JOIN Courses AS c ON sec.course_id = c.co...</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q34</strong>
+                <span class="badge badge-medium">MEDIUM</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">What is the name of the course with the most students enrolled?</p>
+            <div class="sql-box">Gold: SELECT  T1.course_name FROM Courses AS T1 JOIN Student_Enrolment_Courses AS T2 ON T1.course_id  =  T2.course_id GROUP BY T1.course_name ORDER BY count(*) DESC LIMIT 1</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 4.4s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT C.course_name 
+FROM Courses C 
+JOIN Student_Enrolment_Courses SEC ON C.course_id = SEC.course...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 12.0s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT c.course_name FROM Student_Enrolment_Courses AS sec JOIN Courses AS c ON sec.course_id = c.co...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 11.6s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT c.course_name FROM Courses AS c JOIN Student_Enrolment_Courses AS sec ON c.course_id = sec.co...</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q35</strong>
+                <span class="badge badge-easy">EASY</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">What is the phone number of the man with the first name Timmothy and the last name Ward?</p>
+            <div class="sql-box">Gold: SELECT cell_mobile_number FROM Students WHERE first_name  =  'Timmothy' AND last_name  =  'Ward'</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 5.7s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT T1.cell_mobile_number 
+FROM Students AS T1 
+JOIN Student_Enrolment_Courses AS T2 ON T1.studen...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 10.4s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT cell_mobile_number FROM Students WHERE first_name = 'Timmothy' AND last_name = 'Ward';</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 13.3s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT cell_mobile_number FROM Students WHERE first_name = 'Timmothy' AND last_name = 'Ward';</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q36</strong>
+                <span class="badge badge-easy">EASY</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">What is the mobile phone number of the student named Timmothy Ward ?</p>
+            <div class="sql-box">Gold: select cell_mobile_number from students where first_name  =  'timmothy' and last_name  =  'ward'</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 5.5s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT T1.cell_mobile_number 
+FROM Students AS T1 
+JOIN Student_Enrolment_Courses AS T2 ON T1.studen...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 9.8s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT cell_mobile_number FROM Students WHERE first_name = 'Timmothy' AND last_name = 'Ward';</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 8.9s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT cell_mobile_number FROM Students WHERE first_name = 'Timmothy' AND last_name = 'Ward';</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q37</strong>
+                <span class="badge badge-easy">EASY</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">Who is the first student to register? List the first name, middle name and last name.</p>
+            <div class="sql-box">Gold: SELECT first_name ,  middle_name ,  last_name FROM Students ORDER BY date_first_registered ASC LIMIT 1</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 3.4s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT T1.first_name, T1.middle_name, T1.last_name 
+FROM Students AS T1 
+WHERE T1.student_id = (SELE...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 10.7s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT T1.first_name, T1.middle_name, T1.last_name FROM Students AS T1 WHERE T1.date_first_registere...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 9.7s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT first_name, middle_name, last_name FROM Students ORDER BY date_first_registered ASC LIMIT 1;</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q38</strong>
+                <span class="badge badge-easy">EASY</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">What is the first, middle, and last name of the first student to register?</p>
+            <div class="sql-box">Gold: SELECT first_name ,  middle_name ,  last_name FROM Students ORDER BY date_first_registered ASC LIMIT 1</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 4.1s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT T1.first_name, T1.middle_name, T1.last_name FROM Students AS T1 INNER JOIN Student_Enrolment ...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 11.1s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT first_name, middle_name, last_name FROM Students WHERE date_first_registered = (SELECT MIN(da...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 9.3s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT first_name, middle_name, last_name FROM Students ORDER BY date_first_registered ASC LIMIT 1;</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q39</strong>
+                <span class="badge badge-easy">EASY</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">Who is the earliest graduate of the school? List the first name, middle name and last name.</p>
+            <div class="sql-box">Gold: SELECT first_name ,  middle_name ,  last_name FROM Students ORDER BY date_left ASC LIMIT 1</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 7.6s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT T1.first_name, T1.middle_name, T1.last_name 
+FROM Students AS T1 
+JOIN Student_Enrolment AS T...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 13.2s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT T1.first_name, T1.middle_name, T1.last_name FROM Students AS T1 INNER JOIN Student_Enrolment ...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 95.3s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT T1.first_name, T1.middle_name, T1.last_name FROM Students AS T1 INNER JOIN Student_Enrolment ...</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q40</strong>
+                <span class="badge badge-easy">EASY</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">What is the first, middle, and last name of the earliest school graduate?</p>
+            <div class="sql-box">Gold: SELECT first_name ,  middle_name ,  last_name FROM Students ORDER BY date_left ASC LIMIT 1</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 7.0s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT T1.first_name, T1.middle_name, T1.last_name 
+FROM Students AS T1 
+JOIN Student_Enrolment AS T...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 11.7s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT T1.first_name, T1.middle_name, T1.last_name FROM Students AS T1 INNER JOIN Student_Enrolment ...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 14.2s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT T1.first_name, T1.middle_name, T1.last_name FROM Students AS T1 JOIN Student_Enrolment AS T2 ...</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q41</strong>
+                <span class="badge badge-easy">EASY</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">Whose permanent address is different from his or her current address? List his or her first name.</p>
+            <div class="sql-box">Gold: SELECT first_name FROM Students WHERE current_address_id != permanent_address_id</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 9.4s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT DISTINCT T1.first_name 
+FROM Students AS T1 
+JOIN Addresses AS T2 ON T1.current_address_id = ...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 14.9s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT DISTINCT T1.first_name FROM Students AS T1 JOIN Addresses AS T2 ON T1.current_address_id = T2...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 11.4s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT DISTINCT S.first_name FROM Students AS S WHERE S.current_address_id <> S.permanent_address_id...</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q42</strong>
+                <span class="badge badge-easy">EASY</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">What is the first name of the student whose permanent address is different from his or her current one?</p>
+            <div class="sql-box">Gold: SELECT first_name FROM Students WHERE current_address_id != permanent_address_id</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 4.4s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT T1.first_name 
+FROM Students AS T1 
+JOIN Addresses AS T2 ON T1.permanent_address_id = T2.addr...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 14.3s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT T1.first_name FROM Students AS T1 JOIN Addresses AS T2 ON T1.current_address_id = T2.address_...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 11.5s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT first_name FROM Students WHERE permanent_address_id <> current_address_id;</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q43</strong>
+                <span class="badge badge-medium">MEDIUM</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">Which address holds the most number of students currently? List the address id and all lines.</p>
+            <div class="sql-box">Gold: SELECT T1.address_id ,  T1.line_1 ,  T1.line_2 FROM Addresses AS T1 JOIN Students AS T2 ON T1.address_id  =  T2.current_address_id GROUP BY T1.address_id ORDER BY count(*) DESC LIMIT 1</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 5.1s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT A.address_id, A.line_1, A.line_2, A.line_3
+FROM Students S
+JOIN Addresses A ON S.current_addr...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 13.5s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT T1.line_1, T1.line_2, T1.line_3 FROM Addresses AS T1 INNER JOIN Students AS T2 ON T1.address_...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 79.2s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT c.current_address_id, c.lines FROM Students AS s JOIN current_address AS c ON s.current_addre...</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q44</strong>
+                <span class="badge badge-medium">MEDIUM</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">What is the id, line 1, and line 2 of the address with the most students?</p>
+            <div class="sql-box">Gold: SELECT T1.address_id ,  T1.line_1 ,  T1.line_2 FROM Addresses AS T1 JOIN Students AS T2 ON T1.address_id  =  T2.current_address_id GROUP BY T1.address_id ORDER BY count(*) DESC LIMIT 1</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 3.9s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT A.address_id, A.line_1, A.line_2
+FROM Addresses A
+JOIN Students S ON A.address_id = S.current...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 10.4s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT T1.address_id, T1.line_1, T1.line_2 FROM Addresses AS T1 INNER JOIN Students AS T2 ON T1.addr...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 101.8s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT a.id, a.line_1, a.line_2 FROM Students AS s JOIN Address AS a ON s.current_address_id = a.id ...</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q45</strong>
+                <span class="badge badge-easy">EASY</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">On average, when were the transcripts printed?</p>
+            <div class="sql-box">Gold: SELECT avg(transcript_date) FROM Transcripts</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 2.6s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT AVG(transcript_date) FROM Transcripts</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 8.2s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT AVG(transcript_date) FROM Transcripts;</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 7.1s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT AVG(transcript_date) FROM Transcripts;</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q46</strong>
+                <span class="badge badge-easy">EASY</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">What is the average transcript date?</p>
+            <div class="sql-box">Gold: SELECT avg(transcript_date) FROM Transcripts</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 2.0s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT AVG(transcript_date) FROM Transcripts;</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 8.4s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT AVG(transcript_date) FROM Transcripts;</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 7.5s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT AVG(transcript_date) FROM Transcripts;</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q47</strong>
+                <span class="badge badge-easy">EASY</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">When is the first transcript released? List the date and details.</p>
+            <div class="sql-box">Gold: SELECT transcript_date ,  other_details FROM Transcripts ORDER BY transcript_date ASC LIMIT 1</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 3.4s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT T1.transcript_date, T1.other_details FROM Transcripts AS T1 INNER JOIN Transcript_Contents AS...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 12.2s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT T1.transcript_date, T1.other_details FROM Transcripts AS T1;</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 9.8s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT T.transcript_date, T.other_details FROM Transcripts AS T ORDER BY T.transcript_date ASC LIMIT...</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q48</strong>
+                <span class="badge badge-easy">EASY</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">What is the earliest date of a transcript release, and what details can you tell me?</p>
+            <div class="sql-box">Gold: SELECT transcript_date ,  other_details FROM Transcripts ORDER BY transcript_date ASC LIMIT 1</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 7.3s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT T1.transcript_date, 
+       T1.other_details 
+FROM Transcripts AS T1 
+JOIN Transcript_Content...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 11.8s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT MIN(trancript_date) AS earliest_release_date, other_details FROM Transcripts;</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 10.3s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT T.transcript_date, T.other_details FROM Transcripts AS T WHERE T.transcript_date = (SELECT MI...</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q49</strong>
+                <span class="badge badge-easy">EASY</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">How many transcripts are released?</p>
+            <div class="sql-box">Gold: SELECT count(*) FROM Transcripts</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 3.2s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT COUNT(*) FROM Transcripts WHERE transcript_date IS NOT NULL</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 10.1s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT COUNT(*) FROM Transcripts;</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 8.1s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT COUNT(*) FROM Transcripts;</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q50</strong>
+                <span class="badge badge-easy">EASY</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">How many transcripts are listed?</p>
+            <div class="sql-box">Gold: SELECT count(*) FROM Transcripts</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 2.3s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT COUNT(*) FROM Transcripts</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 8.6s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT COUNT(*) FROM Transcripts;</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 7.6s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT COUNT(*) FROM Transcripts;</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q51</strong>
+                <span class="badge badge-easy">EASY</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">What is the last transcript release date?</p>
+            <div class="sql-box">Gold: SELECT transcript_date FROM Transcripts ORDER BY transcript_date DESC LIMIT 1</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 3.3s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT T1.transcript_date FROM Transcripts AS T1 INNER JOIN Transcript_Contents AS T2 ON T1.transcri...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 9.7s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT transcript_date FROM Transcripts ORDER BY transcript_date DESC LIMIT 1;</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 7.8s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT MAX(transcript_date) FROM Transcripts;</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q52</strong>
+                <span class="badge badge-easy">EASY</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">When was the last transcript released?</p>
+            <div class="sql-box">Gold: SELECT transcript_date FROM Transcripts ORDER BY transcript_date DESC LIMIT 1</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 3.6s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT T2.transcript_date FROM Student_Enrolment_Courses AS T1 INNER JOIN Transcript_Contents AS T2 ...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 10.0s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT MAX(transcript_date) FROM Transcript;</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 8.0s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT MAX(transcript_date) FROM Transcripts;</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q53</strong>
+                <span class="badge badge-medium">MEDIUM</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">How many times at most can a course enrollment result show in different transcripts? Also show the course enrollment id.</p>
+            <div class="sql-box">Gold: SELECT count(*) ,  student_course_id FROM Transcript_Contents GROUP BY student_course_id ORDER BY count(*) DESC LIMIT 1</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 6.2s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT COUNT(DISTINCT T1.student_course_id) AS max_enrolments,
+       T1.student_course_id
+FROM Stud...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 11.5s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT COUNT(DISTINCT student_course_id) FROM Student_Enrolment_Courses LIMIT 1;</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 88.9s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT COUNT(DISTINCT c.student_course_id) AS max_count, e.student_course_id FROM Transcript_Content...</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q54</strong>
+                <span class="badge badge-medium">MEDIUM</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">What is the maximum number of times that a course shows up in different transcripts and what is that course's enrollment id?</p>
+            <div class="sql-box">Gold: SELECT count(*) ,  student_course_id FROM Transcript_Contents GROUP BY student_course_id ORDER BY count(*) DESC LIMIT 1</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 6.2s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT 
+  C.course_id,
+  COUNT(TCC.student_course_id) AS max_transcript_enrolments
+FROM 
+  Student_E...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 12.0s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT MAX(CASE WHEN NOT tc.student_course_id IS NULL THEN sc.student_enrolment_id END) AS max_enrol...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 33.1s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT MAX(c.student_course_id) FROM Transcript_Contents AS c JOIN Transcripts AS t ON c.transcript_...</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q55</strong>
+                <span class="badge badge-medium">MEDIUM</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">Show the date of the transcript which shows the least number of results, also list the id.</p>
+            <div class="sql-box">Gold: SELECT T2.transcript_date ,  T1.transcript_id FROM Transcript_Contents AS T1 JOIN Transcripts AS T2 ON T1.transcript_id  =  T2.transcript_id GROUP BY T1.transcript_id ORDER BY count(*) ASC LIMIT 1</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 4.1s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT T1.transcript_date FROM Transcripts AS T1 INNER JOIN Transcript_Contents AS T2 ON T1.transcri...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 10.3s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT MIN(transcript_date) AS min_transcript_date, transcript_id FROM Transcript_Contents GROUP BY ...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 8.7s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT MIN(transcript_date) AS min_date, transcript_id FROM Transcripts GROUP BY transcript_id ORDER...</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q56</strong>
+                <span class="badge badge-medium">MEDIUM</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">What is the date and id of the transcript with the least number of results?</p>
+            <div class="sql-box">Gold: SELECT T2.transcript_date ,  T1.transcript_id FROM Transcript_Contents AS T1 JOIN Transcripts AS T2 ON T1.transcript_id  =  T2.transcript_id GROUP BY T1.transcript_id ORDER BY count(*) ASC LIMIT 1</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 4.3s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT T1.transcript_date, T1.transcript_id FROM Transcripts AS T1 INNER JOIN Transcript_Contents AS...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 11.1s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT MIN(transcript_date) AS min_transcript_date, transcript_id FROM Transcript_Contents GROUP BY ...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 8.9s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT MIN(transcript_id), MIN(transcript_date) FROM Transcripts;</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q57</strong>
+                <span class="badge badge-easy">EASY</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">How many different addresses do the students currently live?</p>
+            <div class="sql-box">Gold: SELECT count(DISTINCT current_address_id) FROM Students</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 3.5s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT COUNT(DISTINCT T1.address_id) FROM Addresses AS T1 INNER JOIN Students AS T2 ON T1.address_id...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 11.1s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT COUNT(DISTINCT T1.address_id) FROM Students AS T1 JOIN Addresses AS T2 ON T1.current_address_...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 77.6s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT COUNT(DISTINCT T1.address_id) FROM Students AS T1 JOIN Addresses AS T2 ON T1.current_address_...</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q58</strong>
+                <span class="badge badge-easy">EASY</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">What are the different addresses that have students living there?</p>
+            <div class="sql-box">Gold: SELECT count(DISTINCT current_address_id) FROM Students</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 5.7s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT DISTINCT T1.line_1, T1.line_2, T1.line_3, T1.city, T1.zip_postcode, T1.state_province_county,...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 9.3s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT DISTINCT a.* FROM Addresses AS a JOIN Students AS s ON a.address_id = s.current_address_id OR...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 8.5s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT DISTINCT a.line_1, a.line_2, a.line_3 FROM Addresses AS a JOIN Students AS s ON a.address_id ...</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q59</strong>
+                <span class="badge badge-easy">EASY</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">List all the student details in reversed lexicographical order.</p>
+            <div class="sql-box">Gold: SELECT other_student_details FROM Students ORDER BY other_student_details DESC</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 5.6s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT 
+  s.first_name,
+  s.middle_name,
+  s.last_name,
+  s.cell_mobile_number,
+  s.email_address,
+ ...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 11.0s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT first_name, middle_name, last_name FROM Students ORDER BY first_name DESC;</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 7.8s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT other_student_details FROM Students ORDER BY other_student_details DESC;</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q60</strong>
+                <span class="badge badge-easy">EASY</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">What other details can you tell me about students in reverse alphabetical order?</p>
+            <div class="sql-box">Gold: SELECT other_student_details FROM Students ORDER BY other_student_details DESC</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 2.7s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT T1.other_student_details 
+FROM Students AS T1 
+ORDER BY T1.first_name DESC</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 10.3s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT other_student_details FROM Students ORDER BY last_name DESC;</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 11.1s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT c.first_name, c.middle_name, c.last_name FROM Students AS c ORDER BY last_name DESC;</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q61</strong>
+                <span class="badge badge-easy">EASY</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">Describe the section h.</p>
+            <div class="sql-box">Gold: SELECT section_description FROM Sections WHERE section_name  =  'h'</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 4.2s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT T2.section_name FROM Student_Enrolment_Courses AS T1 INNER JOIN Sections AS T2 ON T1.course_i...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 10.6s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT section_name FROM Sections WHERE section_name = 'h';</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 7.3s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT section_description FROM Sections WHERE section_name = 'h';</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q62</strong>
+                <span class="badge badge-easy">EASY</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">What is the description for the section named h?</p>
+            <div class="sql-box">Gold: SELECT section_description FROM Sections WHERE section_name  =  'h'</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 3.3s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT T2.section_description 
+FROM Sections AS T1 
+JOIN Courses AS T2 ON T1.course_id = T2.course_i...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 10.4s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT s.section_description FROM Sections AS s WHERE s.section_name = 'h';</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 9.5s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT section_description FROM Sections WHERE section_name = 'h';</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q63</strong>
+                <span class="badge badge-medium">MEDIUM</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">Find the first name of the students who permanently live in the country Haiti or have the cell phone number 09700166582 .</p>
+            <div class="sql-box">Gold: select t1.first_name from students as t1 join addresses as t2 on t1.permanent_address_id  =  t2.address_id where t2.country  =  'haiti' or t1.cell_mobile_number  =  '09700166582'</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 5.3s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT T1.first_name 
+FROM Students AS T1 
+JOIN Addresses AS T2 ON T1.permanent_address_id = T2.addr...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 12.8s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT T1.first_name FROM Students AS T1 INNER JOIN Addresses AS T2 ON T1.current_address_id = T2.ad...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 96.7s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT DISTINCT T1.first_name FROM Students AS T1 JOIN Country AS T2 ON T1.current_address_id = T2.C...</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q64</strong>
+                <span class="badge badge-medium">MEDIUM</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">What are the first names of the students who live in Haiti permanently or have the cell phone number 09700166582 ?</p>
+            <div class="sql-box">Gold: select t1.first_name from students as t1 join addresses as t2 on t1.permanent_address_id  =  t2.address_id where t2.country  =  'haiti' or t1.cell_mobile_number  =  '09700166582'</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 4.0s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT T1.first_name 
+FROM Students AS T1 
+JOIN Addresses AS T2 ON T1.permanent_address_id = T2.addr...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 10.3s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT T1.first_name FROM Students AS T1 JOIN Addresses AS T2 ON T1.current_address_id = T2.address_...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 62.0s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT DISTINCT first_name FROM Students WHERE permanent_address_id = 12345 OR cell_mobile_number = ...</div>
+                </div>
+
+            </div>
+        </div>
+
+        <footer style="text-align: center; padding: 2rem; color: var(--muted);">
+            <p>Generated by Multi-Agent RAG Text-to-SQL System</p>
+        </footer>
+    </div>
+</body>
+</html>

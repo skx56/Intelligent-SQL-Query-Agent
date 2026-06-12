@@ -1,0 +1,80 @@
+{
+  "Single_Agent": {
+    "total_questions": 64,
+    "execution_valid_rate": 0.875,
+    "execution_accuracy": 0.484375,
+    "exact_set_match_rate": 0.484375,
+    "avg_component_score": 0.75,
+    "select_match_rate": 0.96875,
+    "from_match_rate": 0.484375,
+    "where_match_rate": 0.8125,
+    "groupby_match_rate": 0.859375,
+    "orderby_match_rate": 0.625,
+    "avg_time_per_question": 4.173444826155901,
+    "total_time": 267.10046887397766,
+    "by_hardness": {
+      "easy": {
+        "total": 40,
+        "correct": 18,
+        "accuracy": 0.45
+      },
+      "medium": {
+        "total": 24,
+        "correct": 13,
+        "accuracy": 0.5416666666666666
+      }
+    }
+  },
+  "Multi_Agent": {
+    "total_questions": 64,
+    "execution_valid_rate": 0.84375,
+    "execution_accuracy": 0.609375,
+    "exact_set_match_rate": 0.609375,
+    "avg_component_score": 0.79375,
+    "select_match_rate": 0.84375,
+    "from_match_rate": 0.734375,
+    "where_match_rate": 0.890625,
+    "groupby_match_rate": 0.90625,
+    "orderby_match_rate": 0.59375,
+    "avg_time_per_question": 10.06382916122675,
+    "total_time": 644.085066318512,
+    "by_hardness": {
+      "easy": {
+        "total": 40,
+        "correct": 25,
+        "accuracy": 0.625
+      },
+      "medium": {
+        "total": 24,
+        "correct": 14,
+        "accuracy": 0.5833333333333334
+      }
+    }
+  },
+  "Multi_Agent_RAG": {
+    "total_questions": 64,
+    "execution_valid_rate": 0.875,
+    "execution_accuracy": 0.625,
+    "exact_set_match_rate": 0.625,
+    "avg_component_score": 0.8062500000000004,
+    "select_match_rate": 0.875,
+    "from_match_rate": 0.71875,
+    "where_match_rate": 0.890625,
+    "groupby_match_rate": 0.859375,
+    "orderby_match_rate": 0.6875,
+    "avg_time_per_question": 21.605021953582764,
+    "total_time": 1382.7214050292969,
+    "by_hardness": {
+      "easy": {
+        "total": 40,
+        "correct": 29,
+        "accuracy": 0.725
+      },
+      "medium": {
+        "total": 24,
+        "correct": 11,
+        "accuracy": 0.4583333333333333
+      }
+    }
+  }
+}

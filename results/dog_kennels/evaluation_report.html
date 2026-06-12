@@ -1,0 +1,1761 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Text-to-SQL Evaluation - dog_kennels</title>
+    <style>
+        :root {
+            --primary: #6366f1;
+            --success: #22c55e;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --bg: #0f172a;
+            --card: #1e293b;
+            --text: #e2e8f0;
+            --muted: #94a3b8;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            padding: 2rem;
+        }
+        .container { max-width: 1400px; margin: 0 auto; }
+        h1 {
+            font-size: 2.5rem;
+            background: linear-gradient(135deg, #6366f1, #a855f7);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 0.5rem;
+        }
+        h2 {
+            color: var(--primary);
+            margin: 2rem 0 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid var(--primary);
+        }
+        .subtitle { color: var(--muted); margin-bottom: 2rem; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem; }
+        .card {
+            background: var(--card);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+        }
+        .card h3 { font-size: 1rem; color: var(--muted); margin-bottom: 0.5rem; }
+        .card .value {
+            font-size: 2.5rem;
+            font-weight: bold;
+        }
+        .success { color: var(--success); }
+        .warning { color: var(--warning); }
+        .danger { color: var(--danger); }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1rem 0;
+            background: var(--card);
+            border-radius: 0.5rem;
+            overflow: hidden;
+        }
+        th, td { padding: 1rem; text-align: left; border-bottom: 1px solid rgba(255,255,255,0.1); }
+        th { background: rgba(99, 102, 241, 0.2); font-weight: 600; }
+        tr:hover { background: rgba(255,255,255,0.05); }
+        .badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        .badge-success { background: rgba(34, 197, 94, 0.2); color: var(--success); }
+        .badge-danger { background: rgba(239, 68, 68, 0.2); color: var(--danger); }
+        .badge-easy { background: rgba(34, 197, 94, 0.2); color: var(--success); }
+        .badge-medium { background: rgba(245, 158, 11, 0.2); color: var(--warning); }
+        .sql-box {
+            background: #0d1117;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            font-family: 'Fira Code', monospace;
+            font-size: 0.85rem;
+            overflow-x: auto;
+            margin: 0.5rem 0;
+            border-left: 3px solid var(--primary);
+        }
+        .progress-bar {
+            height: 8px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 0.5rem;
+        }
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary), #a855f7);
+            border-radius: 4px;
+        }
+        .question-card {
+            background: var(--card);
+            border-radius: 0.75rem;
+            padding: 1.25rem;
+            margin: 1rem 0;
+        }
+        .pipeline-results {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        .pipeline-result {
+            background: rgba(0,0,0,0.2);
+            padding: 1rem;
+            border-radius: 0.5rem;
+        }
+        .pipeline-result h4 { font-size: 0.9rem; margin-bottom: 0.5rem; }
+        .chart-container {
+            background: var(--card);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            margin: 1rem 0;
+        }
+        .chart-container img { max-width: 100%; height: auto; border-radius: 0.5rem; }
+        @media (max-width: 768px) {
+            .pipeline-results { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🤖 Multi-Agent RAG Text-to-SQL</h1>
+        <p class="subtitle">Evaluation Report | Database: <strong>dog_kennels</strong> | 2025-12-21 20:50 | Total: 46 questions</p>
+        
+        <h2>📊 Summary - 3 Pipeline Comparison</h2>
+        <div class="grid">
+
+            <div class="card">
+                <h3>Single Agent</h3>
+                <div class="value warning">63.0%</div>
+                <p style="color: var(--muted); font-size: 0.9rem;">Execution Accuracy</p>
+                <div class="progress-bar"><div class="progress-fill" style="width: 63.04347826086957%"></div></div>
+                <div style="margin-top: 1rem; display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; font-size: 0.85rem;">
+                    <div>Set Match: <strong>63.0%</strong></div>
+                    <div>Component: <strong>80.9%</strong></div>
+                    <div>Avg Time: <strong>3.6s</strong></div>
+                    <div>Total: <strong>46 Q</strong></div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>Multi Agent</h3>
+                <div class="value success">71.7%</div>
+                <p style="color: var(--muted); font-size: 0.9rem;">Execution Accuracy</p>
+                <div class="progress-bar"><div class="progress-fill" style="width: 71.73913043478261%"></div></div>
+                <div style="margin-top: 1rem; display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; font-size: 0.85rem;">
+                    <div>Set Match: <strong>71.7%</strong></div>
+                    <div>Component: <strong>83.9%</strong></div>
+                    <div>Avg Time: <strong>10.7s</strong></div>
+                    <div>Total: <strong>46 Q</strong></div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>Multi Agent RAG</h3>
+                <div class="value success">82.6%</div>
+                <p style="color: var(--muted); font-size: 0.9rem;">Execution Accuracy</p>
+                <div class="progress-bar"><div class="progress-fill" style="width: 82.6086956521739%"></div></div>
+                <div style="margin-top: 1rem; display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; font-size: 0.85rem;">
+                    <div>Set Match: <strong>82.6%</strong></div>
+                    <div>Component: <strong>85.7%</strong></div>
+                    <div>Avg Time: <strong>17.9s</strong></div>
+                    <div>Total: <strong>46 Q</strong></div>
+                </div>
+            </div>
+
+        </div>
+        
+        <h2>📈 Detailed Comparison Table</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Pipeline</th>
+                    <th>Execution Accuracy</th>
+                    <th>Exact Set Match</th>
+                    <th>SELECT Match</th>
+                    <th>FROM Match</th>
+                    <th>WHERE Match</th>
+                    <th>GROUP BY Match</th>
+                    <th>ORDER BY Match</th>
+                    <th>Avg Time</th>
+                </tr>
+            </thead>
+            <tbody>
+
+                <tr>
+                    <td><strong>Single Agent</strong></td>
+                    <td><span class="badge badge-danger">63.0%</span></td>
+                    <td>63.0%</td>
+                    <td>91.3%</td>
+                    <td>45.7%</td>
+                    <td>89.1%</td>
+                    <td>93.5%</td>
+                    <td>84.8%</td>
+                    <td>3.6s</td>
+                </tr>
+
+                <tr>
+                    <td><strong>Multi Agent</strong></td>
+                    <td><span class="badge badge-success">71.7%</span></td>
+                    <td>71.7%</td>
+                    <td>91.3%</td>
+                    <td>71.7%</td>
+                    <td>84.8%</td>
+                    <td>87.0%</td>
+                    <td>84.8%</td>
+                    <td>10.7s</td>
+                </tr>
+
+                <tr>
+                    <td><strong>Multi Agent RAG</strong></td>
+                    <td><span class="badge badge-success">82.6%</span></td>
+                    <td>82.6%</td>
+                    <td>87.0%</td>
+                    <td>89.1%</td>
+                    <td>80.4%</td>
+                    <td>91.3%</td>
+                    <td>80.4%</td>
+                    <td>17.9s</td>
+                </tr>
+
+            </tbody>
+        </table>
+        
+        <h2>📊 Charts</h2>
+        <div class="grid">
+            <div class="chart-container">
+                <h3>Accuracy Comparison</h3>
+                <img src="charts/accuracy_comparison.png" alt="Accuracy">
+            </div>
+            <div class="chart-container">
+                <h3>Time Comparison</h3>
+                <img src="charts/time_comparison.png" alt="Time">
+            </div>
+            <div class="chart-container">
+                <h3>Component Breakdown</h3>
+                <img src="charts/component_breakdown.png" alt="Components">
+            </div>
+            <div class="chart-container">
+                <h3>By Difficulty Level</h3>
+                <img src="charts/accuracy_by_difficulty.png" alt="Difficulty">
+            </div>
+        </div>
+        
+        <h2>📝 All Question Results</h2>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q1</strong>
+                <span class="badge badge-medium">MEDIUM</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">Which owner owns the most dogs? List the owner id, first name and last name.</p>
+            <div class="sql-box">Gold: SELECT T1.owner_id ,  T2.first_name ,  T2.last_name FROM Dogs AS T1 JOIN Owners AS T2 ON T1.owner_id  =  T2.owner_id GROUP BY T1.owner_id ORDER BY count(*) DESC LIMIT 1</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 3.1s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT o.owner_id, o.first_name, o.last_name 
+FROM Owners o 
+JOIN Dogs d ON o.owner_id = d.owner_id ...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 11.5s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT o.owner_id, o.first_name, o.last_name FROM Dogs AS d JOIN Owners AS o ON d.owner_id = o.owner...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 11.3s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT o.owner_id, o.first_name, o.last_name FROM Owners AS o JOIN Dogs AS d ON o.owner_id = d.owner...</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q2</strong>
+                <span class="badge badge-medium">MEDIUM</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">Return the owner id, first name and last name of the owner who has the most dogs.</p>
+            <div class="sql-box">Gold: SELECT T1.owner_id ,  T2.first_name ,  T2.last_name FROM Dogs AS T1 JOIN Owners AS T2 ON T1.owner_id  =  T2.owner_id GROUP BY T1.owner_id ORDER BY count(*) DESC LIMIT 1</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 4.6s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT o.owner_id, o.first_name, o.last_name 
+FROM Owners o 
+JOIN Dogs d ON o.owner_id = d.owner_id ...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 12.0s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT o.owner_id, o.first_name, o.last_name FROM Owners AS o JOIN Dogs AS d ON o.owner_id = d.owner...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 11.9s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT o.owner_id, o.first_name, o.last_name FROM Owners AS o JOIN Dogs AS d ON o.owner_id = d.owner...</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q3</strong>
+                <span class="badge badge-medium">MEDIUM</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">What is the name of the breed with the most dogs?</p>
+            <div class="sql-box">Gold: SELECT T1.breed_name FROM Breeds AS T1 JOIN Dogs AS T2 ON T1.breed_code  =  T2.breed_code GROUP BY T1.breed_name ORDER BY count(*) DESC LIMIT 1</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 4.8s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT T1.breed_name 
+FROM Breeds AS T1 
+JOIN Dogs AS T2 ON T1.breed_code = T2.breed_code 
+GROUP BY ...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 11.3s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT breed_name FROM Dogs GROUP BY breed_code ORDER BY COUNT(*) DESC LIMIT 1;</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 10.4s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT b.breed_name FROM Dogs AS d JOIN Breeds AS b ON d.breed_code = b.breed_code GROUP BY d.breed_...</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q4</strong>
+                <span class="badge badge-medium">MEDIUM</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">Which breed do the most dogs have? Give me the breed name.</p>
+            <div class="sql-box">Gold: SELECT T1.breed_name FROM Breeds AS T1 JOIN Dogs AS T2 ON T1.breed_code  =  T2.breed_code GROUP BY T1.breed_name ORDER BY count(*) DESC LIMIT 1</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 4.3s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT T1.breed_name 
+FROM Breeds AS T1 
+JOIN Dogs AS T2 ON T1.breed_code = T2.breed_code 
+GROUP BY ...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 11.1s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT b.breed_name FROM Dogs AS d JOIN Breeds AS b ON d.breed_code = b.breed_code GROUP BY d.breed_...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 9.9s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT b.breed_name FROM Dogs AS d JOIN Breeds AS b ON d.breed_code = b.breed_code GROUP BY b.breed_...</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q5</strong>
+                <span class="badge badge-medium">MEDIUM</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">What is the description of the treatment type that costs the least money in total?</p>
+            <div class="sql-box">Gold: SELECT T1.treatment_type_description FROM Treatment_types AS T1 JOIN Treatments AS T2 ON T1.treatment_type_code  =  T2.treatment_type_code GROUP BY T1.treatment_type_code ORDER BY sum(cost_of_treatment) ASC LIMIT 1</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 4.1s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT T1.treatment_type_description 
+FROM Treatment_Types AS T1 
+JOIN Treatments AS T2 ON T1.treatm...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 10.7s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT tt.treatment_type_description FROM Treatments AS t JOIN Treatment_Types AS tt ON t.treatment_...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 10.2s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT tt.treatment_type_description FROM Treatment_Types AS tt JOIN Treatments AS t ON tt.treatment...</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q6</strong>
+                <span class="badge badge-medium">MEDIUM</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">Give me the description of the treatment type whose total cost is the lowest.</p>
+            <div class="sql-box">Gold: SELECT T1.treatment_type_description FROM Treatment_types AS T1 JOIN Treatments AS T2 ON T1.treatment_type_code  =  T2.treatment_type_code GROUP BY T1.treatment_type_code ORDER BY sum(cost_of_treatment) ASC LIMIT 1</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 7.3s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT T1.treatment_type_description 
+FROM Treatment_Types AS T1 
+JOIN ( SELECT treatment_type_code,...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 10.6s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT tt.treatment_type_description FROM Treatments AS t JOIN Treatment_Types AS tt ON t.treatment_...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 10.0s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT tt.treatment_type_description FROM Treatments AS t JOIN Treatment_Types AS tt ON t.treatment_...</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q7</strong>
+                <span class="badge badge-medium">MEDIUM</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">List the date of each treatment, together with the first name of the professional who operated it.</p>
+            <div class="sql-box">Gold: SELECT T1.date_of_treatment ,  T2.first_name FROM Treatments AS T1 JOIN Professionals AS T2 ON T1.professional_id  =  T2.professional_id</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 3.8s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT T1.date_of_treatment, P.first_name 
+FROM Treatments T1 
+JOIN Professionals P ON T1.profession...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 9.4s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT T1.date_of_treatment, T2.first_name FROM Treatments AS T1 JOIN Professionals AS T2 ON T1.prof...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 8.5s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT T.date_of_treatment, P.first_name FROM Treatments AS T JOIN Professionals AS P ON T.professio...</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q8</strong>
+                <span class="badge badge-medium">MEDIUM</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">What are the date and the operating professional's first name of each treatment?</p>
+            <div class="sql-box">Gold: SELECT T1.date_of_treatment ,  T2.first_name FROM Treatments AS T1 JOIN Professionals AS T2 ON T1.professional_id  =  T2.professional_id</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 3.1s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT T.date_of_treatment, P.first_name 
+FROM Treatments T 
+JOIN Professionals P ON T.professional_...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 10.2s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT T1.date_of_treatment, P.first_name FROM Treatments AS T1 JOIN Professionals AS P ON T1.profes...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 71.4s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT T.date_of_treatment, OP.first_name FROM Treatments AS T JOIN Operating_Professionals AS OP ON...</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q9</strong>
+                <span class="badge badge-medium">MEDIUM</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">List the cost of each treatment and the corresponding treatment type description.</p>
+            <div class="sql-box">Gold: SELECT T1.cost_of_treatment ,  T2.treatment_type_description FROM Treatments AS T1 JOIN treatment_types AS T2 ON T1.treatment_type_code  =  T2.treatment_type_code</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 3.3s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT T.treatment_type_description, T.cost_of_treatment 
+FROM Treatments T 
+JOIN Treatment_Types TT...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 8.8s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT t.cost_of_treatment, tt.treatment_type_description FROM Treatments AS t JOIN Treatment_Types ...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 8.1s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT t.cost_of_treatment, tt.treatment_type_description FROM Treatments AS t JOIN Treatment_Types ...</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q10</strong>
+                <span class="badge badge-medium">MEDIUM</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">What are the cost and treatment type description of each treatment?</p>
+            <div class="sql-box">Gold: SELECT T1.cost_of_treatment ,  T2.treatment_type_description FROM Treatments AS T1 JOIN treatment_types AS T2 ON T1.treatment_type_code  =  T2.treatment_type_code</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 3.2s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT 
+  t.cost_of_treatment,
+  tt.treatment_type_description
+FROM 
+  Treatments t
+JOIN 
+  Treatmen...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 9.4s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT t.cost_of_treatment, tt.treatment_type_description FROM Treatments AS t JOIN Treatment_Types ...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 8.4s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT t.cost_of_treatment, tt.treatment_type_description FROM Treatments AS t JOIN Treatment_Types ...</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q11</strong>
+                <span class="badge badge-medium">MEDIUM</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">List each owner's first name, last name, and the size of his for her dog.</p>
+            <div class="sql-box">Gold: SELECT T1.first_name ,  T1.last_name ,  T2.size_code FROM Owners AS T1 JOIN Dogs AS T2 ON T1.owner_id  =  T2.owner_id</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 4.7s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT 
+  o.first_name,
+  o.last_name,
+  s.size_description
+FROM 
+  Owners o
+JOIN 
+  Dogs d ON o.own...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 10.2s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT o.first_name, o.last_name, d.size_code FROM Owners AS o JOIN Dogs AS d ON o.owner_id = d.owne...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 9.3s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT o.first_name, o.last_name, d.size_code FROM owners AS o JOIN Dogs AS d ON o.owner_id = d.owne...</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q12</strong>
+                <span class="badge badge-medium">MEDIUM</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">What are each owner's first name, last name, and the size of their dog?</p>
+            <div class="sql-box">Gold: SELECT T1.first_name ,  T1.last_name ,  T2.size_code FROM Owners AS T1 JOIN Dogs AS T2 ON T1.owner_id  =  T2.owner_id</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 3.5s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT 
+  o.first_name,
+  o.last_name,
+  d.size_code
+FROM 
+  Owners o
+JOIN 
+  Dogs d ON o.owner_id =...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 10.7s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT o.first_name, o.last_name, d.size_code FROM Owners AS o JOIN Dogs AS d ON o.owner_id = d.owne...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 9.6s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT o.first_name, o.last_name, d.size_code FROM Owners AS o JOIN Dogs AS d ON o.owner_id = d.owne...</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q13</strong>
+                <span class="badge badge-medium">MEDIUM</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">List pairs of the owner's first name and the dogs's name.</p>
+            <div class="sql-box">Gold: SELECT T1.first_name ,  T2.name FROM Owners AS T1 JOIN Dogs AS T2 ON T1.owner_id  =  T2.owner_id</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 3.1s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT o.first_name, d.name 
+FROM Owners o 
+JOIN Dogs d ON o.owner_id = d.owner_id;</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 9.7s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT o.first_name, d.name FROM Owners AS o JOIN Dogs AS d ON o.owner_id = d.owner_id;</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 8.9s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT o.first_name, d.name FROM Owners AS o JOIN Dogs AS d ON o.owner_id = d.owner_id;</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q14</strong>
+                <span class="badge badge-medium">MEDIUM</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">What are each owner's first name and their dogs's name?</p>
+            <div class="sql-box">Gold: SELECT T1.first_name ,  T2.name FROM Owners AS T1 JOIN Dogs AS T2 ON T1.owner_id  =  T2.owner_id</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 2.9s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT o.first_name, d.name 
+FROM Owners o 
+JOIN Dogs d ON o.owner_id = d.owner_id;</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 10.8s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT o.first_name, d.name FROM Owners AS o JOIN Dogs AS d ON o.owner_id = d.owner_id;</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 9.8s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT o.first_name, d.name FROM Owners AS o JOIN Dogs AS d ON o.owner_id = d.owner_id;</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q15</strong>
+                <span class="badge badge-medium">MEDIUM</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">Which dogs are owned by someone who lives in Virginia? List the owner's first name and the dog's name.</p>
+            <div class="sql-box">Gold: SELECT T1.first_name ,  T2.name FROM Owners AS T1 JOIN Dogs AS T2 ON T1.owner_id  =  T2.owner_id WHERE T1.state  =  'Virginia'</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 3.2s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT T1.first_name, T1.name 
+FROM Owners AS T1 
+JOIN Dogs AS T2 ON T1.owner_id = T2.owner_id 
+WHER...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 9.9s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT o.first_name, d.name FROM Owners AS o JOIN Dogs AS d ON o.owner_id = d.owner_id WHERE o.state...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 8.8s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT o.first_name, d.name FROM Dogs AS d JOIN Owners AS o ON d.owner_id = o.owner_id WHERE o.city ...</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q16</strong>
+                <span class="badge badge-medium">MEDIUM</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">Find the first names of owners living in Virginia and the names of dogs they own.</p>
+            <div class="sql-box">Gold: SELECT T1.first_name ,  T2.name FROM Owners AS T1 JOIN Dogs AS T2 ON T1.owner_id  =  T2.owner_id WHERE T1.state  =  'Virginia'</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 3.3s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT DISTINCT o.first_name, d.name 
+FROM Owners o 
+JOIN Dogs d ON o.owner_id = d.owner_id 
+WHERE o...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 10.4s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT o.first_name FROM owners AS o JOIN dogs AS d ON o.owner_id = d.owner_id WHERE o.state = 'Virg...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 10.0s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT o.first_name, d.name FROM Owners AS o JOIN Dogs AS d ON o.owner_id = d.owner_id WHERE o.state...</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q17</strong>
+                <span class="badge badge-medium">MEDIUM</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">What are the arriving date and the departing date of the dogs who have gone through a treatment?</p>
+            <div class="sql-box">Gold: SELECT DISTINCT T1.date_arrived ,  T1.date_departed FROM Dogs AS T1 JOIN Treatments AS T2 ON T1.dog_id  =  T2.dog_id</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 6.2s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT D.date_arrived, D.date_departed 
+FROM Dogs D 
+JOIN Treatments T ON D.dog_id = T.dog_id 
+WHERE...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 10.3s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT T1.date_arrived, T1.date_departed FROM Dogs AS T1 JOIN Treatments AS T2 ON T1.dog_id = T2.dog...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 9.5s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT d.date_arrived, d.date_departed FROM Dogs AS d JOIN Treatments AS t ON d.dog_id = t.dog_id;</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q18</strong>
+                <span class="badge badge-medium">MEDIUM</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">Find the arriving date and the departing date of the dogs that received a treatment.</p>
+            <div class="sql-box">Gold: SELECT DISTINCT T1.date_arrived ,  T1.date_departed FROM Dogs AS T1 JOIN Treatments AS T2 ON T1.dog_id  =  T2.dog_id</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 3.8s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT 
+  d.date_arrived,
+  d.date_departed
+FROM 
+  Dogs d
+JOIN 
+  Treatments t ON d.dog_id = t.dog_...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 10.4s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT T1.date_arrived, T1.date_departed FROM Dogs AS T1 JOIN Treatments AS T2 ON T1.dog_id = T2.dog...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 9.3s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT T1.date_arrived, T1.date_departed FROM Dogs AS T1 JOIN Treatments AS T2 ON T1.dog_id = T2.dog...</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q19</strong>
+                <span class="badge badge-easy">EASY</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">List the emails of the professionals who live in the state of Hawaii or the state of Wisconsin.</p>
+            <div class="sql-box">Gold: SELECT email_address FROM Professionals WHERE state  =  'Hawaii' OR state  =  'Wisconsin'</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 3.6s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT DISTINCT T1.email_address 
+FROM Professionals AS T1 
+JOIN Owners AS T2 ON T1.owner_id = T2.ow...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 10.2s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT p.email_address FROM Professionals AS p JOIN States AS s ON p.state = s.code WHERE s.name IN ...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 81.8s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT T1.email_address FROM Professionals AS T1 JOIN States AS T2 ON T1.state = T2.state_name WHERE...</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q20</strong>
+                <span class="badge badge-easy">EASY</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">What are the emails of the professionals living in either the state of Hawaii or the state of Wisconsin?</p>
+            <div class="sql-box">Gold: SELECT email_address FROM Professionals WHERE state  =  'Hawaii' OR state  =  'Wisconsin'</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 3.3s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT DISTINCT T1.email_address 
+FROM Professionals AS T1 
+JOIN Owners AS T2 ON T1.owner_id = T2.ow...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 9.3s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT T1.email_address FROM Professionals AS T1 JOIN States AS T2 ON T1.state = T2.state_name WHERE...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 8.5s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT email_address FROM Professionals WHERE state = 'Hawaii' OR state = 'Wisconsin';</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q21</strong>
+                <span class="badge badge-easy">EASY</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">What are the arriving date and the departing date of all the dogs?</p>
+            <div class="sql-box">Gold: SELECT date_arrived ,  date_departed FROM Dogs</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 2.8s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT 
+  D.date_arrived,
+  D.date_departed
+FROM 
+  Dogs D
+WHERE 
+  D.date_departed IS NOT NULL;</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 8.9s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT T1.date_arrived, T1.date_departed FROM Dogs AS T1;</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 8.3s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT date_arrived, date_departed FROM Dogs;</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q22</strong>
+                <span class="badge badge-easy">EASY</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">List the arrival date and the departure date for all the dogs.</p>
+            <div class="sql-box">Gold: SELECT date_arrived ,  date_departed FROM Dogs</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 2.8s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT T1.date_arrived, T1.date_departed FROM Dogs AS T1 INNER JOIN Treatments AS T2 ON T1.dog_id = ...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 10.1s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT T1.date_arrived, T1.date_departed FROM Dogs AS T1;</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 9.8s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT date_arrived, date_departed FROM Dogs;</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q23</strong>
+                <span class="badge badge-easy">EASY</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">How many dogs went through any treatments?</p>
+            <div class="sql-box">Gold: SELECT count(DISTINCT dog_id) FROM Treatments</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 3.2s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT COUNT(DISTINCT T1.dog_id) FROM Treatments AS T1 INNER JOIN Dogs AS T2 ON T1.dog_id = T2.dog_i...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 11.8s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT COUNT(DISTINCT t.treatment_id) FROM Treatments AS t JOIN Dogs AS d ON t.dog_id = d.dog_id;</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 10.5s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT COUNT(*) FROM Treatments;</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q24</strong>
+                <span class="badge badge-easy">EASY</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">Count the number of dogs that went through a treatment.</p>
+            <div class="sql-box">Gold: SELECT count(DISTINCT dog_id) FROM Treatments</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 3.1s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT COUNT(DISTINCT t.treatment_id) 
+FROM Treatments t 
+JOIN Dogs d ON t.dog_id = d.dog_id;</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 11.6s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT COUNT(*) FROM Dogs JOIN Treatments ON Dogs.dog_id = Treatments.dog_id;</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 9.2s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT COUNT(*) FROM Treatments;</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q25</strong>
+                <span class="badge badge-easy">EASY</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">How many professionals have performed any treatment to dogs?</p>
+            <div class="sql-box">Gold: SELECT count(DISTINCT professional_id) FROM Treatments</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 2.9s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT COUNT(DISTINCT p.professional_id)
+FROM Professionals p
+JOIN Treatments t ON p.professional_id...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 17.0s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;"></div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 10.4s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT COUNT(DISTINCT professional_id) FROM Treatments WHERE dog_id IN (SELECT dog_id FROM Dogs);</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q26</strong>
+                <span class="badge badge-easy">EASY</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">Find the number of professionals who have ever treated dogs.</p>
+            <div class="sql-box">Gold: SELECT count(DISTINCT professional_id) FROM Treatments</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 3.0s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT COUNT(DISTINCT professional_id) 
+FROM Treatments t
+JOIN Professionals p ON t.professional_id ...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 11.3s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT COUNT(DISTINCT professional_id) FROM Treatments;</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 10.4s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT COUNT(DISTINCT professional_id) FROM Treatments;</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q27</strong>
+                <span class="badge badge-easy">EASY</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">Which professionals live in a city containing the substring 'West'? List his or her role, street, city and state.</p>
+            <div class="sql-box">Gold: SELECT role_code ,  street ,  city ,  state FROM professionals WHERE city LIKE '%West%'</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 3.0s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT P.role_code, P.street, O.city, O.state 
+FROM Professionals P 
+JOIN Owners O ON P.owner_id = O...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 10.6s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT p.role_code, p.street, c.city, c.state FROM Professionals AS p JOIN Cities AS c ON p.city = c...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 28.0s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT DISTINCT c.role_code, c.street, c.city, c.state FROM Professionals AS c WHERE c.city LIKE '%W...</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q28</strong>
+                <span class="badge badge-easy">EASY</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">Find the role, street, city and state of the professionals living in a city that contains the substring 'West'.</p>
+            <div class="sql-box">Gold: SELECT role_code ,  street ,  city ,  state FROM professionals WHERE city LIKE '%West%'</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 4.0s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT p.role_code, p.street, p.city, p.state 
+FROM Professionals p 
+JOIN Owners o ON p.owner_id = o...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 12.8s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT p.role_code, p.street, c.city, c.state FROM Professionals AS p JOIN Address AS a ON p.street ...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 11.2s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT c.role_code, c.street, c.city, c.state FROM Professionals AS c WHERE c.city LIKE '%West%';</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q29</strong>
+                <span class="badge badge-easy">EASY</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">Which owners live in the state whose name contains the substring 'North'? List his first name, last name and email.</p>
+            <div class="sql-box">Gold: SELECT first_name ,  last_name ,  email_address FROM Owners WHERE state LIKE '%North%'</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 4.0s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT 
+  o.first_name,
+  o.last_name,
+  o.email_address
+FROM 
+  Owners o
+JOIN 
+  Dogs d ON o.owner_...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 12.4s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT o.first_name, o.last_name, o.email_address FROM Owners AS o JOIN States AS s ON o.state = s.n...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 74.2s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT o.first_name, o.last_name, o.email_address FROM Owners AS o JOIN States AS s ON o.state = s.n...</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q30</strong>
+                <span class="badge badge-easy">EASY</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">Return the first name, last name and email of the owners living in a state whose name contains the substring 'North'.</p>
+            <div class="sql-box">Gold: SELECT first_name ,  last_name ,  email_address FROM Owners WHERE state LIKE '%North%'</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 3.6s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT o.first_name, o.last_name, o.email_address 
+FROM Owners o 
+JOIN Dogs d ON o.owner_id = d.owne...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 10.5s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT o.first_name, o.last_name, o.email_address FROM Owners AS o WHERE o.state LIKE '%North%';</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 56.5s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT first_name, last_name, email_address FROM Owners WHERE city LIKE '%North%';</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q31</strong>
+                <span class="badge badge-easy">EASY</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">How much does the most recent treatment cost?</p>
+            <div class="sql-box">Gold: SELECT cost_of_treatment FROM Treatments ORDER BY date_of_treatment DESC LIMIT 1</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 3.6s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT T1.cost_of_treatment FROM Treatments AS T1 INNER JOIN Dogs AS T2 ON T1.dog_id = T2.dog_id ORD...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 9.8s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT MAX(TREATMENT_ID) * cost_of_treatment FROM Treatments WHERE date_of_treatment = (SELECT MAX(d...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 8.3s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT MAX(cost_of_treatment) FROM Treatments WHERE date_of_treatment = (SELECT MAX(date_of_treatmen...</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q32</strong>
+                <span class="badge badge-easy">EASY</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">Show me the cost of the most recently performed treatment.</p>
+            <div class="sql-box">Gold: SELECT cost_of_treatment FROM Treatments ORDER BY date_of_treatment DESC LIMIT 1</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 3.4s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT T1.cost_of_treatment FROM Treatments AS T1 INNER JOIN Dogs AS T2 ON T1.dog_id = T2.dog_id ORD...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 10.6s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT T1.cost_of_treatment FROM Treatments AS T1 JOIN Dogs AS T2 ON T1.dog_id = T2.dog_id ORDER BY ...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 9.8s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT MAX(cost_of_treatment) FROM Treatments WHERE date_of_treatment = (SELECT MAX(date_of_treatmen...</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q33</strong>
+                <span class="badge badge-easy">EASY</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">List the dog name, age and weight of the dogs who have been abandoned? 1 stands for yes, and 0 stands for no.</p>
+            <div class="sql-box">Gold: SELECT name ,  age ,  weight FROM Dogs WHERE abandoned_yn  =  1</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 3.9s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT T1.name, T1.age, T1.weight 
+FROM Dogs AS T1 
+JOIN Owners AS T2 ON T1.owner_id = T2.owner_id 
+...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 11.8s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT T1.name, T1.age, T1.weight FROM Dogs AS T1 INNER JOIN Owners AS T2 ON T1.owner_id = T2.owner_...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 11.1s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT name, age, weight FROM Dogs WHERE abandoned_yn = '1';</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q34</strong>
+                <span class="badge badge-easy">EASY</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">What are the dog name, age and weight of the dogs that were abandoned? Note that 1 stands for yes, and 0 stands for no in the tables.</p>
+            <div class="sql-box">Gold: SELECT name ,  age ,  weight FROM Dogs WHERE abandoned_yn  =  1</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 3.9s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT T1.name, T1.age, T1.weight 
+FROM Dogs AS T1 
+JOIN Owners AS T2 ON T1.owner_id = T2.owner_id 
+...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 11.4s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT D.name, D.age, D.weight FROM Dogs AS D WHERE D.abandoned_yn = '1';</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 10.0s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT name, age, weight FROM Dogs WHERE abandoned_yn = '1';</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q35</strong>
+                <span class="badge badge-easy">EASY</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">What is the average age of all the dogs?</p>
+            <div class="sql-box">Gold: SELECT avg(age) FROM Dogs</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 3.1s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT AVG(T1.age) FROM Dogs AS T1 INNER JOIN Owners AS T2 ON T1.owner_id = T2.owner_id</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 9.2s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT AVG(age) FROM Dogs;</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 8.9s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT AVG(age) FROM Dogs;</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q36</strong>
+                <span class="badge badge-easy">EASY</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">Compute the average age of all the dogs.</p>
+            <div class="sql-box">Gold: SELECT avg(age) FROM Dogs</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 2.7s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT AVG(T1.age) FROM Dogs AS T1 INNER JOIN Owners AS T2 ON T1.owner_id = T2.owner_id</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 9.8s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT AVG(age) FROM Dogs;</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 7.7s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT AVG(age) FROM Dogs;</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q37</strong>
+                <span class="badge badge-easy">EASY</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">What is the age of the oldest dog?</p>
+            <div class="sql-box">Gold: SELECT max(age) FROM Dogs</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 2.7s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT MAX(T1.age) FROM Dogs AS T1 INNER JOIN Owners AS T2 ON T1.owner_id = T2.owner_id</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 10.0s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT MAX(age) FROM Dogs;</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 9.1s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT MAX(age) FROM Dogs;</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q38</strong>
+                <span class="badge badge-easy">EASY</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">Tell me the age of the oldest dog.</p>
+            <div class="sql-box">Gold: SELECT max(age) FROM Dogs</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 3.5s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT MAX(T1.age) FROM Dogs AS T1 INNER JOIN Owners AS T2 ON T1.owner_id = T2.owner_id</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 9.5s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT MAX(age) FROM Dogs;</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 9.6s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT MAX(age) FROM Dogs;</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q39</strong>
+                <span class="badge badge-easy">EASY</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">How much does each charge type costs? List both charge type and amount.</p>
+            <div class="sql-box">Gold: SELECT charge_type ,  charge_amount FROM Charges</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 3.0s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT 
+  c.charge_type,
+  SUM(c.charge_amount) AS total_cost
+FROM 
+  Charges c
+GROUP BY 
+  c.charge...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 9.8s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT charge_type, charge_amount FROM Charges;</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 8.9s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT charge_type, SUM(charge_amount) FROM Charges GROUP BY charge_type;</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q40</strong>
+                <span class="badge badge-easy">EASY</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">List each charge type and its amount.</p>
+            <div class="sql-box">Gold: SELECT charge_type ,  charge_amount FROM Charges</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 3.5s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT DISTINCT T1.charge_type, T1.charge_amount 
+FROM Charges AS T1 
+JOIN Treatments AS T2 ON T1.ch...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 9.8s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT charge_type, charge_amount FROM Charges;</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 8.0s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT charge_type, charge_amount FROM Charges;</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q41</strong>
+                <span class="badge badge-easy">EASY</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">How much does the most expensive charge type costs?</p>
+            <div class="sql-box">Gold: SELECT max(charge_amount) FROM Charges</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 3.2s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT T1.charge_amount FROM Charges AS T1 INNER JOIN Treatments AS T2 ON T1.charge_id = T2.charge_i...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 10.3s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT MAX(charge_amount) FROM Charges;</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 8.7s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT MAX(charge_amount) FROM Charges;</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q42</strong>
+                <span class="badge badge-easy">EASY</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">What is the charge amount of the most expensive charge type?</p>
+            <div class="sql-box">Gold: SELECT max(charge_amount) FROM Charges</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 5.4s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT T1.charge_amount 
+FROM Charges AS T1 
+JOIN (
+  SELECT charge_type, MAX(charge_amount) as max_...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 10.8s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT MAX(charge_amount) FROM Charges;</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 9.1s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT charge_amount FROM Charges ORDER BY charge_amount DESC LIMIT 1;</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q43</strong>
+                <span class="badge badge-easy">EASY</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">List the email, cell phone and home phone of all the professionals.</p>
+            <div class="sql-box">Gold: SELECT email_address ,  cell_number ,  home_phone FROM professionals</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 2.7s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT 
+  p.email_address,
+  p.cell_number,
+  p.home_phone
+FROM 
+  Professionals p;</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 10.4s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT p.email_address, p.cell_number, p.home_phone FROM Professionals AS p;</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 9.5s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT email_address, cell_number, home_phone FROM Professionals;</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q44</strong>
+                <span class="badge badge-easy">EASY</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">What are the email, cell phone and home phone of each professional?</p>
+            <div class="sql-box">Gold: SELECT email_address ,  cell_number ,  home_phone FROM professionals</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 2.7s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT 
+  p.email_address,
+  p.cell_number,
+  p.home_phone
+FROM 
+  Professionals p;</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 11.6s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT ci.email_address, ci.cell_number, ci.home_phone FROM Professionals AS p JOIN Contact_Info AS ...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 106.0s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT email_address, cell_number, home_phone FROM Professionals;</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q45</strong>
+                <span class="badge badge-easy">EASY</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">What are all the possible breed type and size type combinations?</p>
+            <div class="sql-box">Gold: SELECT DISTINCT breed_code ,  size_code FROM dogs</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 2.8s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT DISTINCT T1.breed_name, T2.size_description 
+FROM Breeds AS T1 
+JOIN Sizes AS T2 ON T1.breed_...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 8.9s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT breed_code, size_code FROM Dogs GROUP BY breed_code, size_code;</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 33.8s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT breed_code, size_code FROM Breeds;</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q46</strong>
+                <span class="badge badge-easy">EASY</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">Find the distinct breed type and size type combinations for dogs.</p>
+            <div class="sql-box">Gold: SELECT DISTINCT breed_code ,  size_code FROM dogs</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 4.5s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT DISTINCT T1.breed_name, T1.size_description 
+FROM Breeds AS T1 
+JOIN Dogs AS T2 ON T1.breed_c...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 13.9s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT DISTINCT bt.breed_type, st.size_type FROM Dogs AS d JOIN Treatment_Types AS tt ON d.breed_cod...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 9.9s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT DISTINCT breed_code, size_code FROM Dogs;</div>
+                </div>
+
+            </div>
+        </div>
+
+        <footer style="text-align: center; padding: 2rem; color: var(--muted);">
+            <p>Generated by Multi-Agent RAG Text-to-SQL System</p>
+        </footer>
+    </div>
+</body>
+</html>

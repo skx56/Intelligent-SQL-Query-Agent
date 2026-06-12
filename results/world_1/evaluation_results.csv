@@ -1,0 +1,261 @@
+ID,Question,Hardness,Gold SQL,Single_Agent_SQL,Single_Agent_Correct,Single_Agent_Time,Multi_Agent_SQL,Multi_Agent_Correct,Multi_Agent_Time,Multi_Agent_RAG_SQL,Multi_Agent_RAG_Correct,Multi_Agent_RAG_Time
+1,What are the names of all the countries that became independent after 1950?,easy,SELECT Name FROM country WHERE IndepYear  >  1950,"SELECT c.Name 
+FROM country c 
+JOIN countrylanguage cl ON c.Code = cl.CountryCode 
+WHERE c.IndepYear > 1950;",Yes,2.1,SELECT Name FROM country WHERE IndepYear > 1950;,Yes,7.9,SELECT Name FROM country WHERE IndepYear > 1950;,Yes,8.9
+2,Give the names of the nations that were founded after 1950.,easy,SELECT Name FROM country WHERE IndepYear  >  1950,"SELECT c.Name 
+FROM country c 
+JOIN countrylanguage cl ON c.Code = cl.CountryCode 
+WHERE c.IndepYear > 1950;",Yes,2.2,SELECT Name FROM country WHERE IndepYear > 1950;,Yes,10.2,SELECT Name FROM country WHERE IndepYear > 1950;,Yes,10.5
+3,How many countries have a republic as their form of government?,easy,"SELECT count(*) FROM country WHERE GovernmentForm  =  ""Republic""",SELECT COUNT(DISTINCT T1.Code) FROM country AS T1 INNER JOIN countrylanguage AS T2 ON T1.Code = T2.CountryCode WHERE T1.GovernmentForm = 'Republic',Yes,2.7,SELECT COUNT(*) FROM country WHERE GovernmentForm = 'Republic';,Yes,11.0,SELECT COUNT(*) FROM country WHERE GovernmentForm = 'Republic';,Yes,10.7
+4,How many countries have governments that are republics?,easy,"SELECT count(*) FROM country WHERE GovernmentForm  =  ""Republic""",SELECT COUNT(DISTINCT T2.Code) FROM country AS T1 INNER JOIN countrylanguage AS T2 ON T1.Code = T2.CountryCode WHERE T2.Language = 'Republic',No,2.9,SELECT COUNT(*) FROM country WHERE GovernmentForm = 'Republic';,Yes,10.2,SELECT COUNT(*) FROM country WHERE GovernmentForm = 'Republic';,Yes,11.0
+5,What is the total surface area of the countries in the Caribbean region?,easy,"SELECT sum(SurfaceArea) FROM country WHERE Region  =  ""Caribbean""",SELECT SUM(T1.SurfaceArea) FROM country AS T1 INNER JOIN countryregion AS T2 ON T1.Code = T2.Code WHERE T2.Region = 'Caribbean',No,2.7,SELECT SUM(SurfaceArea) FROM country WHERE Region = 'Caribbean';,Yes,10.6,SELECT SUM(SurfaceArea) FROM country WHERE Region = 'Caribbean';,Yes,10.4
+6,How much surface area do the countires in the Carribean cover together?,easy,"SELECT sum(SurfaceArea) FROM country WHERE Region  =  ""Caribbean""",SELECT SUM(T1.SurfaceArea) FROM country AS T1 INNER JOIN countrylanguage AS T2 ON T1.Code = T2.CountryCode WHERE T2.Language = 'English' AND T1.Continent = 'Carribean';,No,3.2,SELECT SUM(SurfaceArea) FROM country WHERE Continent = 'Caribbean';,No,10.4,SELECT SUM(SurfaceArea) FROM country WHERE Region = 'Caribbean';,Yes,10.4
+7,Which continent is Anguilla in?,easy,"SELECT Continent FROM country WHERE Name  =  ""Anguilla""",SELECT T2.Continent FROM city AS T1 INNER JOIN country AS T2 ON T1.CountryCode = T2.Code WHERE T1.Name = 'Anguilla';,No,2.3,SELECT c.Continent FROM country AS c JOIN city AS ci ON c.Code = ci.CountryCode WHERE ci.Name = 'Anguilla';,No,9.6,SELECT c.Continent FROM country AS c WHERE c.Code = 'ANG';,No,8.8
+8,What is the continent name which Anguilla belongs to?,easy,"SELECT Continent FROM country WHERE Name  =  ""Anguilla""",SELECT T2.Continent FROM country AS T1 INNER JOIN countrylanguage AS T2 ON T1.Code = T2.CountryCode WHERE T1.Name = 'Anguilla';,No,2.8,SELECT c.Continent FROM country AS c JOIN city AS ci ON c.Code = ci.CountryCode WHERE ci.Name = 'Anguilla';,No,9.6,SELECT c.Continent FROM country AS c WHERE c.Code = 'ANG';,No,8.8
+9,Which region is the city Kabul located in?,medium,"SELECT Region FROM country AS T1 JOIN city AS T2 ON T1.Code  =  T2.CountryCode WHERE T2.Name  =  ""Kabul""",SELECT T2.Region FROM city AS T1 INNER JOIN country AS T2 ON T1.CountryCode = T2.Code WHERE T1.Name = 'Kabul';,Yes,2.4,SELECT r.Region FROM country AS c JOIN city AS ci ON c.Code = ci.CountryCode JOIN region_table AS r ON c.Region = r.Name WHERE ci.Name = 'Kabul';,No,10.2,SELECT c.Region FROM country AS c JOIN city AS ci ON c.Code = ci.CountryCode WHERE ci.Name = 'Kabul';,Yes,11.2
+10,What region is Kabul in?,medium,"SELECT Region FROM country AS T1 JOIN city AS T2 ON T1.Code  =  T2.CountryCode WHERE T2.Name  =  ""Kabul""",SELECT T2.Region FROM city AS T1 INNER JOIN country AS T2 ON T1.CountryCode = T2.Code WHERE T1.Name = 'Kabul';,Yes,2.6,SELECT r.Region FROM country AS c JOIN city AS ci ON c.Code = ci.CountryCode WHERE ci.Name = 'Kabul' AND NOT c.Region IS NULL;,No,10.2,SELECT r.Region FROM city AS c JOIN country AS co ON c.CountryCode = co.Code WHERE c.Name = 'Kabul';,No,64.1
+11,Which language is the most popular in Aruba?,medium,"SELECT T2.Language FROM country AS T1 JOIN countrylanguage AS T2 ON T1.Code  =  T2.CountryCode WHERE T1.Name  =  ""Aruba"" ORDER BY Percentage DESC LIMIT 1",SELECT T1.Language FROM countrylanguage AS T1 INNER JOIN country AS T2 ON T1.CountryCode = T2.Code WHERE T2.Name = 'Aruba' ORDER BY T1.Percentage DESC LIMIT 1;,Yes,2.8,SELECT cl.Language FROM countrylanguage AS cl JOIN country AS c ON cl.CountryCode = c.Code WHERE c.Name = 'Aruba' ORDER BY Percentage DESC LIMIT 1;,Yes,9.2,SELECT cl.Language FROM countrylanguage AS cl JOIN country AS c ON cl.CountryCode = c.Code WHERE c.Name = 'Aruba' ORDER BY cl.Percentage DESC LIMIT 1;,Yes,9.4
+12,What language is predominantly spoken in Aruba?,medium,"SELECT T2.Language FROM country AS T1 JOIN countrylanguage AS T2 ON T1.Code  =  T2.CountryCode WHERE T1.Name  =  ""Aruba"" ORDER BY Percentage DESC LIMIT 1",SELECT T2.Language FROM country AS T1 INNER JOIN countrylanguage AS T2 ON T1.Code = T2.CountryCode WHERE T1.Name = 'Aruba',No,2.5,SELECT cl.Language FROM countrylanguage AS cl JOIN country AS c ON cl.CountryCode = c.Code WHERE c.Name = 'Aruba';,No,9.0,SELECT cl.Language FROM country AS c JOIN countrylanguage AS cl ON c.Code = cl.CountryCode WHERE c.Name = 'Aruba';,No,8.7
+13,What are the population and life expectancies in Brazil?,easy,"SELECT Population ,  LifeExpectancy FROM country WHERE Name  =  ""Brazil""","SELECT T1.Population, T1.LifeExpectancy 
+FROM country AS T1 
+JOIN countrylanguage AS T2 ON T1.Code = T2.CountryCode 
+WHERE T1.Name = 'Brazil' AND T2.Language = 'Portuguese';",Yes,3.5,"SELECT c.Population, c.LifeExpectancy FROM country AS c WHERE c.Name = 'Brazil';",Yes,9.7,"SELECT Population, LifeExpectancy FROM country WHERE Name = 'Brazil';",Yes,9.3
+14,Give me Brazil’s population and life expectancies.,easy,"SELECT Population ,  LifeExpectancy FROM country WHERE Name  =  ""Brazil""","SELECT T1.Population, T1.LifeExpectancy 
+FROM country AS T1 
+JOIN countrylanguage AS T2 ON T1.Code = T2.CountryCode 
+WHERE T1.Name = 'Brazil' AND T2.Language = 'Portuguese';",Yes,3.9,"SELECT Population, LifeExpectancy FROM country WHERE Name = 'Brazil';",Yes,9.9,"SELECT Population, LifeExpectancy FROM country WHERE Name = 'Brazil';",Yes,9.7
+15,What are the region and population of Angola?,easy,"SELECT Population ,  Region FROM country WHERE Name  =  ""Angola""","SELECT T2.Region, T2.Population FROM country AS T1 INNER JOIN countrylanguage AS T2 ON T1.Code = T2.CountryCode WHERE T1.Name = 'Angola'",No,2.7,"SELECT Region, Population FROM country WHERE Name = 'Angola';",Yes,10.5,"SELECT Region, Population FROM country WHERE Code = 'ANG';",No,9.8
+16,What region does Angola belong to and what is its population?,easy,"SELECT Population ,  Region FROM country WHERE Name  =  ""Angola""","SELECT T2.Region, T1.Population 
+FROM country AS T1 
+JOIN countrylanguage AS T2 ON T1.Code = T2.CountryCode 
+WHERE T1.Name = 'Angola';",No,3.0,"SELECT r.Region, c.Population FROM country AS c JOIN region AS r ON c.Region = r.Code WHERE c.Name = 'Angola';",No,10.5,"SELECT r.Region, c.Population FROM country AS c JOIN region AS r ON c.Region = r.Name WHERE c.Code = 'ANG';",No,66.9
+17,What is the average expected life expectancy for countries in the region of Central Africa?,easy,"SELECT avg(LifeExpectancy) FROM country WHERE Region  =  ""Central Africa""",SELECT AVG(T1.LifeExpectancy) FROM country AS T1 INNER JOIN countryregion AS T2 ON T1.Code = T2.CountryCode WHERE T2.Region = 'Central Africa';,No,2.6,SELECT AVG(LifeExpectancy) FROM country WHERE Region = 'Central Africa';,Yes,9.3,SELECT AVG(LifeExpectancy) FROM country WHERE Region = 'Central Africa';,Yes,8.9
+18,How long is the people’s average life expectancy in Central Africa?,easy,"SELECT avg(LifeExpectancy) FROM country WHERE Region  =  ""Central Africa""","SELECT AVG(T1.LifeExpectancy) 
+FROM country AS T1 
+JOIN countrylanguage AS T2 ON T1.Code = T2.CountryCode 
+WHERE T1.Continent = 'Africa' AND T2.Language = 'English';",No,2.8,SELECT AVG(lifeExpectancy) FROM country WHERE Continent = 'Africa';,No,9.0,SELECT AVG(lifeExpectancy) FROM country WHERE Continent = 'Africa';,No,8.7
+19,What is the name of country that has the shortest life expectancy in Asia?,easy,"SELECT Name FROM country WHERE Continent  =  ""Asia"" ORDER BY LifeExpectancy LIMIT 1","SELECT T1.Name 
+FROM country AS T1 
+JOIN countrylanguage AS T2 ON T1.Code = T2.CountryCode 
+JOIN country AS T3 ON T2.CountryCode = T3.Code 
+WHERE T3.Continent = 'Asia' AND T2.Percentage = ( SELECT MIN(Percentage) FROM countrylanguage WHERE CountryCode IN ( SELECT Code FROM country WHERE Continent = 'Asia' ) );",No,4.8,SELECT Name FROM country WHERE Continent = 'Asia' AND LifeExpectancy = (SELECT MIN(LifeExpectancy) FROM country WHERE Continent = 'Asia');,Yes,9.3,SELECT Name FROM country WHERE Continent = 'Asia' AND LifeExpectancy = (SELECT MIN(LifeExpectancy) FROM country WHERE Continent = 'Asia');,Yes,9.6
+20,Give the name of the country in Asia with the lowest life expectancy.,easy,"SELECT Name FROM country WHERE Continent  =  ""Asia"" ORDER BY LifeExpectancy LIMIT 1","SELECT T1.Name 
+FROM country AS T1 
+JOIN countrylanguage AS T2 ON T1.Code = T2.CountryCode 
+WHERE T1.Continent = 'Asia' AND T2.Language = 'English' ORDER BY T1.LifeExpectancy LIMIT 1;",No,3.9,SELECT Name FROM country WHERE Continent = 'Asia' ORDER BY LifeExpectancy LIMIT 1;,Yes,11.2,SELECT Name FROM country WHERE Continent = 'Asia' ORDER BY LifeExpectancy LIMIT 1;,Yes,10.4
+21,What is the total population and maximum GNP in Asia?,easy,"SELECT sum(Population) ,  max(GNP) FROM country WHERE Continent  =  ""Asia""","SELECT SUM(c.Population), MAX(c.GNP) 
+FROM country c 
+JOIN countrylanguage cl ON c.Code = cl.CountryCode 
+WHERE c.Continent = 'Asia' AND cl.Language = 'English';",No,3.9,SELECT SUM(Population) FROM country WHERE Continent = 'Asia' AND Population > 0;,No,10.5,SELECT SUM(Population) FROM country WHERE Continent = 'Asia' AND GNP = (SELECT MAX(GNP) FROM country WHERE Continent = 'Asia');,No,10.3
+22,"How many people live in Asia, and what is the largest GNP among them?",easy,"SELECT sum(Population) ,  max(GNP) FROM country WHERE Continent  =  ""Asia""","SELECT T1.Population, MAX(T2.GNP) FROM country AS T1 INNER JOIN countrylanguage AS T2 ON T1.Code = T2.CountryCode WHERE T1.Continent = 'Asia' GROUP BY T1.Code",No,3.3,SELECT SUM(Population) FROM country WHERE Continent = 'Asia' AND Population > 0 ORDER BY GNP DESC LIMIT 1;,No,10.5,SELECT SUM(Population) FROM country WHERE Continent = 'Asia' AND Population > 0 ORDER BY GNP DESC LIMIT 1;,No,10.0
+23,What is the average life expectancy in African countries that are republics?,easy,"SELECT avg(LifeExpectancy) FROM country WHERE Continent  =  ""Africa"" AND GovernmentForm  =  ""Republic""","SELECT AVG(T2.LifeExpectancy) 
+FROM country AS T1 
+JOIN countrylanguage AS T2 ON T1.Code = T2.CountryCode 
+JOIN country AS T3 ON T2.CountryCode = T3.Code 
+WHERE T1.Continent = 'Africa' AND T1.GovernmentForm = 'Republic'",No,4.8,SELECT AVG(LifeExpectancy) FROM country WHERE Continent = 'Africa' AND GovernmentForm = 'Republic';,Yes,9.2,SELECT AVG(LifeExpectancy) FROM country WHERE Continent = 'Africa' AND GovernmentForm = 'Republic';,Yes,9.3
+24,Give the average life expectancy for countries in Africa which are republics?,easy,"SELECT avg(LifeExpectancy) FROM country WHERE Continent  =  ""Africa"" AND GovernmentForm  =  ""Republic""","SELECT AVG(T1.LifeExpectancy) 
+FROM country AS T1 
+JOIN countrylanguage AS T2 ON T1.Code = T2.CountryCode 
+JOIN country AS T3 ON T2.CountryCode = T3.Code 
+WHERE T1.Continent = 'Africa' AND T3.GovernmentForm = 'Republic'",No,4.3,SELECT AVG(LifeExpectancy) FROM country WHERE Continent = 'Africa' AND GovernmentForm = 'Republic';,Yes,9.2,SELECT AVG(LifeExpectancy) FROM country WHERE Continent = 'Africa' AND GovernmentForm = 'Republic';,Yes,9.2
+25,What is the total surface area of the continents Asia and Europe?,easy,"SELECT sum(SurfaceArea) FROM country WHERE Continent  =  ""Asia"" OR Continent  =  ""Europe""","SELECT SUM(T1.SurfaceArea) FROM country AS T1 INNER JOIN countrycontinent AS T2 ON T1.Code = T2.Code WHERE T2.Continent IN ('Asia', 'Europe')",No,2.4,"SELECT SUM(SurfaceArea) FROM country WHERE Continent IN ('Asia', 'Europe');",Yes,9.7,"SELECT SUM(SurfaceArea) FROM country WHERE Continent IN ('Asia', 'Europe');",Yes,9.7
+26,Give the total surface area covered by countries in Asia or Europe.,easy,"SELECT sum(SurfaceArea) FROM country WHERE Continent  =  ""Asia"" OR Continent  =  ""Europe""","SELECT SUM(T1.SurfaceArea) FROM country AS T1 INNER JOIN countrylanguage AS T2 ON T1.Code = T2.CountryCode WHERE T1.Continent IN ('Asia', 'Europe') AND T2.Language = 'eng'",No,2.8,"SELECT SUM(SurfaceArea) FROM country WHERE Continent IN ('Asia', 'Europe');",Yes,10.6,"SELECT SUM(SurfaceArea) FROM country WHERE Continent IN ('Asia', 'Europe');",Yes,10.2
+27,How many people live in Gelderland district?,easy,"SELECT sum(Population) FROM city WHERE District  =  ""Gelderland""",SELECT T1.Population FROM city AS T1 INNER JOIN country AS T2 ON T1.CountryCode = T2.Code WHERE T1.District = 'Gelderland',No,2.3,SELECT Population FROM city WHERE District = 'Gelderland';,No,9.3,SELECT COUNT(*) FROM city WHERE District = 'Gelderland';,No,8.9
+28,What is the total population of Gelderland district?,easy,"SELECT sum(Population) FROM city WHERE District  =  ""Gelderland""",SELECT SUM(T1.Population) FROM city AS T1 INNER JOIN country AS T2 ON T1.CountryCode = T2.Code WHERE T1.District = 'Gelderland',Yes,2.3,SELECT SUM(Population) FROM city WHERE District = 'Gelderland';,Yes,10.0,SELECT SUM(Population) FROM city WHERE District = 'Gelderland';,Yes,9.0
+29,What is the average GNP and total population in all nations whose government is US territory?,easy,"SELECT avg(GNP) ,  sum(population) FROM country WHERE GovernmentForm  =  ""US Territory""","SELECT AVG(GNP) ,  SUM(Population) 
+FROM country 
+WHERE GovernmentForm = 'US territory'",No,1.9,"SELECT AVG(GNP), SUM(Population) FROM country WHERE Code IN (SELECT Code FROM us_territory);",No,13.9,"SELECT AVG(GNP), SUM(Population) FROM country WHERE Code2 = 'US';",No,12.0
+30,Give the mean GNP and total population of nations which are considered US territory.,easy,"SELECT avg(GNP) ,  sum(population) FROM country WHERE GovernmentForm  =  ""US Territory""","SELECT AVG(GNP) ,  SUM(Population) FROM country WHERE Code IN ( SELECT Code FROM country WHERE Name = 'United States of America' )",No,2.1,"SELECT AVG(GNP) AS mean_GNP, SUM(Population) FROM country WHERE Code = 'US';",No,9.7,SELECT AVG(GNP) FROM country WHERE Code = 'US';,No,10.0
+31,How many unique languages are spoken in the world?,easy,SELECT count(DISTINCT LANGUAGE) FROM countrylanguage,SELECT COUNT(DISTINCT Language) FROM countrylanguage,Yes,1.5,SELECT COUNT(DISTINCT cl.Language) FROM countrylanguage AS cl;,Yes,9.1,SELECT COUNT(DISTINCT Language) FROM countrylanguage;,Yes,9.1
+32,What is the number of distinct languages used around the world?,easy,SELECT count(DISTINCT LANGUAGE) FROM countrylanguage,SELECT COUNT(DISTINCT Language) FROM countrylanguage,Yes,1.5,SELECT COUNT(DISTINCT Language) FROM countrylanguage;,Yes,8.7,SELECT COUNT(DISTINCT Language) FROM countrylanguage;,Yes,8.8
+33,How many type of governments are in Africa?,easy,"SELECT count(DISTINCT GovernmentForm) FROM country WHERE Continent  =  ""Africa""",SELECT COUNT(DISTINCT GovernmentForm) FROM country WHERE Continent = 'Africa',Yes,1.7,SELECT COUNT(DISTINCT GovernmentForm) FROM country WHERE Continent = 'Africa';,Yes,9.6,SELECT COUNT(DISTINCT GovernmentForm) FROM country WHERE Continent = 'Africa';,Yes,9.2
+34,How many different forms of governments are there in Africa?,easy,"SELECT count(DISTINCT GovernmentForm) FROM country WHERE Continent  =  ""Africa""",SELECT COUNT(DISTINCT GovernmentForm) FROM country WHERE Continent = 'Africa',Yes,1.9,SELECT COUNT(DISTINCT GovernmentForm) FROM country WHERE Continent = 'Africa';,Yes,10.9,SELECT COUNT(DISTINCT GovernmentForm) FROM country WHERE Continent = 'Africa';,Yes,10.3
+35,What is the total number of languages used in Aruba?,medium,"SELECT COUNT(T2.Language) FROM country AS T1 JOIN countrylanguage AS T2 ON T1.Code  =  T2.CountryCode WHERE T1.Name  =  ""Aruba""",SELECT COUNT(DISTINCT T1.Language) FROM countrylanguage AS T1 INNER JOIN country AS T2 ON T1.CountryCode = T2.Code WHERE T2.Name = 'Aruba';,Yes,2.9,SELECT COUNT(*) FROM countrylanguage AS cl JOIN country AS c ON cl.CountryCode = c.Code WHERE c.Name = 'Aruba';,Yes,11.0,SELECT COUNT(*) FROM countrylanguage WHERE CountryCode = 'ABW';,Yes,10.1
+36,How many languages are spoken in Aruba?,medium,"SELECT COUNT(T2.Language) FROM country AS T1 JOIN countrylanguage AS T2 ON T1.Code  =  T2.CountryCode WHERE T1.Name  =  ""Aruba""",SELECT COUNT(DISTINCT T2.Language) FROM country AS T1 INNER JOIN countrylanguage AS T2 ON T1.Code = T2.CountryCode WHERE T1.Name = 'Aruba';,Yes,2.6,SELECT COUNT(DISTINCT cl.Language) FROM countrylanguage AS cl JOIN country AS c ON cl.CountryCode = c.Code WHERE c.Name = 'Aruba';,Yes,11.1,SELECT COUNT(*) FROM countrylanguage WHERE CountryCode = 'ABW';,Yes,9.7
+37,How many official languages does Afghanistan have?,medium,"SELECT COUNT(*) FROM country AS T1 JOIN countrylanguage AS T2 ON T1.Code  =  T2.CountryCode WHERE T1.Name  =  ""Afghanistan"" AND IsOfficial  =  ""T""",SELECT COUNT(T1.Language) FROM countrylanguage AS T1 INNER JOIN country AS T2 ON T1.CountryCode = T2.Code WHERE T1.IsOfficial = 'T' AND T2.Name = 'Afghanistan';,Yes,3.0,SELECT COUNT(DISTINCT cl.Language) FROM countrylanguage AS cl JOIN country AS c ON cl.CountryCode = c.Code WHERE c.Name = 'Afghanistan' AND cl.IsOfficial = 't';,No,9.8,SELECT COUNT(*) FROM countrylanguage WHERE CountryCode = 'AFN' AND IsOfficial = 't';,No,8.7
+38,How many official languages are spoken in Afghanistan?,medium,"SELECT COUNT(*) FROM country AS T1 JOIN countrylanguage AS T2 ON T1.Code  =  T2.CountryCode WHERE T1.Name  =  ""Afghanistan"" AND IsOfficial  =  ""T""",SELECT COUNT(DISTINCT T2.Language) FROM country AS T1 INNER JOIN countrylanguage AS T2 ON T1.Code = T2.CountryCode WHERE T1.Name = 'Afghanistan' AND T2.IsOfficial = 'T';,Yes,3.5,SELECT COUNT(DISTINCT cl.Language) FROM countrylanguage AS cl JOIN country AS c ON cl.CountryCode = c.Code WHERE c.Name = 'Afghanistan' AND cl.IsOfficial = 't';,No,10.3,SELECT COUNT(*) FROM countrylanguage WHERE CountryCode = 'AFN' AND IsOfficial = 't';,No,10.2
+39,What is name of the country that speaks the largest number of languages?,medium,SELECT T1.Name FROM country AS T1 JOIN countrylanguage AS T2 ON T1.Code  =  T2.CountryCode GROUP BY T1.Name ORDER BY COUNT(*) DESC LIMIT 1,"SELECT T1.Name 
+FROM country AS T1 
+JOIN countrylanguage AS T2 ON T1.Code = T2.CountryCode 
+GROUP BY T1.Code 
+ORDER BY COUNT(T2.Language) DESC LIMIT 1;",No,3.1,SELECT cl.Language FROM countrylanguage AS cl JOIN country AS c ON cl.CountryCode = c.Code GROUP BY cl.Language ORDER BY COUNT(cl.Language) DESC LIMIT 1;,No,11.6,SELECT c.Name FROM country AS c JOIN countrylanguage AS cl ON c.Code = cl.CountryCode GROUP BY c.Name ORDER BY COUNT(cl.Language) DESC LIMIT 1;,Yes,10.6
+40,Give the name of the nation that uses the greatest amount of languages.,medium,SELECT T1.Name FROM country AS T1 JOIN countrylanguage AS T2 ON T1.Code  =  T2.CountryCode GROUP BY T1.Name ORDER BY COUNT(*) DESC LIMIT 1,"SELECT T1.Name 
+FROM country AS T1 
+JOIN countrylanguage AS T2 ON T1.Code = T2.CountryCode 
+GROUP BY T1.Name 
+ORDER BY COUNT(T2.Language) DESC LIMIT 1;",Yes,3.5,SELECT cl.Language FROM countrylanguage AS cl GROUP BY cl.CountryCode ORDER BY COUNT(cl.Language) DESC LIMIT 1;,No,9.7,SELECT cl.Language FROM countrylanguage AS cl JOIN country AS c ON cl.CountryCode = c.Code GROUP BY c.Code ORDER BY COUNT(cl.Language) DESC LIMIT 1;,No,9.4
+41,Which continent has the most diverse languages?,medium,SELECT T1.Continent FROM country AS T1 JOIN countrylanguage AS T2 ON T1.Code  =  T2.CountryCode GROUP BY T1.Continent ORDER BY COUNT(*) DESC LIMIT 1,"SELECT T1.Continent 
+FROM country AS T1 
+JOIN countrylanguage AS T2 ON T1.Code = T2.CountryCode 
+GROUP BY T1.Continent 
+ORDER BY COUNT(T2.Language) DESC LIMIT 1;",Yes,3.4,"SELECT c.Continent, COUNT(DISTINCT cl.Language) FROM countrylanguage AS cl JOIN country AS c ON cl.CountryCode = c.Code GROUP BY c.Continent ORDER BY COUNT(DISTINCT cl.Language) DESC LIMIT 1;",No,11.8,"SELECT c.Continent, COUNT(DISTINCT cl.Language) FROM countrylanguage AS cl JOIN country AS c ON cl.CountryCode = c.Code GROUP BY c.Continent ORDER BY COUNT(DISTINCT cl.Language) DESC LIMIT 1;",No,11.4
+42,Which continent speaks the most languages?,medium,SELECT T1.Continent FROM country AS T1 JOIN countrylanguage AS T2 ON T1.Code  =  T2.CountryCode GROUP BY T1.Continent ORDER BY COUNT(*) DESC LIMIT 1,SELECT T1.Continent FROM country AS T1 INNER JOIN countrylanguage AS T2 ON T1.Code = T2.CountryCode GROUP BY T1.Continent ORDER BY COUNT(T2.Language) DESC LIMIT 1,Yes,3.7,SELECT cl.Percentage FROM countrylanguage AS cl JOIN country AS c ON cl.CountryCode = c.Code GROUP BY cl.Language ORDER BY SUM(cl.Percentage) DESC LIMIT 1;,No,10.6,"SELECT c.Continent, COUNT(cl.Language) FROM countrylanguage AS cl JOIN country AS c ON cl.CountryCode = c.Code GROUP BY c.Continent ORDER BY COUNT(cl.Language) DESC LIMIT 1;",No,10.4
+43,What is the number of distinct continents where Chinese is spoken?,medium,"SELECT COUNT( DISTINCT Continent) FROM country AS T1 JOIN countrylanguage AS T2 ON T1.Code  =  T2.CountryCode WHERE T2.Language  =  ""Chinese""",SELECT COUNT(DISTINCT T2.Continent) FROM countrylanguage AS T1 INNER JOIN country AS T2 ON T1.CountryCode = T2.Code WHERE T1.Language = 'Chinese',Yes,3.5,SELECT COUNT(DISTINCT c.Continent) FROM countrylanguage AS cl JOIN country AS c ON cl.CountryCode = c.Code WHERE cl.Language = 'Chinese';,Yes,10.3,SELECT COUNT(DISTINCT c.Continent) FROM countrylanguage AS cl JOIN country AS c ON cl.CountryCode = c.Code WHERE Language = 'Chinese';,Yes,10.1
+44,How many continents speak Chinese?,medium,"SELECT COUNT( DISTINCT Continent) FROM country AS T1 JOIN countrylanguage AS T2 ON T1.Code  =  T2.CountryCode WHERE T2.Language  =  ""Chinese""",SELECT COUNT(DISTINCT T2.Continent) FROM countrylanguage AS T1 INNER JOIN country AS T2 ON T1.CountryCode = T2.Code WHERE T1.Language = 'Chinese',Yes,3.0,SELECT COUNT(DISTINCT cl.Language) FROM countrylanguage AS cl JOIN country AS c ON cl.CountryCode = c.Code WHERE c.Name = 'China' AND cl.IsOfficial = 't';,No,11.0,SELECT COUNT(DISTINCT cl.CountryCode) FROM countrylanguage AS cl JOIN country AS c ON cl.CountryCode = c.Code WHERE c.Name = 'China' AND cl.Language = 'Chinese';,No,15.2
+45,What are the regions that use English or Dutch?,medium,"SELECT DISTINCT T1.Region FROM country AS T1 JOIN countrylanguage AS T2 ON T1.Code  =  T2.CountryCode WHERE T2.Language  =  ""English"" OR T2.Language  =  ""Dutch""","SELECT T2.Region 
+FROM countrylanguage AS T1 
+JOIN country AS T2 ON T1.CountryCode = T2.Code 
+WHERE T1.Language IN ('English', 'Dutch')",Yes,2.9,"SELECT r.Region FROM countrylanguage AS cl JOIN country AS c ON cl.CountryCode = c.Code WHERE cl.Language IN ('English', 'Dutch');",No,10.8,"SELECT c.Region FROM country AS c JOIN countrylanguage AS cl ON c.Code = cl.CountryCode WHERE Language IN ('English', 'Dutch');",Yes,17.5
+46,Which regions speak Dutch or English?,medium,"SELECT DISTINCT T1.Region FROM country AS T1 JOIN countrylanguage AS T2 ON T1.Code  =  T2.CountryCode WHERE T2.Language  =  ""English"" OR T2.Language  =  ""Dutch""","SELECT T1.Region 
+FROM country AS T1 
+JOIN countrylanguage AS T2 ON T1.Code = T2.CountryCode 
+WHERE T2.Language IN ('Dutch', 'English')",Yes,2.8,"SELECT cl.Percentage FROM countrylanguage AS cl JOIN country AS c ON cl.CountryCode = c.Code WHERE c.Name IN ('Netherlands', 'United Kingdom') AND c.Code2 IN ('NL', 'GB');",No,10.5,"SELECT cl.Percentage FROM countrylanguage AS cl JOIN country AS c ON cl.CountryCode = c.Code WHERE c.Name IN ('Netherlands', 'United Kingdom') AND NOT Region IS NULL;",No,10.6
+47,Which language is the most popular on the Asian continent?,medium,"SELECT T2.Language FROM country AS T1 JOIN countrylanguage AS T2 ON T1.Code  =  T2.CountryCode WHERE T1.Continent  =  ""Asia"" GROUP BY T2.Language ORDER BY COUNT (*) DESC LIMIT 1",SELECT T1.Language FROM country AS T1 INNER JOIN countrylanguage AS T2 ON T1.Code = T2.CountryCode WHERE T1.Continent = 'Asia' ORDER BY T2.Percentage DESC LIMIT 1;,No,4.0,SELECT cl.Language FROM country AS c JOIN countrylanguage AS cl ON c.Code = cl.CountryCode WHERE c.Continent = 'Asia' ORDER BY cl.Percentage DESC LIMIT 1;,No,11.1,SELECT cl.Language FROM country AS c JOIN countrylanguage AS cl ON c.Code = cl.CountryCode WHERE c.Continent = 'Asia' ORDER BY cl.Percentage DESC LIMIT 1;,No,10.3
+48,What is the language that is used by the largest number of Asian nations?,medium,"SELECT T2.Language FROM country AS T1 JOIN countrylanguage AS T2 ON T1.Code  =  T2.CountryCode WHERE T1.Continent  =  ""Asia"" GROUP BY T2.Language ORDER BY COUNT (*) DESC LIMIT 1",SELECT T1.Language FROM country AS T1 INNER JOIN countrylanguage AS T2 ON T1.Code = T2.CountryCode WHERE T1.Continent = 'Asia' GROUP BY T1.Language ORDER BY COUNT(T1.Code) DESC LIMIT 1;,No,4.0,SELECT cl.Language FROM countrylanguage AS cl JOIN country AS c ON cl.CountryCode = c.Code WHERE c.Continent = 'Asia' GROUP BY cl.Language ORDER BY COUNT(cl.CountryCode) DESC LIMIT 1;,Yes,10.8,SELECT cl.Language FROM country AS c JOIN countrylanguage AS cl ON c.Code = cl.CountryCode WHERE c.Continent = 'Asia' GROUP BY cl.Language ORDER BY COUNT(*) DESC LIMIT 1;,Yes,12.2
+49,Find the city with the largest population that uses English.,medium,"SELECT T1.Name ,  T1.Population FROM city AS T1 JOIN countrylanguage AS T2 ON T1.CountryCode  =  T2.CountryCode WHERE T2.Language  =  ""English"" ORDER BY T1.Population DESC LIMIT 1","SELECT c.Name FROM country AS c 
+JOIN countrylanguage AS cl ON c.Code = cl.CountryCode 
+WHERE cl.Language = 'English' AND c.Population = ( SELECT MAX(Population) FROM city );",No,3.8,SELECT c.Name FROM countrylanguage AS cl JOIN country AS c ON cl.CountryCode = c.Code WHERE cl.Language = 'English' AND c.Population = (SELECT MAX(Population) FROM country);,No,11.3,SELECT c.Name FROM city AS c JOIN countrylanguage AS cl ON c.CountryCode = cl.CountryCode WHERE cl.Language = 'English' ORDER BY c.Population DESC LIMIT 1;,No,10.9
+50,What is the most populace city that speaks English?,medium,"SELECT T1.Name ,  T1.Population FROM city AS T1 JOIN countrylanguage AS T2 ON T1.CountryCode  =  T2.CountryCode WHERE T2.Language  =  ""English"" ORDER BY T1.Population DESC LIMIT 1",SELECT T1.Name FROM countrylanguage AS T1 INNER JOIN country AS T2 ON T1.CountryCode = T2.Code WHERE T1.Language = 'English' ORDER BY T2.Population DESC LIMIT 1;,No,3.8,SELECT c.Name FROM countrylanguage AS cl JOIN country AS c ON cl.CountryCode = c.Code WHERE cl.Language = 'English' ORDER BY c.Population DESC LIMIT 1;,No,11.2,SELECT c.Name FROM city AS c JOIN countrylanguage AS cl ON c.CountryCode = cl.CountryCode WHERE cl.Language = 'English' ORDER BY c.Population DESC LIMIT 1;,No,9.8
+51,"Find the name, population and expected life length of asian country with the largest area?",easy,"SELECT Name ,  Population ,  LifeExpectancy FROM country WHERE Continent  =  ""Asia"" ORDER BY SurfaceArea DESC LIMIT 1","SELECT c.Name, c.Population, c.LifeExpectancy 
+FROM country c 
+JOIN countrylanguage cl ON c.Code = cl.CountryCode 
+WHERE c.Continent = 'Asia' 
+AND c.SurfaceArea = (SELECT MAX(SurfaceArea) FROM country);",No,3.6,"SELECT c.Name, c.Population, c.LifeExpectancy FROM country AS c JOIN continent AS con ON c.Continent = con.Name WHERE con.Name = 'Asia' ORDER BY c.SurfaceArea DESC LIMIT 1;",No,13.0,"SELECT Name, Population, LifeExpectancy FROM country WHERE Continent = 'Asia' AND SurfaceArea = (SELECT MAX(SurfaceArea) FROM country WHERE Continent = 'Asia');",Yes,24.1
+52,"What are the name, population, and life expectancy of the largest Asian country by land?",easy,"SELECT Name ,  Population ,  LifeExpectancy FROM country WHERE Continent  =  ""Asia"" ORDER BY SurfaceArea DESC LIMIT 1","SELECT T1.Name, T1.Population, T1.LifeExpectancy 
+FROM country AS T1 
+JOIN countrylanguage AS T2 ON T1.Code = T2.CountryCode 
+JOIN country AS T3 ON T2.CountryCode = T3.Code 
+WHERE T3.Continent = 'Asia' AND T2.Language = 'English'",No,4.8,"SELECT c.Name, c.Population, c.LifeExpectancy FROM country AS c WHERE c.Continent = 'Asia' ORDER BY SurfaceArea DESC LIMIT 1;",Yes,10.6,"SELECT Name, Population, LifeExpectancy FROM country WHERE Continent = 'Asia' ORDER BY SurfaceArea DESC LIMIT 1;",Yes,10.6
+53,What is the official language spoken in the country whose head of state is Beatrix?,medium,"SELECT T2.Language FROM country AS T1 JOIN countrylanguage AS T2 ON T1.Code  =  T2.CountryCode WHERE T1.HeadOfState  =  ""Beatrix"" AND T2.IsOfficial  =  ""T""",SELECT T1.Language FROM countrylanguage AS T1 INNER JOIN country AS T2 ON T1.CountryCode = T2.Code WHERE T2.HeadOfState = 'Beatrix';,No,2.3,SELECT cl.Language FROM countrylanguage AS cl JOIN country AS c ON cl.CountryCode = c.Code WHERE c.HeadOfState = 'Beatrix';,No,10.4,SELECT cl.Language FROM country AS c JOIN countrylanguage AS cl ON c.Code = cl.CountryCode WHERE c.HeadOfState = 'Beatrix';,No,8.9
+54,What is the official language used in the country the name of whose head of state is Beatrix.,medium,"SELECT T2.Language FROM country AS T1 JOIN countrylanguage AS T2 ON T1.Code  =  T2.CountryCode WHERE T1.HeadOfState  =  ""Beatrix"" AND T2.IsOfficial  =  ""T""",SELECT T2.Language FROM country AS T1 INNER JOIN countrylanguage AS T2 ON T1.Code = T2.CountryCode WHERE T1.HeadOfState LIKE '%Beatrix%',No,2.4,SELECT cl.Language FROM countrylanguage AS cl JOIN country AS c ON cl.CountryCode = c.Code WHERE c.HeadOfState = 'Beatrix';,No,9.4,SELECT cl.Language FROM country AS c JOIN countrylanguage AS cl ON c.Code = cl.CountryCode WHERE c.HeadOfState = 'Beatrix';,No,9.2
+55,What is the total number of unique official languages spoken in the countries that are founded before 1930?,medium,"SELECT count(DISTINCT T2.Language) FROM country AS T1 JOIN countrylanguage AS T2 ON T1.Code  =  T2.CountryCode WHERE  IndepYear  <  1930 AND T2.IsOfficial  =  ""T""","SELECT COUNT(DISTINCT T1.Language) 
+FROM countrylanguage AS T1 
+JOIN country AS T2 ON T1.CountryCode = T2.Code 
+WHERE T2.IndepYear < 1930 AND T1.IsOfficial = 't'",No,3.2,SELECT COUNT(DISTINCT cl.Language) FROM countrylanguage AS cl JOIN country AS c ON cl.CountryCode = c.Code WHERE c.IndepYear < 1930 AND cl.IsOfficial = 'TRUE';,No,11.3,SELECT COUNT(DISTINCT cl.Language) FROM countrylanguage AS cl JOIN country AS c ON cl.CountryCode = c.Code WHERE c.IndepYear < 1930 AND cl.IsOfficial = 't';,No,11.6
+56,"For the countries founded before 1930, what is the total number of distinct official languages?",medium,"SELECT count(DISTINCT T2.Language) FROM country AS T1 JOIN countrylanguage AS T2 ON T1.Code  =  T2.CountryCode WHERE  IndepYear  <  1930 AND T2.IsOfficial  =  ""T""","SELECT COUNT(DISTINCT T2.Language) 
+FROM country AS T1 
+JOIN countrylanguage AS T2 ON T1.Code = T2.CountryCode 
+WHERE T1.IndepYear < 1930;",No,3.3,SELECT COUNT(DISTINCT cl.Language) FROM countrylanguage AS cl JOIN country AS c ON cl.CountryCode = c.Code WHERE c.IndepYear < 1930;,No,10.1,SELECT COUNT(DISTINCT cl.Language) FROM countrylanguage AS cl JOIN country AS c ON cl.CountryCode = c.Code WHERE c.IndepYear < 1930;,No,9.8
+57,What are the country codes of countries where people use languages other than English?,easy,"SELECT DISTINCT CountryCode FROM countrylanguage WHERE LANGUAGE != ""English""","SELECT c.Code 
+FROM country c 
+JOIN countrylanguage cl ON c.Code = cl.CountryCode 
+WHERE cl.Language != 'English' 
+GROUP BY c.Code;",Yes,2.7,SELECT c.Code FROM country AS c JOIN countrylanguage AS cl ON c.Code = cl.CountryCode WHERE cl.Language <> 'English';,Yes,9.3,SELECT cl.CountryCode FROM countrylanguage AS cl JOIN country AS c ON cl.CountryCode = c.Code WHERE cl.Language <> 'English';,Yes,9.2
+58,Give the country codes for countries in which people speak langauges that are not English.,easy,"SELECT DISTINCT CountryCode FROM countrylanguage WHERE LANGUAGE != ""English""","SELECT c.Code 
+FROM country c 
+JOIN countrylanguage cl ON c.Code = cl.CountryCode 
+WHERE cl.Language != 'English' 
+GROUP BY c.Code;",Yes,3.6,SELECT c.Code FROM country AS c JOIN countrylanguage AS cl ON c.Code = cl.CountryCode WHERE cl.Language <> 'English';,Yes,9.2,SELECT cl.CountryCode FROM countrylanguage AS cl JOIN country AS c ON cl.CountryCode = c.Code WHERE cl.Language <> 'English';,Yes,9.3
+59,"What are the name, independence year, and surface area of the country with the smallest population?",easy,"SELECT Name ,  SurfaceArea ,  IndepYear FROM country ORDER BY Population LIMIT 1","SELECT c.Name, c.IndepYear, c.SurfaceArea 
+FROM country c 
+WHERE c.Population = (SELECT MIN(Population) FROM country);",No,2.5,"SELECT Name, IndepYear, SurfaceArea FROM country ORDER BY Population LIMIT 1;",Yes,10.0,"SELECT Name, IndepYear, SurfaceArea FROM country ORDER BY Population LIMIT 1;",Yes,9.2
+60,"Give the name, year of independence, and surface area of the country that has the lowest population.",easy,"SELECT Name ,  SurfaceArea ,  IndepYear FROM country ORDER BY Population LIMIT 1","SELECT c.Name, c.IndepYear, c.SurfaceArea 
+FROM country c 
+WHERE c.Population = (SELECT MIN(Population) FROM country);",No,2.3,"SELECT Name, IndepYear, SurfaceArea FROM country ORDER BY Population LIMIT 1;",Yes,11.2,"SELECT Name, IndepYear, SurfaceArea FROM country ORDER BY Population LIMIT 1;",Yes,8.8
+61,"What are the population, name and leader of the country with the largest area?",easy,"SELECT Name ,  population ,  HeadOfState FROM country ORDER BY SurfaceArea DESC LIMIT 1","SELECT c.Population, c.Name, c.HeadOfState 
+FROM country c 
+WHERE c.SurfaceArea = (SELECT MAX(SurfaceArea) FROM country);",Yes,2.2,"SELECT c.Population, c.Name, c.HeadOfState FROM country AS c ORDER BY SurfaceArea DESC LIMIT 1;",Yes,9.8,"SELECT c.Population, c.Name, c.HeadOfState FROM country AS c ORDER BY SurfaceArea DESC LIMIT 1;",Yes,9.7
+62,"Give the name, population, and head of state for the country that has the largest area.",easy,"SELECT Name ,  population ,  HeadOfState FROM country ORDER BY SurfaceArea DESC LIMIT 1","SELECT c.Name, c.Population, c.HeadOfState 
+FROM country c 
+WHERE c.SurfaceArea = (SELECT MAX(SurfaceArea) FROM country);",Yes,2.4,"SELECT c.Name, c.Population, c.HeadOfState FROM country AS c ORDER BY SurfaceArea DESC LIMIT 1;",Yes,10.8,"SELECT Name, Population, HeadOfState FROM country ORDER BY SurfaceArea DESC LIMIT 1;",Yes,10.2
+63,What are the names and areas of countries with the top 5 largest area?,easy,"SELECT Name ,  SurfaceArea FROM country ORDER BY SurfaceArea DESC LIMIT 5","SELECT c.Name, c.SurfaceArea 
+FROM country c 
+ORDER BY c.SurfaceArea DESC 
+LIMIT 5;",Yes,2.0,"SELECT Name, SurfaceArea FROM country ORDER BY SurfaceArea DESC LIMIT 5;",Yes,8.2,"SELECT Name, SurfaceArea FROM country ORDER BY SurfaceArea DESC LIMIT 5;",Yes,7.8
+64,Return the names and surface areas of the 5 largest countries.,easy,"SELECT Name ,  SurfaceArea FROM country ORDER BY SurfaceArea DESC LIMIT 5","SELECT c.Name, c.SurfaceArea 
+FROM country c 
+ORDER BY c.Population DESC 
+LIMIT 5;",No,2.0,"SELECT Name, SurfaceArea FROM country ORDER BY Population DESC LIMIT 5;",No,8.0,"SELECT Name, SurfaceArea FROM country ORDER BY SurfaceArea DESC LIMIT 5;",Yes,9.2
+65,What are names of countries with the top 3 largest population?,easy,SELECT Name FROM country ORDER BY Population DESC LIMIT 3,"SELECT c.Name 
+FROM country c 
+JOIN (
+  SELECT Code, Population 
+  FROM country 
+  ORDER BY Population DESC 
+  LIMIT 3
+) m ON c.Code = m.Code;",Yes,2.7,SELECT Name FROM country ORDER BY Population DESC LIMIT 3;,Yes,10.0,SELECT Name FROM country ORDER BY Population DESC LIMIT 3;,Yes,9.6
+66,Return the names of the 3 most populated countries.,easy,SELECT Name FROM country ORDER BY Population DESC LIMIT 3,SELECT T1.Name FROM country AS T1 INNER JOIN countrylanguage AS T2 ON T1.Code = T2.CountryCode GROUP BY T1.Code ORDER BY SUM(T2.Percentage) DESC LIMIT 3,No,2.4,SELECT Name FROM country ORDER BY Population DESC LIMIT 3;,Yes,9.0,SELECT Name FROM country ORDER BY Population DESC LIMIT 3;,Yes,8.4
+67,What are the names of the nations with the 3 lowest populations?,easy,SELECT Name FROM country ORDER BY Population ASC LIMIT 3,"SELECT c.Name 
+FROM country c 
+JOIN countrylanguage cl ON c.Code = cl.CountryCode 
+WHERE c.Population IN (
+  SELECT Population 
+  FROM country 
+  ORDER BY Population ASC LIMIT 3
+);",No,3.0,SELECT Name FROM city ORDER BY Population LIMIT 3;,No,8.8,SELECT Name FROM country ORDER BY Population ASC LIMIT 3;,Yes,8.0
+68,Return the names of the 3 countries with the fewest people.,easy,SELECT Name FROM country ORDER BY Population ASC LIMIT 3,"SELECT T1.Name 
+FROM country AS T1 
+JOIN countrylanguage AS T2 ON T1.Code = T2.CountryCode 
+GROUP BY T1.Code 
+ORDER BY T1.Population ASC 
+LIMIT 3;",No,2.7,SELECT Name FROM country ORDER BY Population ASC LIMIT 3;,Yes,9.5,SELECT Name FROM country ORDER BY Population ASC LIMIT 3;,Yes,8.1
+69,how many countries are in Asia?,easy,"SELECT count(*) FROM country WHERE continent  =  ""Asia""","SELECT COUNT(DISTINCT T1.Code) FROM country AS T1 INNER JOIN countrylanguage AS T2 ON T1.Code = T2.CountryCode WHERE T2.Language IN ('English', 'Mandarin') AND T1.Continent = 'Asia'",No,3.7,SELECT COUNT(*) FROM country WHERE Continent = 'Asia';,Yes,8.2,SELECT COUNT(*) FROM country WHERE Continent = 'Asia';,Yes,8.3
+70,Count the number of countries in Asia.,easy,"SELECT count(*) FROM country WHERE continent  =  ""Asia""",SELECT COUNT(DISTINCT T1.Code) FROM country AS T1 INNER JOIN countrylanguage AS T2 ON T1.Code = T2.CountryCode WHERE T1.Continent = 'Asia',Yes,2.4,SELECT COUNT(*) FROM country WHERE Continent = 'Asia';,Yes,9.3,SELECT COUNT(*) FROM country WHERE Continent = 'Asia';,Yes,8.6
+71,What are the names of the countries that are in the continent of Europe and have a population of 80000?,easy,"SELECT Name FROM country WHERE continent  =  ""Europe"" AND Population  =  ""80000""","SELECT T1.Name 
+FROM country AS T1 
+JOIN countrylanguage AS T2 ON T1.Code = T2.CountryCode 
+WHERE T1.Continent = 'Europe' AND T1.Population = 80000;",Yes,2.7,SELECT Name FROM country WHERE Continent = 'Europe' AND Population = 80000;,Yes,11.5,SELECT Name FROM country WHERE Continent = 'Europe' AND Population = 80000;,Yes,9.2
+72,Give the names of countries that are in Europe and have a population equal to 80000.,easy,"SELECT Name FROM country WHERE continent  =  ""Europe"" AND Population  =  ""80000""","SELECT c.Name 
+FROM country c 
+JOIN countrylanguage cl ON c.Code = cl.CountryCode 
+WHERE c.Continent = 'Europe' AND c.Population = 80000;",Yes,2.6,SELECT Name FROM country WHERE Continent = 'Europe' AND Population = 80000;,Yes,10.8,SELECT Name FROM country WHERE Continent = 'Europe' AND Population = 80000;,Yes,8.7
+73,What is the total population and average area of countries in the continent of North America whose area is bigger than 3000 ?,easy,"select sum(population) ,  avg(surfacearea) from country where continent  =  ""north america"" and surfacearea  >  3000","SELECT 
+    SUM(c.Population) AS TotalPopulation,
+    AVG(c.SurfaceArea) AS AverageArea
+FROM 
+    country c
+JOIN 
+    countrylanguage cl ON c.Code = cl.CountryCode
+WHERE 
+    c.Continent = 'North America' AND c.SurfaceArea > 3000;",No,4.4,"SELECT SUM(Population), AVG(SurfaceArea) FROM country WHERE Continent = 'North America' AND SurfaceArea > 3000;",No,9.8,SELECT SUM(Population) FROM country WHERE Continent = 'North America' AND SurfaceArea > 3000;,No,11.3
+74,Give the total population and average surface area corresponding to countries in North America that have a surface area greater than 3000 .,easy,"select sum(population) ,  avg(surfacearea) from country where continent  =  ""north america"" and surfacearea  >  3000","SELECT 
+    c.Population,
+    AVG(c.SurfaceArea) AS AverageSurfaceArea
+FROM 
+    country c
+JOIN 
+    countrylanguage cl ON c.Code = cl.CountryCode
+WHERE 
+    c.Continent = 'North America' AND c.SurfaceArea > 3000
+GROUP BY 
+    c.Code;",No,4.3,"SELECT SUM(Population), AVG(SurfaceArea) FROM country WHERE Continent = 'North America' AND SurfaceArea > 3000;",No,10.1,"SELECT SUM(Population), AVG(SurfaceArea) FROM country WHERE Continent = 'North America' AND SurfaceArea > 3000;",No,11.9
+75,What are the cities whose population is between 160000 and 900000?,easy,SELECT name FROM city WHERE Population BETWEEN 160000 AND 900000,"SELECT T1.Name 
+FROM city AS T1 
+JOIN country AS T2 ON T1.CountryCode = T2.Code 
+WHERE T1.Population BETWEEN 160000 AND 900000;",Yes,2.6,SELECT Name FROM city WHERE Population BETWEEN 160000 AND 900000;,Yes,8.3,SELECT Name FROM city WHERE Population BETWEEN 160000 AND 900000;,Yes,7.5
+76,Return the names of cities that have a population between 160000 and 900000 .,easy,select name from city where population between 160000 and 900000,"SELECT T1.Name 
+FROM city AS T1 
+JOIN country AS T2 ON T1.CountryCode = T2.Code 
+WHERE T1.Population BETWEEN 160000 AND 900000;",Yes,2.5,SELECT Name FROM city WHERE Population BETWEEN 160000 AND 900000;,Yes,9.3,SELECT Name FROM city WHERE Population BETWEEN 160000 AND 900000;,Yes,8.9
+77,Which language is spoken by the largest number of countries?,medium,SELECT LANGUAGE FROM countrylanguage GROUP BY LANGUAGE ORDER BY count(*) DESC LIMIT 1,SELECT Language FROM countrylanguage GROUP BY Language ORDER BY COUNT(CountryCode) DESC LIMIT 1;,Yes,1.7,SELECT cl.Language FROM countrylanguage AS cl GROUP BY cl.Language ORDER BY COUNT(cl.CountryCode) DESC LIMIT 1;,Yes,9.2,SELECT cl.Language FROM countrylanguage AS cl GROUP BY cl.Language ORDER BY COUNT(cl.CountryCode) DESC LIMIT 1;,Yes,10.6
+78,Give the language that is spoken in the most countries.,medium,SELECT LANGUAGE FROM countrylanguage GROUP BY LANGUAGE ORDER BY count(*) DESC LIMIT 1,"SELECT Language 
+FROM countrylanguage 
+GROUP BY Language 
+ORDER BY COUNT(CountryCode) DESC 
+LIMIT 1;",Yes,2.2,SELECT cl.Language FROM countrylanguage AS cl GROUP BY cl.Language ORDER BY COUNT(cl.CountryCode) DESC LIMIT 1;,Yes,9.6,SELECT cl.Language FROM countrylanguage AS cl GROUP BY cl.Language ORDER BY COUNT(cl.CountryCode) DESC LIMIT 1;,Yes,9.0
+79,What is the language spoken by the largest percentage of people in each country?,medium,"SELECT LANGUAGE ,  CountryCode ,  max(Percentage) FROM countrylanguage GROUP BY CountryCode","SELECT c.Name, cl.Language, cl.Percentage 
+FROM country c 
+JOIN countrylanguage cl ON c.Code = cl.CountryCode 
+GROUP BY cl.Language 
+ORDER BY SUM(cl.Percentage) DESC 
+LIMIT 1;",No,3.1,SELECT cl.Language FROM countrylanguage AS cl JOIN country AS c ON cl.CountryCode = c.Code GROUP BY cl.CountryCode ORDER BY SUM(cl.Percentage) DESC LIMIT 1;,No,11.8,"SELECT cl.Language, SUM(cl.Percentage) AS TotalPercentage FROM countrylanguage AS cl GROUP BY cl.Language;",No,10.4
+80,"What are the country codes of the different countries, and what are the languages spoken by the greatest percentage of people for each?",medium,"SELECT LANGUAGE ,  CountryCode ,  max(Percentage) FROM countrylanguage GROUP BY CountryCode","SELECT 
+  c.Code,
+  cl.Language,
+  cl.Percentage
+FROM 
+  country c
+JOIN 
+  countrylanguage cl ON c.Code = cl.CountryCode
+GROUP BY 
+  c.Code, cl.Language
+ORDER BY 
+  c.Code, cl.Percentage DESC;",No,4.0,"SELECT cl.CountryCode, cl.Language FROM countrylanguage AS cl GROUP BY cl.CountryCode ORDER BY SUM(cl.Percentage) DESC LIMIT 5;",No,10.2,"SELECT cl.CountryCode, cl.Language FROM countrylanguage AS cl GROUP BY cl.CountryCode ORDER BY SUM(cl.Percentage) DESC LIMIT 10;",No,10.6
+81,What is the total number of countries where Spanish is spoken by the largest percentage of people?,medium,"SELECT count(*) ,   max(Percentage) FROM countrylanguage WHERE LANGUAGE  =  ""Spanish"" GROUP BY CountryCode","SELECT COUNT(DISTINCT c.Code) FROM countrylanguage cl 
+JOIN country c ON cl.CountryCode = c.Code 
+WHERE cl.Language = 'Spanish' AND cl.Percentage = ( SELECT MAX(Percentage) FROM countrylanguage )",No,2.9,SELECT COUNT(*) FROM countrylanguage AS cl JOIN country AS c ON cl.CountryCode = c.Code WHERE cl.Language = 'Spanish' ORDER BY Percentage DESC LIMIT 1;,No,11.0,SELECT COUNT(*) FROM countrylanguage AS cl JOIN country AS c ON cl.CountryCode = c.Code WHERE Language = 'Spanish' ORDER BY Percentage DESC LIMIT 1;,No,10.4
+82,Count the number of countries for which Spanish is the predominantly spoken language.,medium,"SELECT count(*) ,   max(Percentage) FROM countrylanguage WHERE LANGUAGE  =  ""Spanish"" GROUP BY CountryCode","SELECT COUNT(DISTINCT c.Code) FROM countrylanguage cl 
+JOIN country c ON cl.CountryCode = c.Code 
+WHERE cl.Language = 'Spanish' AND cl.IsOfficial = 't';",No,2.6,SELECT COUNT(*) FROM countrylanguage AS cl JOIN country AS c ON cl.CountryCode = c.Code WHERE cl.Language = 'Spanish' AND c.Population > 0;,No,9.3,SELECT COUNT(*) FROM countrylanguage AS cl JOIN country AS c ON cl.CountryCode = c.Code WHERE Language = 'Spanish';,No,8.6
+83,What are the codes of countries where Spanish is spoken by the largest percentage of people?,medium,"SELECT CountryCode ,  max(Percentage) FROM countrylanguage WHERE LANGUAGE  =  ""Spanish"" GROUP BY CountryCode","SELECT c.Code 
+FROM countrylanguage cl 
+JOIN country c ON cl.CountryCode = c.Code 
+WHERE cl.Language = 'Spanish' 
+GROUP BY c.Code 
+ORDER BY AVG(cl.Percentage) DESC 
+LIMIT 1;",No,2.9,SELECT cl.CountryCode FROM countrylanguage AS cl WHERE Percentage = (SELECT MAX(Percentage) FROM countrylanguage);,No,9.4,SELECT cl.CountryCode FROM countrylanguage AS cl JOIN country AS c ON cl.CountryCode = c.Code WHERE Language = 'Spanish' ORDER BY cl.Percentage DESC LIMIT 1;,No,9.6
+84,Return the codes of countries for which Spanish is the predominantly spoken language.,medium,"SELECT CountryCode ,  max(Percentage) FROM countrylanguage WHERE LANGUAGE  =  ""Spanish"" GROUP BY CountryCode","SELECT T1.Code 
+FROM country AS T1 
+JOIN countrylanguage AS T2 ON T1.Code = T2.CountryCode 
+WHERE T2.Language = 'Spanish' AND T2.IsOfficial = 't';",No,2.9,SELECT cl.CountryCode FROM countrylanguage AS cl JOIN country AS c ON cl.CountryCode = c.Code WHERE cl.Language = 'Spanish';,No,9.6,SELECT cl.CountryCode FROM countrylanguage AS cl JOIN country AS c ON cl.CountryCode = c.Code WHERE Language = 'Spanish';,No,9.1

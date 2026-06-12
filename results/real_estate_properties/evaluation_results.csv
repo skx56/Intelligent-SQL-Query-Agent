@@ -1,0 +1,10 @@
+ID,Question,Hardness,Gold SQL,Single_Agent_SQL,Single_Agent_Correct,Single_Agent_Time,Multi_Agent_SQL,Multi_Agent_Correct,Multi_Agent_Time,Multi_Agent_RAG_SQL,Multi_Agent_RAG_Correct,Multi_Agent_RAG_Time
+1,How many available features are there in total?,easy,SELECT count(*) FROM Other_Available_Features,SELECT COUNT(DISTINCT T2.feature_id) FROM Ref_Feature_Types AS T1 INNER JOIN Other_Available_Features AS T2 ON T1.feature_type_code = T2.feature_type_code,Yes,2.5,SELECT COUNT(*) FROM Other_Available_Features;,Yes,8.2,SELECT COUNT(*) FROM Other_Available_Features;,Yes,7.8
+2,What is the feature type name of feature AirCon?,medium,"SELECT T2.feature_type_name FROM Other_Available_Features AS T1 JOIN Ref_Feature_Types AS T2 ON T1.feature_type_code  =  T2.feature_type_code WHERE T1.feature_name  =  ""AirCon""","SELECT T2.feature_type_name 
+FROM Other_Property_Features OPF 
+JOIN Other_Available_Features OAF ON OPF.feature_id = OAF.feature_id 
+JOIN Ref_Feature_Types RFT ON OAF.feature_type_code = RFT.feature_type_code 
+WHERE OAF.feature_name = 'AirCon'",No,4.6,SELECT ft.feature_type_name FROM Ref_Feature_Types AS ft JOIN Other_Available_Features AS oaf ON ft.feature_type_code = oaf.feature_type_code WHERE oaf.feature_name = 'AirCon';,Yes,9.5,SELECT feature_type_name FROM Ref_Feature_Types WHERE feature_type_code = 'AirCon';,No,8.1
+3,Show the property type descriptions of properties belonging to that code.,medium,SELECT T2.property_type_description FROM Properties AS T1 JOIN Ref_Property_Types AS T2 ON T1.property_type_code  =  T2.property_type_code GROUP BY T1.property_type_code,"SELECT RPT.property_type_description 
+FROM Ref_Property_Types RPT 
+JOIN Properties P ON RPT.property_type_code = P.property_type_code;",Yes,2.9,SELECT p.property_type_description FROM Properties AS p JOIN Ref_Property_Types AS pt ON p.property_type_code = pt.property_type_code;,No,9.8,SELECT c.property_type_description FROM Properties AS p JOIN Ref_Property_Types AS c ON p.property_type_code = c.property_type_code;,Yes,9.8

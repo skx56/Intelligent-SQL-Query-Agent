@@ -1,0 +1,80 @@
+{
+  "Single_Agent": {
+    "total_questions": 46,
+    "execution_valid_rate": 0.7608695652173914,
+    "execution_accuracy": 0.6304347826086957,
+    "exact_set_match_rate": 0.6304347826086957,
+    "avg_component_score": 0.8086956521739131,
+    "select_match_rate": 0.9130434782608695,
+    "from_match_rate": 0.45652173913043476,
+    "where_match_rate": 0.8913043478260869,
+    "groupby_match_rate": 0.9347826086956522,
+    "orderby_match_rate": 0.8478260869565217,
+    "avg_time_per_question": 3.615192366682965,
+    "total_time": 166.29884886741638,
+    "by_hardness": {
+      "easy": {
+        "total": 28,
+        "correct": 15,
+        "accuracy": 0.5357142857142857
+      },
+      "medium": {
+        "total": 18,
+        "correct": 14,
+        "accuracy": 0.7777777777777778
+      }
+    }
+  },
+  "Multi_Agent": {
+    "total_questions": 46,
+    "execution_valid_rate": 0.8043478260869565,
+    "execution_accuracy": 0.717391304347826,
+    "exact_set_match_rate": 0.717391304347826,
+    "avg_component_score": 0.8391304347826086,
+    "select_match_rate": 0.9130434782608695,
+    "from_match_rate": 0.717391304347826,
+    "where_match_rate": 0.8478260869565217,
+    "groupby_match_rate": 0.8695652173913043,
+    "orderby_match_rate": 0.8478260869565217,
+    "avg_time_per_question": 10.682284033816794,
+    "total_time": 491.3850655555725,
+    "by_hardness": {
+      "easy": {
+        "total": 28,
+        "correct": 17,
+        "accuracy": 0.6071428571428571
+      },
+      "medium": {
+        "total": 18,
+        "correct": 16,
+        "accuracy": 0.8888888888888888
+      }
+    }
+  },
+  "Multi_Agent_RAG": {
+    "total_questions": 46,
+    "execution_valid_rate": 0.9130434782608695,
+    "execution_accuracy": 0.8260869565217391,
+    "exact_set_match_rate": 0.8260869565217391,
+    "avg_component_score": 0.856521739130435,
+    "select_match_rate": 0.8695652173913043,
+    "from_match_rate": 0.8913043478260869,
+    "where_match_rate": 0.8043478260869565,
+    "groupby_match_rate": 0.9130434782608695,
+    "orderby_match_rate": 0.8043478260869565,
+    "avg_time_per_question": 17.886171771132428,
+    "total_time": 822.7639014720917,
+    "by_hardness": {
+      "easy": {
+        "total": 28,
+        "correct": 22,
+        "accuracy": 0.7857142857142857
+      },
+      "medium": {
+        "total": 18,
+        "correct": 16,
+        "accuracy": 0.8888888888888888
+      }
+    }
+  }
+}

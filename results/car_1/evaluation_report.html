@@ -1,0 +1,2100 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Text-to-SQL Evaluation - car_1</title>
+    <style>
+        :root {
+            --primary: #6366f1;
+            --success: #22c55e;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --bg: #0f172a;
+            --card: #1e293b;
+            --text: #e2e8f0;
+            --muted: #94a3b8;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            padding: 2rem;
+        }
+        .container { max-width: 1400px; margin: 0 auto; }
+        h1 {
+            font-size: 2.5rem;
+            background: linear-gradient(135deg, #6366f1, #a855f7);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 0.5rem;
+        }
+        h2 {
+            color: var(--primary);
+            margin: 2rem 0 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid var(--primary);
+        }
+        .subtitle { color: var(--muted); margin-bottom: 2rem; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem; }
+        .card {
+            background: var(--card);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+        }
+        .card h3 { font-size: 1rem; color: var(--muted); margin-bottom: 0.5rem; }
+        .card .value {
+            font-size: 2.5rem;
+            font-weight: bold;
+        }
+        .success { color: var(--success); }
+        .warning { color: var(--warning); }
+        .danger { color: var(--danger); }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1rem 0;
+            background: var(--card);
+            border-radius: 0.5rem;
+            overflow: hidden;
+        }
+        th, td { padding: 1rem; text-align: left; border-bottom: 1px solid rgba(255,255,255,0.1); }
+        th { background: rgba(99, 102, 241, 0.2); font-weight: 600; }
+        tr:hover { background: rgba(255,255,255,0.05); }
+        .badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        .badge-success { background: rgba(34, 197, 94, 0.2); color: var(--success); }
+        .badge-danger { background: rgba(239, 68, 68, 0.2); color: var(--danger); }
+        .badge-easy { background: rgba(34, 197, 94, 0.2); color: var(--success); }
+        .badge-medium { background: rgba(245, 158, 11, 0.2); color: var(--warning); }
+        .sql-box {
+            background: #0d1117;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            font-family: 'Fira Code', monospace;
+            font-size: 0.85rem;
+            overflow-x: auto;
+            margin: 0.5rem 0;
+            border-left: 3px solid var(--primary);
+        }
+        .progress-bar {
+            height: 8px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 0.5rem;
+        }
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary), #a855f7);
+            border-radius: 4px;
+        }
+        .question-card {
+            background: var(--card);
+            border-radius: 0.75rem;
+            padding: 1.25rem;
+            margin: 1rem 0;
+        }
+        .pipeline-results {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        .pipeline-result {
+            background: rgba(0,0,0,0.2);
+            padding: 1rem;
+            border-radius: 0.5rem;
+        }
+        .pipeline-result h4 { font-size: 0.9rem; margin-bottom: 0.5rem; }
+        .chart-container {
+            background: var(--card);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            margin: 1rem 0;
+        }
+        .chart-container img { max-width: 100%; height: auto; border-radius: 0.5rem; }
+        @media (max-width: 768px) {
+            .pipeline-results { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🤖 Multi-Agent RAG Text-to-SQL</h1>
+        <p class="subtitle">Evaluation Report | Database: <strong>car_1</strong> | 2025-12-21 21:22 | Total: 58 questions</p>
+        
+        <h2>📊 Summary - 3 Pipeline Comparison</h2>
+        <div class="grid">
+
+            <div class="card">
+                <h3>Single Agent</h3>
+                <div class="value danger">39.7%</div>
+                <p style="color: var(--muted); font-size: 0.9rem;">Execution Accuracy</p>
+                <div class="progress-bar"><div class="progress-fill" style="width: 39.6551724137931%"></div></div>
+                <div style="margin-top: 1rem; display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; font-size: 0.85rem;">
+                    <div>Set Match: <strong>39.7%</strong></div>
+                    <div>Component: <strong>76.2%</strong></div>
+                    <div>Avg Time: <strong>2.8s</strong></div>
+                    <div>Total: <strong>58 Q</strong></div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>Multi Agent</h3>
+                <div class="value danger">27.6%</div>
+                <p style="color: var(--muted); font-size: 0.9rem;">Execution Accuracy</p>
+                <div class="progress-bar"><div class="progress-fill" style="width: 27.586206896551722%"></div></div>
+                <div style="margin-top: 1rem; display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; font-size: 0.85rem;">
+                    <div>Set Match: <strong>27.6%</strong></div>
+                    <div>Component: <strong>74.8%</strong></div>
+                    <div>Avg Time: <strong>9.5s</strong></div>
+                    <div>Total: <strong>58 Q</strong></div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>Multi Agent RAG</h3>
+                <div class="value danger">44.8%</div>
+                <p style="color: var(--muted); font-size: 0.9rem;">Execution Accuracy</p>
+                <div class="progress-bar"><div class="progress-fill" style="width: 44.827586206896555%"></div></div>
+                <div style="margin-top: 1rem; display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; font-size: 0.85rem;">
+                    <div>Set Match: <strong>44.8%</strong></div>
+                    <div>Component: <strong>77.6%</strong></div>
+                    <div>Avg Time: <strong>21.2s</strong></div>
+                    <div>Total: <strong>58 Q</strong></div>
+                </div>
+            </div>
+
+        </div>
+        
+        <h2>📈 Detailed Comparison Table</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Pipeline</th>
+                    <th>Execution Accuracy</th>
+                    <th>Exact Set Match</th>
+                    <th>SELECT Match</th>
+                    <th>FROM Match</th>
+                    <th>WHERE Match</th>
+                    <th>GROUP BY Match</th>
+                    <th>ORDER BY Match</th>
+                    <th>Avg Time</th>
+                </tr>
+            </thead>
+            <tbody>
+
+                <tr>
+                    <td><strong>Single Agent</strong></td>
+                    <td><span class="badge badge-danger">39.7%</span></td>
+                    <td>39.7%</td>
+                    <td>82.8%</td>
+                    <td>62.1%</td>
+                    <td>79.3%</td>
+                    <td>77.6%</td>
+                    <td>79.3%</td>
+                    <td>2.8s</td>
+                </tr>
+
+                <tr>
+                    <td><strong>Multi Agent</strong></td>
+                    <td><span class="badge badge-danger">27.6%</span></td>
+                    <td>27.6%</td>
+                    <td>84.5%</td>
+                    <td>44.8%</td>
+                    <td>79.3%</td>
+                    <td>81.0%</td>
+                    <td>84.5%</td>
+                    <td>9.5s</td>
+                </tr>
+
+                <tr>
+                    <td><strong>Multi Agent RAG</strong></td>
+                    <td><span class="badge badge-danger">44.8%</span></td>
+                    <td>44.8%</td>
+                    <td>82.8%</td>
+                    <td>60.3%</td>
+                    <td>79.3%</td>
+                    <td>82.8%</td>
+                    <td>82.8%</td>
+                    <td>21.2s</td>
+                </tr>
+
+            </tbody>
+        </table>
+        
+        <h2>📊 Charts</h2>
+        <div class="grid">
+            <div class="chart-container">
+                <h3>Accuracy Comparison</h3>
+                <img src="charts/accuracy_comparison.png" alt="Accuracy">
+            </div>
+            <div class="chart-container">
+                <h3>Time Comparison</h3>
+                <img src="charts/time_comparison.png" alt="Time">
+            </div>
+            <div class="chart-container">
+                <h3>Component Breakdown</h3>
+                <img src="charts/component_breakdown.png" alt="Components">
+            </div>
+            <div class="chart-container">
+                <h3>By Difficulty Level</h3>
+                <img src="charts/accuracy_by_difficulty.png" alt="Difficulty">
+            </div>
+        </div>
+        
+        <h2>📝 All Question Results</h2>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q1</strong>
+                <span class="badge badge-easy">EASY</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">How many continents are there?</p>
+            <div class="sql-box">Gold: SELECT count(*) FROM CONTINENTS;</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 1.2s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT COUNT(DISTINCT T1.Continent) FROM continents AS T1</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 6.2s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT COUNT(*) FROM continents;</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 7.7s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT COUNT(*) FROM continents;</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q2</strong>
+                <span class="badge badge-easy">EASY</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">What is the number of continents?</p>
+            <div class="sql-box">Gold: SELECT count(*) FROM CONTINENTS;</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 1.3s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT COUNT(DISTINCT T1.Continent) FROM continents AS T1</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 8.6s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT COUNT(*) FROM continents;</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 7.9s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT COUNT(*) FROM continents;</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q3</strong>
+                <span class="badge badge-medium">MEDIUM</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">How many countries does each continent have? List the continent id, continent name and the number of countries.</p>
+            <div class="sql-box">Gold: SELECT T1.ContId ,  T1.Continent ,  count(*) FROM CONTINENTS AS T1 JOIN COUNTRIES AS T2 ON T1.ContId  =  T2.Continent GROUP BY T1.ContId;</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 2.8s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT 
+  c.ContId,
+  c.Continent,
+  COUNT(DISTINCT c.ContinentId) AS num_countries
+FROM continents ...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 11.6s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT c.ContId, c.Continent, COUNT(*) FROM continents AS c JOIN countries AS co ON c.ContId = co.Co...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 24.6s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT c.ContId, c.Continent, COUNT(*) FROM continents AS c JOIN countries AS co ON c.ContId = co.Co...</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q4</strong>
+                <span class="badge badge-medium">MEDIUM</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">For each continent, list its id, name, and how many countries it has?</p>
+            <div class="sql-box">Gold: SELECT T1.ContId ,  T1.Continent ,  count(*) FROM CONTINENTS AS T1 JOIN COUNTRIES AS T2 ON T1.ContId  =  T2.Continent GROUP BY T1.ContId;</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 3.4s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT 
+  c.ContId,
+  c.Continent,
+  COUNT(DISTINCT cn.CountryName) AS CountriesCount
+FROM continent...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 10.5s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT c.ContId, c.Continent, COUNT(c.CountryId) FROM continents AS c JOIN countries AS c2 ON c.Cont...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 71.1s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT c.ContId, c.Continent, COUNT(c.CountryId) FROM countries AS c JOIN continents AS con ON c.Con...</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q5</strong>
+                <span class="badge badge-easy">EASY</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">How many countries are listed?</p>
+            <div class="sql-box">Gold: SELECT count(*) FROM COUNTRIES;</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 2.0s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT COUNT(DISTINCT T1.CountryName) FROM countries AS T1 INNER JOIN continents AS T2 ON T1.Contine...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 6.6s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT COUNT(*) FROM country;</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 25.6s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT COUNT(*) FROM country;</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q6</strong>
+                <span class="badge badge-easy">EASY</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">How many countries exist?</p>
+            <div class="sql-box">Gold: SELECT count(*) FROM COUNTRIES;</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 1.7s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT COUNT(DISTINCT T1.CountryName) FROM countries AS T1 INNER JOIN continents AS T2 ON T1.Contine...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 8.0s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT COUNT(*) FROM country;</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 30.3s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT COUNT(*) FROM country;</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q7</strong>
+                <span class="badge badge-medium">MEDIUM</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">How many models does each car maker produce? List maker full name, id and the number.</p>
+            <div class="sql-box">Gold: SELECT T1.FullName ,  T1.Id ,  count(*) FROM CAR_MAKERS AS T1 JOIN MODEL_LIST AS T2 ON T1.Id  =  T2.Maker GROUP BY T1.Id;</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 4.2s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT 
+  c.FullName,
+  m.ModelId,
+  COUNT(m.ModelId) AS NumModels
+FROM 
+  car_makers c
+JOIN 
+  mode...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 9.7s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT c.Maker, c.FullName, COUNT(*) FROM car_makers AS c JOIN model_list AS m ON c.Id = m.Maker GRO...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 87.7s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT c.Maker, c.Id, COUNT(m.ModelId) AS ModelCount FROM car_makers AS c JOIN car_names AS m ON c.I...</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q8</strong>
+                <span class="badge badge-medium">MEDIUM</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">What is the full name of each car maker, along with its id and how many models it produces?</p>
+            <div class="sql-box">Gold: SELECT T1.FullName ,  T1.Id ,  count(*) FROM CAR_MAKERS AS T1 JOIN MODEL_LIST AS T2 ON T1.Id  =  T2.Maker GROUP BY T1.Id;</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 2.9s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT 
+  c.Id,
+  c.FullName,
+  COUNT(ml.ModelId) AS NumberOfModels
+FROM 
+  car_makers c
+JOIN 
+  mod...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 11.0s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT c.Id, c.Maker, COUNT(m.ModelId) AS ModelCount FROM car_makers AS c JOIN model_list AS m ON c....</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 9.0s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT c.Id, c.FullName, COUNT(m.MakeId) FROM car_makers AS c JOIN car_names AS m ON c.Id = m.MakeId...</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q9</strong>
+                <span class="badge badge-medium">MEDIUM</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">Which model of the car has the minimum horsepower?</p>
+            <div class="sql-box">Gold: SELECT T1.Model FROM CAR_NAMES AS T1 JOIN CARS_DATA AS T2 ON T1.MakeId  =  T2.Id ORDER BY T2.horsepower ASC LIMIT 1;</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 2.1s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT Model FROM cars_data AS cd 
+JOIN car_names AS cn ON cd.Id = cn.MakeId 
+WHERE cd.Horsepower = ...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 8.7s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT MIN(Horsepower) FROM cars_data;</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 7.9s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT MIN(Horsepower) FROM cars_data AS c;</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q10</strong>
+                <span class="badge badge-medium">MEDIUM</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">What is the model of the car with the smallest amount of horsepower?</p>
+            <div class="sql-box">Gold: SELECT T1.Model FROM CAR_NAMES AS T1 JOIN CARS_DATA AS T2 ON T1.MakeId  =  T2.Id ORDER BY T2.horsepower ASC LIMIT 1;</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 2.0s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT Model FROM cars_data AS cd 
+JOIN car_names AS cn ON cd.Id = cn.MakeId 
+WHERE Horsepower = ( S...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 10.2s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT Model FROM car_names JOIN cars_data AS cd ON MakeId = Id WHERE Horsepower = 'smallest';</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 12.4s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT Model FROM car_names AS c JOIN cars_data AS cd ON c.MakeId = cd.Id ORDER BY Horsepower ASC LI...</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q11</strong>
+                <span class="badge badge-medium">MEDIUM</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">Which of the countries has the most car makers? List the country name.</p>
+            <div class="sql-box">Gold: SELECT T2.CountryName FROM CAR_MAKERS AS T1 JOIN COUNTRIES AS T2 ON T1.Country  =  T2.CountryId GROUP BY T1.Country ORDER BY Count(*) DESC LIMIT 1;</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 3.3s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT T1.CountryName 
+FROM countries AS T1 
+JOIN car_makers AS T2 ON T1.CountryId = T2.Country 
+GRO...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 10.9s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT c.Name FROM country AS c JOIN car_makers AS cm ON c.CountryId = cm.Country ORDER BY cm.Id DES...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 77.6s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT c.Name FROM country AS c JOIN car_makers AS cm ON c.CountryId = cm.Country WHERE cm.Id = (SEL...</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q12</strong>
+                <span class="badge badge-medium">MEDIUM</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">What is the name of the country with the most car makers?</p>
+            <div class="sql-box">Gold: SELECT T2.CountryName FROM CAR_MAKERS AS T1 JOIN COUNTRIES AS T2 ON T1.Country  =  T2.CountryId GROUP BY T1.Country ORDER BY Count(*) DESC LIMIT 1;</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 3.4s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT T2.CountryName 
+FROM car_makers AS T1 
+JOIN countries AS T2 ON T1.Country = T2.CountryId 
+GRO...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 8.6s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT c.Name FROM countries AS c JOIN car_makers AS cm ON c.CountryId = cm.Country WHERE cm.Id = (S...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 77.6s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT c.Name FROM country AS c JOIN car_makers AS cm ON c.CountryId = cm.Country WHERE cm.Id = (SEL...</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q13</strong>
+                <span class="badge badge-medium">MEDIUM</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">How many car models are produced by each maker ? Only list the count and the maker full name .</p>
+            <div class="sql-box">Gold: select count(*) ,  t2.fullname from model_list as t1 join car_makers as t2 on t1.maker  =  t2.id group by t2.id;</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 2.3s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT COUNT(DISTINCT c.Maker), cm.FullName 
+FROM car_makers cm 
+JOIN model_list ml ON cm.Id = ml.Ma...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 9.3s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT COUNT(DISTINCT m.Maker), m.FullName FROM model_list AS ml JOIN car_makers AS c ON ml.Maker = ...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 15.4s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT m.Maker, COUNT(c.Model) FROM car_names AS c JOIN car_makers AS m ON c.MakeId = m.Id GROUP BY ...</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q14</strong>
+                <span class="badge badge-medium">MEDIUM</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">What is the number of car models that are produced by each maker and what is the id and full name of each maker?</p>
+            <div class="sql-box">Gold: SELECT Count(*) ,  T2.FullName ,  T2.id FROM MODEL_LIST AS T1 JOIN CAR_MAKERS AS T2 ON T1.Maker  =  T2.Id GROUP BY T2.id;</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 3.3s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT 
+  c.Id AS MakerId,
+  c.FullName,
+  COUNT(DISTINCT m.ModelId) AS NumModels
+FROM 
+  car_makers...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 12.0s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT COUNT(DISTINCT ModelId) AS Count, m.Id, m.FullName FROM model_list AS ml JOIN car_makers AS c...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 14.8s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT COUNT(cm.MakeId) AS ModelCount, m.Id, m.FullName FROM car_names AS cm JOIN car_makers AS m ON...</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q15</strong>
+                <span class="badge badge-medium">MEDIUM</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">What is the accelerate of the car make amc hornet sportabout (sw)?</p>
+            <div class="sql-box">Gold: SELECT T1.Accelerate FROM CARS_DATA AS T1 JOIN CAR_NAMES AS T2 ON T1.Id  =  T2.MakeId WHERE T2.Make  =  'amc hornet sportabout (sw)';</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 5.7s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT T1.Accelerate 
+FROM cars_data AS T1 
+JOIN car_names AS T2 ON T1.Id = T2.MakeId 
+JOIN model_li...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 12.5s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT c.Accelerate FROM cars_data AS c JOIN model_list AS m ON c.Id = m.ModelId JOIN car_makers AS ...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 11.3s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT c.Accelerate FROM cars_data AS c JOIN car_names AS cn ON c.Id = cn.MakeId WHERE cn.Model = 'A...</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q16</strong>
+                <span class="badge badge-medium">MEDIUM</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">How much does the car accelerate that makes amc hornet sportabout (sw)?</p>
+            <div class="sql-box">Gold: SELECT T1.Accelerate FROM CARS_DATA AS T1 JOIN CAR_NAMES AS T2 ON T1.Id  =  T2.MakeId WHERE T2.Make  =  'amc hornet sportabout (sw)';</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 2.8s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT T1.Accelerate 
+FROM cars_data AS T1 
+JOIN car_names AS T2 ON T1.Id = T2.MakeId 
+WHERE T2.Mode...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 11.0s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT Edispl FROM cars_data WHERE Model = 'amc hornet sportabout (sw)';</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 66.1s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT Accelerate FROM cars_data WHERE Make = 'AMC' AND Model = 'Hornet Sportabout' AND Year = 1978;</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q17</strong>
+                <span class="badge badge-medium">MEDIUM</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">How many car makers are there in france?</p>
+            <div class="sql-box">Gold: SELECT count(*) FROM CAR_MAKERS AS T1 JOIN COUNTRIES AS T2 ON T1.Country  =  T2.CountryId WHERE T2.CountryName  =  'france';</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 2.5s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT COUNT(DISTINCT T1.Maker) FROM car_makers AS T1 INNER JOIN countries AS T2 ON T1.Country = T2....</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 8.8s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT COUNT(DISTINCT c.Maker) FROM car_makers AS c JOIN countries AS f ON c.Country = f.CountryId W...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 8.2s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT COUNT(*) FROM car_makers WHERE Country = 'France';</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q18</strong>
+                <span class="badge badge-medium">MEDIUM</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">What is the number of makers of care in France?</p>
+            <div class="sql-box">Gold: SELECT count(*) FROM CAR_MAKERS AS T1 JOIN COUNTRIES AS T2 ON T1.Country  =  T2.CountryId WHERE T2.CountryName  =  'france';</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 2.1s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT COUNT(DISTINCT T1.Maker) FROM car_makers AS T1 INNER JOIN countries AS T2 ON T1.Country = T2....</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 8.7s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT COUNT(DISTINCT c.Maker) FROM car_makers AS c JOIN countries AS f ON c.Country = f.CountryId W...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 8.8s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT COUNT(*) FROM car_makers WHERE Country = 'France';</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q19</strong>
+                <span class="badge badge-easy">EASY</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">What is the average miles per gallon(mpg) of the cars with 4 cylinders?</p>
+            <div class="sql-box">Gold: SELECT avg(mpg) FROM CARS_DATA WHERE Cylinders  =  4;</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 3.0s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT AVG(T1.MPG) FROM cars_data AS T1 INNER JOIN car_makers AS T2 ON T1.Country = T2.Country WHERE...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 10.1s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT AVG(c.MPG) FROM cars_data AS c WHERE c.Cylinders = 4;</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 9.0s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT AVG(MPG) FROM cars_data WHERE Cylinders = 4;</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q20</strong>
+                <span class="badge badge-easy">EASY</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">What is the average miles per gallon of all the cards with 4 cylinders?</p>
+            <div class="sql-box">Gold: SELECT avg(mpg) FROM CARS_DATA WHERE Cylinders  =  4;</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 4.2s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT AVG(T1.MPG) 
+FROM cars_data AS T1 
+JOIN car_makers AS T2 ON T1.Country = T2.Country 
+JOIN cou...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 10.1s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT AVG(c.MPG) FROM cars_data AS c WHERE c.Cylinders = 4;</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 9.4s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT AVG(MPG) FROM cars_data WHERE Cylinders = 4;</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q21</strong>
+                <span class="badge badge-easy">EASY</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">What is the smallest weight of the car produced with 8 cylinders on 1974 ?</p>
+            <div class="sql-box">Gold: select min(weight) from cars_data where cylinders  =  8 and year  =  1974</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 1.7s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT MIN(Weight) 
+FROM cars_data 
+WHERE Cylinders = 8 AND Year = 1974;</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 10.1s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT MIN(Weight) FROM cars_data WHERE Cylinders = 8 AND Year = 1974;</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 10.0s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT MIN(Weight) FROM cars_data WHERE Cylinders = 8 AND Year = 1974;</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q22</strong>
+                <span class="badge badge-easy">EASY</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">What is the minimum weight of the car with 8 cylinders produced in 1974 ?</p>
+            <div class="sql-box">Gold: select min(weight) from cars_data where cylinders  =  8 and year  =  1974</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 2.0s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT MIN(Weight) 
+FROM cars_data 
+WHERE Cylinders = 8 AND Year = 1974;</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 10.2s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT MIN(Weight) FROM cars_data WHERE Cylinders = 8 AND Year = 1974;</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 9.4s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT MIN(Weight) FROM cars_data WHERE Cylinders = 8 AND Year = 1974;</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q23</strong>
+                <span class="badge badge-easy">EASY</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">What are all the makers and models?</p>
+            <div class="sql-box">Gold: SELECT Maker ,  Model FROM MODEL_LIST;</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 2.2s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT T1.Maker, T2.Model 
+FROM car_makers AS T1 
+INNER JOIN model_list AS T2 ON T1.Id = T2.Maker</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 9.2s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT Maker, Model FROM car_makers JOIN model_list ON car_makers.Id = model_list.Maker;</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 15.7s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT c.Maker, cn.Model FROM car_makers AS c JOIN car_names AS cn ON c.Id = cn.MakeId;</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q24</strong>
+                <span class="badge badge-easy">EASY</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">What are the makers and models?</p>
+            <div class="sql-box">Gold: SELECT Maker ,  Model FROM MODEL_LIST;</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 2.3s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT T1.Maker, T2.Model 
+FROM car_makers AS T1 
+INNER JOIN model_list AS T2 ON T1.Id = T2.Maker</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 9.5s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT Maker, Model FROM car_makers JOIN model_list ON car_makers.Id = model_list.Maker;</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 9.8s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT c.Maker, cn.Model FROM car_makers AS c JOIN car_names AS cn ON c.Id = cn.MakeId;</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q25</strong>
+                <span class="badge badge-easy">EASY</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">What is the number of the cars with horsepower more than 150?</p>
+            <div class="sql-box">Gold: SELECT count(*) FROM CARS_DATA WHERE horsepower  >  150;</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 1.6s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT COUNT(*) FROM cars_data WHERE Horsepower > '150'</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 8.0s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT COUNT(*) FROM cars_data WHERE Horsepower > '150';</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 8.3s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT COUNT(*) FROM cars_data WHERE Horsepower > '150';</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q26</strong>
+                <span class="badge badge-easy">EASY</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">What is the number of cars with a horsepower greater than 150?</p>
+            <div class="sql-box">Gold: SELECT count(*) FROM CARS_DATA WHERE horsepower  >  150;</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 1.3s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT COUNT(*) FROM cars_data WHERE Horsepower > '150'</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 8.5s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT COUNT(*) FROM car_names AS cn JOIN cars_data AS c ON cn.MakeId = c.Id WHERE c.Horsepower > '1...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 8.0s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT COUNT(*) FROM cars_data WHERE Horsepower > '150';</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q27</strong>
+                <span class="badge badge-medium">MEDIUM</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">What is the average weight of cars each year?</p>
+            <div class="sql-box">Gold: SELECT avg(Weight) ,  YEAR FROM CARS_DATA GROUP BY YEAR;</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 6.0s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT AVG(CASE WHEN Year = 2010 THEN Weight ELSE NULL END) AS avg_2010,
+       AVG(CASE WHEN Year =...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 8.8s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT AVG(Weight) FROM cars_data;</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 8.0s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT AVG(Weight) FROM cars_data;</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q28</strong>
+                <span class="badge badge-medium">MEDIUM</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">What is the average weight and year for each year?</p>
+            <div class="sql-box">Gold: SELECT avg(Weight) ,  YEAR FROM CARS_DATA GROUP BY YEAR;</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 1.7s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT AVG(Weight) AS avg_weight, AVG(Year) AS avg_year 
+FROM cars_data;</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 9.2s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT AVG(Weight) AS avg_weight, AVG(Year) AS avg_year FROM cars_data;</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 8.4s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT AVG(Weight), AVG(Year) FROM cars_data GROUP BY Year;</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q29</strong>
+                <span class="badge badge-medium">MEDIUM</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">What is the maximum horsepower and the make of the car models with 3 cylinders?</p>
+            <div class="sql-box">Gold: SELECT T2.horsepower ,  T1.Make FROM CAR_NAMES AS T1 JOIN CARS_DATA AS T2 ON T1.MakeId  =  T2.Id WHERE T2.cylinders  =  3 ORDER BY T2.horsepower DESC LIMIT 1;</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 4.8s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT T1.MPG, T1.Horsepower 
+FROM cars_data AS T1 
+JOIN car_names AS T2 ON T1.Id = T2.MakeId 
+JOIN ...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 11.3s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT MAX(Horsepower) FROM cars_data WHERE Cylinders = 3;</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 10.5s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT MAX(Horsepower) FROM cars_data JOIN car_names ON cars_data.Id = car_names.MakeId WHERE Cylind...</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q30</strong>
+                <span class="badge badge-medium">MEDIUM</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">What is the largest amount of horsepower for the models with 3 cylinders and what make is it?</p>
+            <div class="sql-box">Gold: SELECT T2.horsepower ,  T1.Make FROM CAR_NAMES AS T1 JOIN CARS_DATA AS T2 ON T1.MakeId  =  T2.Id WHERE T2.cylinders  =  3 ORDER BY T2.horsepower DESC LIMIT 1;</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 4.0s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT T1.Model, T2.Make 
+FROM cars_data AS T1 
+JOIN car_names AS T2 ON T1.Id = T2.MakeId 
+WHERE T1....</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 10.6s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT MAX(c.Horsepower) FROM cars_data AS c JOIN model_list AS m ON c.Id = m.ModelId WHERE c.Cylind...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 71.1s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT MAX(Horsepower) FROM cars_data WHERE Cylinders = 3 AND MakeId IN (SELECT MakeId FROM car_name...</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q31</strong>
+                <span class="badge badge-medium">MEDIUM</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">Which model saves the most gasoline? That is to say, have the maximum miles per gallon.</p>
+            <div class="sql-box">Gold: SELECT T1.Model FROM CAR_NAMES AS T1 JOIN CARS_DATA AS T2 ON T1.MakeId  =  T2.Id ORDER BY T2.mpg DESC LIMIT 1;</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 2.1s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT Model FROM cars_data AS t1 INNER JOIN car_names AS t2 ON t1.Id = t2.MakeId ORDER BY MPG DESC ...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 8.3s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT Model FROM car_names JOIN cars_data ON MakeId = Id WHERE MPG = 'maximum';</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 7.9s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT MAX(MPG) FROM cars_data;</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q32</strong>
+                <span class="badge badge-medium">MEDIUM</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">What is the car model with the highest mpg ?</p>
+            <div class="sql-box">Gold: select t1.model from car_names as t1 join cars_data as t2 on t1.makeid  =  t2.id order by t2.mpg desc limit 1;</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 2.0s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT Model FROM cars_data AS cd 
+JOIN car_names AS cn ON cd.ModelId = cn.MakeId 
+WHERE cd.MPG = ( ...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 9.3s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT Model FROM model_list ORDER BY MPG DESC LIMIT 1;</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 66.8s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT Model FROM models JOIN car_names ON models.ModelId = car_names.MakeId ORDER BY MPG DESC LIMIT...</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q33</strong>
+                <span class="badge badge-easy">EASY</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">What is the average horsepower of the cars before 1980?</p>
+            <div class="sql-box">Gold: SELECT avg(horsepower) FROM CARS_DATA WHERE YEAR  <  1980;</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 1.6s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT AVG(CASE WHEN Year < 1980 THEN Horsepower ELSE NULL END) FROM cars_data</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 7.6s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT AVG(CarsData.Horsepower) FROM cars_data WHERE CarsData.Year < 1980;</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 8.5s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT AVG(Horsepower) FROM cars_data WHERE Year < 1980;</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q34</strong>
+                <span class="badge badge-easy">EASY</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">What is the average horsepower for all cars produced before 1980 ?</p>
+            <div class="sql-box">Gold: select avg(horsepower) from cars_data where year  <  1980;</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 2.5s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT AVG(T1.Horsepower) 
+FROM cars_data AS T1 
+JOIN car_makers AS T2 ON T1.Country = T2.Country 
+W...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 9.6s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT AVG(CarsData.Horsepower) FROM cars_data AS cd JOIN car_makers AS cm ON cd.Country = cm.Countr...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 8.2s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT AVG(Horsepower) FROM cars_data WHERE Year < 1980;</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q35</strong>
+                <span class="badge badge-medium">MEDIUM</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">What is the average edispl of the cars of model volvo?</p>
+            <div class="sql-box">Gold: SELECT avg(T2.edispl) FROM CAR_NAMES AS T1 JOIN CARS_DATA AS T2 ON T1.MakeId  =  T2.Id WHERE T1.Model  =  'volvo';</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 2.3s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT AVG(Edispl) FROM cars_data AS cd INNER JOIN car_names AS cn ON cd.Id = cn.MakeId WHERE cn.Mak...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 9.8s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT AVG(Edispl) FROM cars_data AS c JOIN model_list AS m ON c.Id = m.ModelId WHERE m.Model = 'Vol...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 10.1s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT AVG(Edispl) FROM cars_data AS cd JOIN car_names AS cn ON cd.Id = cn.MakeId WHERE cn.Model = '...</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q36</strong>
+                <span class="badge badge-medium">MEDIUM</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">What is the average edispl for all volvos?</p>
+            <div class="sql-box">Gold: SELECT avg(T2.edispl) FROM CAR_NAMES AS T1 JOIN CARS_DATA AS T2 ON T1.MakeId  =  T2.Id WHERE T1.Model  =  'volvo';</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 4.6s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT AVG(Edispl) FROM cars_data AS cd 
+JOIN car_names AS cn ON cd.Id = cn.MakeId 
+JOIN model_list ...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 7.9s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT AVG(Edispl) FROM cars_data WHERE Make = 'Volvo';</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 43.4s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT AVG(Edispl) FROM volvo_table;</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q37</strong>
+                <span class="badge badge-medium">MEDIUM</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">What is the maximum accelerate for different number of cylinders?</p>
+            <div class="sql-box">Gold: SELECT max(Accelerate) ,  Cylinders FROM CARS_DATA GROUP BY Cylinders;</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 2.8s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT C.Cylinders, MAX(C.Accelerate) as MaxAccelerate
+FROM cars_data C
+GROUP BY C.Cylinders;</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 9.1s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT MAX(Accelerate) FROM cars_data JOIN car_makers ON cars_data.Country = car_makers.Country WHER...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 59.7s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT MAX(Accelerate) FROM cars_data AS c JOIN cylinders AS cy ON c.Cylinders = cy.Id;</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q38</strong>
+                <span class="badge badge-medium">MEDIUM</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">What is the maximum accelerate for all the different cylinders?</p>
+            <div class="sql-box">Gold: SELECT max(Accelerate) ,  Cylinders FROM CARS_DATA GROUP BY Cylinders;</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 2.9s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT MAX(T1.Accelerate) FROM cars_data AS T1 INNER JOIN car_makers AS T2 ON T1.Country = T2.Countr...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 9.3s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT MAX(accelerate) FROM cars_data JOIN car_makers ON cars_data.Id = car_makers.Id JOIN model_lis...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 8.8s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT MAX(Accelerate) FROM cars_data AS c JOIN car_names AS cn ON c.Id = cn.MakeId WHERE NOT c.Cyli...</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q39</strong>
+                <span class="badge badge-medium">MEDIUM</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">Which model has the most version(make) of cars?</p>
+            <div class="sql-box">Gold: SELECT Model FROM CAR_NAMES GROUP BY Model ORDER BY count(*) DESC LIMIT 1;</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 2.0s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT Model FROM car_names GROUP BY Model ORDER BY COUNT(MakeId) DESC LIMIT 1;</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 9.1s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT ModelId FROM car_makers JOIN model_list ON car_makers.Id = model_list.Maker GROUP BY ModelId ...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 84.7s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT Model FROM car_names JOIN model_list ON car_names.MakeId = model_list.ModelId GROUP BY Model ...</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q40</strong>
+                <span class="badge badge-medium">MEDIUM</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">What model has the most different versions?</p>
+            <div class="sql-box">Gold: SELECT Model FROM CAR_NAMES GROUP BY Model ORDER BY count(*) DESC LIMIT 1;</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 2.1s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT Model FROM ( SELECT Model, COUNT(DISTINCT MakeId) AS num_versions FROM car_names GROUP BY Mod...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 8.6s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT Model FROM model_list GROUP BY Model ORDER BY COUNT(*) DESC LIMIT 1;</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 15.7s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT ModelId FROM model_list GROUP BY ModelId ORDER BY COUNT(DISTINCT Model) DESC LIMIT 1;</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q41</strong>
+                <span class="badge badge-easy">EASY</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">How many cars have more than 4 cylinders?</p>
+            <div class="sql-box">Gold: SELECT count(*) FROM CARS_DATA WHERE Cylinders  >  4;</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 2.1s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT COUNT(*) FROM cars_data AS cd 
+JOIN car_makers AS cm ON cd.Country = cm.Country 
+WHERE cd.Cyl...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 7.5s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT COUNT(*) FROM car_makers WHERE Cylinders > 4;</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 7.5s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT COUNT(*) FROM cars_data WHERE Cylinders > 4;</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q42</strong>
+                <span class="badge badge-easy">EASY</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">What is the number of cars with more than 4 cylinders?</p>
+            <div class="sql-box">Gold: SELECT count(*) FROM CARS_DATA WHERE Cylinders  >  4;</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 1.4s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT COUNT(*) FROM cars_data WHERE Cylinders > 4</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 7.9s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT COUNT(*) FROM car_makers WHERE Cylinders > 4;</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 7.8s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT COUNT(*) FROM cars_data WHERE Cylinders > 4;</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q43</strong>
+                <span class="badge badge-easy">EASY</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">how many cars were produced in 1980?</p>
+            <div class="sql-box">Gold: SELECT count(*) FROM CARS_DATA WHERE YEAR  =  1980;</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 2.7s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT COUNT(T1.Id) FROM cars_data AS T1 INNER JOIN car_makers AS T2 ON T1.Country = T2.Country WHER...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 9.5s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT COUNT(*) FROM car_makers JOIN cars_data ON car_makers.Id = cars_data.Id WHERE Year = 1980;</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 9.2s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT COUNT(*) FROM cars_data WHERE Year = 1980;</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q44</strong>
+                <span class="badge badge-easy">EASY</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">In 1980, how many cars were made?</p>
+            <div class="sql-box">Gold: SELECT count(*) FROM CARS_DATA WHERE YEAR  =  1980;</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 2.8s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT COUNT(T1.Id) FROM cars_data AS T1 INNER JOIN car_makers AS T2 ON T1.Country = T2.Country WHER...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 9.5s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT COUNT(*) FROM car_makers WHERE Year = 1980;</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 8.2s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT COUNT(*) FROM cars_data WHERE Year = 1980;</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q45</strong>
+                <span class="badge badge-medium">MEDIUM</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">How many car models were produced by the maker with full name American Motor Company?</p>
+            <div class="sql-box">Gold: SELECT count(*) FROM CAR_MAKERS AS T1 JOIN MODEL_LIST AS T2 ON T1.Id  =  T2.Maker WHERE T1.FullName  =  'American Motor Company';</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 4.4s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT COUNT(DISTINCT T1.ModelId) 
+FROM car_names AS T1 
+JOIN model_list AS T2 ON T1.MakeId = T2.Mak...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 9.6s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT COUNT(*) FROM model_list AS ml JOIN car_makers AS cm ON ml.Maker = cm.Id WHERE cm.FullName = ...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 10.7s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT COUNT(*) FROM model_list AS ml JOIN car_names AS cn ON ml.ModelId = cn.MakeId JOIN car_makers...</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q46</strong>
+                <span class="badge badge-medium">MEDIUM</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">What is the number of car models created by the car maker American Motor Company?</p>
+            <div class="sql-box">Gold: SELECT count(*) FROM CAR_MAKERS AS T1 JOIN MODEL_LIST AS T2 ON T1.Id  =  T2.Maker WHERE T1.FullName  =  'American Motor Company';</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 3.5s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT COUNT(DISTINCT T1.ModelId) FROM model_list AS T1 INNER JOIN car_makers AS T2 ON T1.Maker = T2...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 11.0s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT COUNT(*) FROM car_model AS cm JOIN car_maker AS cm_m ON cm.Maker = cm_m.Id WHERE cm_m.FullNam...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 9.6s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT COUNT(*) FROM car_names AS c JOIN car_makers AS m ON c.MakeId = m.Id WHERE m.FullName = 'Amer...</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q47</strong>
+                <span class="badge badge-easy">EASY</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">In which years cars were produced weighing no less than 3000 and no more than 4000 ?</p>
+            <div class="sql-box">Gold: select distinct year from cars_data where weight between 3000 and 4000;</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 2.2s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT Year FROM cars_data WHERE Weight BETWEEN 3000 AND 4000</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 8.1s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT Year FROM cars_data WHERE Weight BETWEEN 3000 AND 4000;</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 8.0s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT Year FROM cars_data WHERE Weight BETWEEN 3000 AND 4000;</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q48</strong>
+                <span class="badge badge-easy">EASY</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">What are the different years in which there were cars produced that weighed less than 4000 and also cars that weighted more than 3000 ?</p>
+            <div class="sql-box">Gold: select distinct year from cars_data where weight between 3000 and 4000;</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 2.0s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT DISTINCT Year 
+FROM cars_data 
+WHERE Weight < 4000 OR Weight > 3000</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 9.8s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT DISTINCT Year FROM cars_data WHERE Weight < 4000 INTERSECT SELECT DISTINCT Year FROM cars_dat...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 11.5s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT DISTINCT Year FROM cars_data WHERE Weight < 4000 INTERSECT SELECT DISTINCT Year FROM cars_dat...</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q49</strong>
+                <span class="badge badge-easy">EASY</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">What is the horsepower of the car with the largest accelerate?</p>
+            <div class="sql-box">Gold: SELECT T1.horsepower FROM CARS_DATA AS T1 ORDER BY T1.accelerate DESC LIMIT 1;</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 4.4s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT T1.Horsepower 
+FROM cars_data AS T1 
+JOIN model_list AS T2 ON T1.Id = T2.ModelId 
+JOIN car_ma...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 9.6s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT MAX(CASE WHEN Id = (SELECT Id FROM cars_data ORDER BY Accelerate DESC LIMIT 1) THEN Horsepowe...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 9.5s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT Horsepower FROM cars_data WHERE Id = (SELECT MAX(Id) FROM cars_data);</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q50</strong>
+                <span class="badge badge-easy">EASY</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">What is the horsepower of the car with the greatest accelerate?</p>
+            <div class="sql-box">Gold: SELECT T1.horsepower FROM CARS_DATA AS T1 ORDER BY T1.accelerate DESC LIMIT 1;</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 4.3s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT T1.Horsepower 
+FROM cars_data AS T1 
+JOIN model_list AS T2 ON T1.Id = T2.ModelId 
+JOIN car_ma...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 9.3s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT MAX(CASE WHEN Id = (SELECT Id FROM cars_data ORDER BY Accelerate DESC LIMIT 1) THEN Horsepowe...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 9.1s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT Horsepower FROM cars_data WHERE Accelerate = (SELECT MAX(Accelerate) FROM cars_data);</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q51</strong>
+                <span class="badge badge-medium">MEDIUM</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">For model volvo, how many cylinders does the car with the least accelerate have?</p>
+            <div class="sql-box">Gold: SELECT T1.cylinders FROM CARS_DATA AS T1 JOIN CAR_NAMES AS T2 ON T1.Id  =  T2.MakeId WHERE T2.Model  =  'volvo' ORDER BY T1.accelerate ASC LIMIT 1;</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 5.0s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT MIN(CarsData.Accelerate) FROM cars_data AS CarsData 
+JOIN car_makers AS CarMakers ON CarsData...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 9.6s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT MIN(Accelerate) FROM cars_data AS c JOIN model_list AS m ON c.Id = m.ModelId WHERE Maker = 'V...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 11.0s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT MIN(Accelerate) FROM cars_data AS c JOIN car_names AS cn ON c.Id = cn.MakeId WHERE cn.Model =...</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q52</strong>
+                <span class="badge badge-medium">MEDIUM</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">For a volvo model, how many cylinders does the version with least accelerate have?</p>
+            <div class="sql-box">Gold: SELECT T1.cylinders FROM CARS_DATA AS T1 JOIN CAR_NAMES AS T2 ON T1.Id  =  T2.MakeId WHERE T2.Model  =  'volvo' ORDER BY T1.accelerate ASC LIMIT 1;</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 4.0s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT MIN(CarsData.Accelerate) FROM car_names AS T1 INNER JOIN model_list AS T2 ON T1.MakeId = T2.M...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 12.1s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT MIN(Cylinders) FROM car_makers JOIN cars_data ON car_makers.Id = cars_data.Id WHERE car_maker...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 11.2s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT MIN(c.Cylinders) FROM cars_data AS c JOIN car_names AS cn ON c.Id = cn.MakeId WHERE cn.Model ...</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q53</strong>
+                <span class="badge badge-easy">EASY</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">How many cars has over 6 cylinders?</p>
+            <div class="sql-box">Gold: SELECT COUNT(*) FROM CARS_DATA WHERE Cylinders  >  6;</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 2.6s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT COUNT(T1.Id) FROM cars_data AS T1 INNER JOIN car_makers AS T2 ON T1.Country = T2.Country WHER...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 8.8s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT COUNT(*) FROM car_makes AS cm JOIN cars_data AS c ON cm.Id = c.Maker WHERE c.Cylinders > 6;</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 8.7s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT COUNT(*) FROM cars_data WHERE Cylinders > 6;</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q54</strong>
+                <span class="badge badge-easy">EASY</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">What is the number of carsw ith over 6 cylinders?</p>
+            <div class="sql-box">Gold: SELECT COUNT(*) FROM CARS_DATA WHERE Cylinders  >  6;</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 1.5s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT COUNT(*) FROM cars_data WHERE Cylinders > 6</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 8.2s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT COUNT(*) FROM car_makers WHERE Cylinders > 6;</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 7.9s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT COUNT(*) FROM cars_data WHERE Cylinders > 6;</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q55</strong>
+                <span class="badge badge-medium">MEDIUM</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">For the cars with 4 cylinders, which model has the largest horsepower?</p>
+            <div class="sql-box">Gold: SELECT T1.Model FROM CAR_NAMES AS T1 JOIN CARS_DATA AS T2 ON T1.MakeId  =  T2.Id WHERE T2.Cylinders  =  4 ORDER BY T2.horsepower DESC LIMIT 1;</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 3.2s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT c.Model 
+FROM car_names cn 
+JOIN cars_data cd ON cn.MakeId = cd.Id 
+WHERE cd.Cylinders = 4 
+O...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 11.8s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT Model FROM car_names JOIN model_list ON MakeId = MakerID WHERE Cylinders = 4 ORDER BY Horsepo...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 11.0s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT Model FROM car_names JOIN cars_data ON car_names.MakeId = cars_data.Horsepower WHERE Cylinder...</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q56</strong>
+                <span class="badge badge-medium">MEDIUM</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">For all of the 4 cylinder cars, which model has the most horsepower?</p>
+            <div class="sql-box">Gold: SELECT T1.Model FROM CAR_NAMES AS T1 JOIN CARS_DATA AS T2 ON T1.MakeId  =  T2.Id WHERE T2.Cylinders  =  4 ORDER BY T2.horsepower DESC LIMIT 1;</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 4.0s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT c.Model 
+FROM car_names cn 
+JOIN cars_data cd ON cn.MakeId = cd.Id 
+WHERE cd.Cylinders = 4 
+G...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 11.0s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT Model FROM car_names JOIN model_list ON MakeId = Maker JOIN cars_data ON Id = ModelId WHERE C...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 10.1s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT Model FROM car_names JOIN cars_data AS c ON car_names.MakeId = c.Id WHERE Cylinders = 4 ORDER...</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q57</strong>
+                <span class="badge badge-easy">EASY</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">What is the maximum miles per gallon of the car with 8 cylinders or produced before 1980 ?</p>
+            <div class="sql-box">Gold: select max(mpg) from cars_data where cylinders  =  8 or year  <  1980</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 2.5s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT MAX(MPG) 
+FROM cars_data 
+WHERE Cylinders = 8 OR Year < 1980;</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 11.3s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT MAX(MPG) FROM cars_data WHERE Cylinders = 8 OR Year < 1980;</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 11.8s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT MAX(MPG) FROM cars_data WHERE Cylinders = 8 OR Year < 1980;</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q58</strong>
+                <span class="badge badge-easy">EASY</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">What is the maximum mpg of the cars that had 8 cylinders or that were produced before 1980 ?</p>
+            <div class="sql-box">Gold: select max(mpg) from cars_data where cylinders  =  8 or year  <  1980</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 2.2s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT MAX(MPG) 
+FROM cars_data 
+WHERE Cylinders = 8 OR Year < 1980;</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 10.2s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT MAX(T1.MPG) FROM cars_data AS T1 JOIN model_list AS T2 ON T1.Id = T2.ModelId WHERE T2.Maker =...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 10.1s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT MAX(MPG) FROM cars_data WHERE Cylinders = 8 OR Year < 1980;</div>
+                </div>
+
+            </div>
+        </div>
+
+        <footer style="text-align: center; padding: 2rem; color: var(--muted);">
+            <p>Generated by Multi-Agent RAG Text-to-SQL System</p>
+        </footer>
+    </div>
+</body>
+</html>

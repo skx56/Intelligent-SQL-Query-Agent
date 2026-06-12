@@ -1,0 +1,4 @@
+Pipeline,Total Questions,Execution Accuracy,Exact Set Match,Component Score,SELECT Match,FROM Match,WHERE Match,GROUP BY Match,ORDER BY Match,Avg Time (s),Total Time (s)
+Single Agent,64,48.4%,48.4%,75.0%,96.9%,48.4%,81.2%,85.9%,62.5%,4.2,267.1
+Multi Agent,64,60.9%,60.9%,79.4%,84.4%,73.4%,89.1%,90.6%,59.4%,10.1,644.1
+Multi Agent RAG,64,62.5%,62.5%,80.6%,87.5%,71.9%,89.1%,85.9%,68.8%,21.6,1382.7

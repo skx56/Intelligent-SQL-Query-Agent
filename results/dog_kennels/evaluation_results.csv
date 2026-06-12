@@ -1,0 +1,205 @@
+ID,Question,Hardness,Gold SQL,Single_Agent_SQL,Single_Agent_Correct,Single_Agent_Time,Multi_Agent_SQL,Multi_Agent_Correct,Multi_Agent_Time,Multi_Agent_RAG_SQL,Multi_Agent_RAG_Correct,Multi_Agent_RAG_Time
+1,"Which owner owns the most dogs? List the owner id, first name and last name.",medium,"SELECT T1.owner_id ,  T2.first_name ,  T2.last_name FROM Dogs AS T1 JOIN Owners AS T2 ON T1.owner_id  =  T2.owner_id GROUP BY T1.owner_id ORDER BY count(*) DESC LIMIT 1","SELECT o.owner_id, o.first_name, o.last_name 
+FROM Owners o 
+JOIN Dogs d ON o.owner_id = d.owner_id 
+GROUP BY o.owner_id 
+ORDER BY COUNT(d.owner_id) DESC 
+LIMIT 1;",Yes,3.1,"SELECT o.owner_id, o.first_name, o.last_name FROM Dogs AS d JOIN Owners AS o ON d.owner_id = o.owner_id GROUP BY o.owner_id ORDER BY COUNT(d.owner_id) DESC LIMIT 1;",Yes,11.5,"SELECT o.owner_id, o.first_name, o.last_name FROM Owners AS o JOIN Dogs AS d ON o.owner_id = d.owner_id GROUP BY o.owner_id ORDER BY COUNT(d.dog_id) DESC LIMIT 1;",Yes,11.3
+2,"Return the owner id, first name and last name of the owner who has the most dogs.",medium,"SELECT T1.owner_id ,  T2.first_name ,  T2.last_name FROM Dogs AS T1 JOIN Owners AS T2 ON T1.owner_id  =  T2.owner_id GROUP BY T1.owner_id ORDER BY count(*) DESC LIMIT 1","SELECT o.owner_id, o.first_name, o.last_name 
+FROM Owners o 
+JOIN Dogs d ON o.owner_id = d.owner_id 
+GROUP BY o.owner_id 
+ORDER BY COUNT(d.owner_id) DESC 
+LIMIT 1;",Yes,4.6,"SELECT o.owner_id, o.first_name, o.last_name FROM Owners AS o JOIN Dogs AS d ON o.owner_id = d.owner_id GROUP BY o.owner_id ORDER BY COUNT(d.dog_id) DESC LIMIT 1;",Yes,12.0,"SELECT o.owner_id, o.first_name, o.last_name FROM Owners AS o JOIN Dogs AS d ON o.owner_id = d.owner_id GROUP BY o.owner_id ORDER BY COUNT(d.dog_id) DESC LIMIT 1;",Yes,11.9
+3,What is the name of the breed with the most dogs?,medium,SELECT T1.breed_name FROM Breeds AS T1 JOIN Dogs AS T2 ON T1.breed_code  =  T2.breed_code GROUP BY T1.breed_name ORDER BY count(*) DESC LIMIT 1,"SELECT T1.breed_name 
+FROM Breeds AS T1 
+JOIN Dogs AS T2 ON T1.breed_code = T2.breed_code 
+GROUP BY T1.breed_name 
+ORDER BY COUNT(T2.dog_id) DESC 
+LIMIT 1;",Yes,4.8,SELECT breed_name FROM Dogs GROUP BY breed_code ORDER BY COUNT(*) DESC LIMIT 1;,No,11.3,SELECT b.breed_name FROM Dogs AS d JOIN Breeds AS b ON d.breed_code = b.breed_code GROUP BY d.breed_code ORDER BY COUNT(d.dog_id) DESC LIMIT 1;,Yes,10.4
+4,Which breed do the most dogs have? Give me the breed name.,medium,SELECT T1.breed_name FROM Breeds AS T1 JOIN Dogs AS T2 ON T1.breed_code  =  T2.breed_code GROUP BY T1.breed_name ORDER BY count(*) DESC LIMIT 1,"SELECT T1.breed_name 
+FROM Breeds AS T1 
+JOIN Dogs AS T2 ON T1.breed_code = T2.breed_code 
+GROUP BY T1.breed_name 
+ORDER BY COUNT(T2.dog_id) DESC 
+LIMIT 1;",Yes,4.3,SELECT b.breed_name FROM Dogs AS d JOIN Breeds AS b ON d.breed_code = b.breed_code GROUP BY d.breed_code ORDER BY COUNT(d.dog_id) DESC LIMIT 1;,Yes,11.1,SELECT b.breed_name FROM Dogs AS d JOIN Breeds AS b ON d.breed_code = b.breed_code GROUP BY b.breed_name ORDER BY COUNT(d.dog_id) DESC LIMIT 1;,Yes,9.9
+5,What is the description of the treatment type that costs the least money in total?,medium,SELECT T1.treatment_type_description FROM Treatment_types AS T1 JOIN Treatments AS T2 ON T1.treatment_type_code  =  T2.treatment_type_code GROUP BY T1.treatment_type_code ORDER BY sum(cost_of_treatment) ASC LIMIT 1,"SELECT T1.treatment_type_description 
+FROM Treatment_Types AS T1 
+JOIN Treatments AS T2 ON T1.treatment_type_code = T2.treatment_type_code 
+WHERE T2.cost_of_treatment = ( SELECT MIN(cost_of_treatment) FROM Treatments );",Yes,4.1,SELECT tt.treatment_type_description FROM Treatments AS t JOIN Treatment_Types AS tt ON t.treatment_type_code = tt.treatment_type_code WHERE t.cost_of_treatment = (SELECT MIN(cost_of_treatment) FROM Treatments);,Yes,10.7,SELECT tt.treatment_type_description FROM Treatment_Types AS tt JOIN Treatments AS t ON tt.treatment_type_code = t.treatment_type_code WHERE t.cost_of_treatment = (SELECT MIN(cost_of_treatment) FROM Treatments);,Yes,10.2
+6,Give me the description of the treatment type whose total cost is the lowest.,medium,SELECT T1.treatment_type_description FROM Treatment_types AS T1 JOIN Treatments AS T2 ON T1.treatment_type_code  =  T2.treatment_type_code GROUP BY T1.treatment_type_code ORDER BY sum(cost_of_treatment) ASC LIMIT 1,"SELECT T1.treatment_type_description 
+FROM Treatment_Types AS T1 
+JOIN ( SELECT treatment_type_code, SUM(cost_of_treatment) AS total_cost 
+       FROM Treatments 
+       GROUP BY treatment_type_code ) AS T2 
+ON T1.treatment_type_code = T2.treatment_type_code 
+WHERE T2.total_cost = (SELECT MIN(total_cost) FROM ( SELECT treatment_type_code, SUM(cost_of_treatment) AS total_cost 
+                                                    FROM Treatments 
+                                                    GROUP BY treatment_type_code ))",Yes,7.3,SELECT tt.treatment_type_description FROM Treatments AS t JOIN Treatment_Types AS tt ON t.treatment_type_code = tt.treatment_type_code WHERE t.cost_of_treatment = (SELECT MIN(cost_of_treatment) FROM Treatments);,Yes,10.6,SELECT tt.treatment_type_description FROM Treatments AS t JOIN Treatment_Types AS tt ON t.treatment_type_code = tt.treatment_type_code WHERE t.cost_of_treatment = (SELECT MIN(cost_of_treatment) FROM Treatments);,Yes,10.0
+7,"List the date of each treatment, together with the first name of the professional who operated it.",medium,"SELECT T1.date_of_treatment ,  T2.first_name FROM Treatments AS T1 JOIN Professionals AS T2 ON T1.professional_id  =  T2.professional_id","SELECT T1.date_of_treatment, P.first_name 
+FROM Treatments T1 
+JOIN Professionals P ON T1.professional_id = P.professional_id;",Yes,3.8,"SELECT T1.date_of_treatment, T2.first_name FROM Treatments AS T1 JOIN Professionals AS T2 ON T1.professional_id = T2.professional_id;",Yes,9.4,"SELECT T.date_of_treatment, P.first_name FROM Treatments AS T JOIN Professionals AS P ON T.professional_id = P.professional_id;",Yes,8.5
+8,What are the date and the operating professional's first name of each treatment?,medium,"SELECT T1.date_of_treatment ,  T2.first_name FROM Treatments AS T1 JOIN Professionals AS T2 ON T1.professional_id  =  T2.professional_id","SELECT T.date_of_treatment, P.first_name 
+FROM Treatments T 
+JOIN Professionals P ON T.professional_id = P.professional_id;",Yes,3.1,"SELECT T1.date_of_treatment, P.first_name FROM Treatments AS T1 JOIN Professionals AS P ON T1.professional_id = P.professional_id;",Yes,10.2,"SELECT T.date_of_treatment, OP.first_name FROM Treatments AS T JOIN Operating_Professionals AS OP ON T.professional_id = OP.operating_professional_id;",No,71.4
+9,List the cost of each treatment and the corresponding treatment type description.,medium,"SELECT T1.cost_of_treatment ,  T2.treatment_type_description FROM Treatments AS T1 JOIN treatment_types AS T2 ON T1.treatment_type_code  =  T2.treatment_type_code","SELECT T.treatment_type_description, T.cost_of_treatment 
+FROM Treatments T 
+JOIN Treatment_Types TT ON T.treatment_type_code = TT.treatment_type_code;",No,3.3,"SELECT t.cost_of_treatment, tt.treatment_type_description FROM Treatments AS t JOIN Treatment_Types AS tt ON t.treatment_type_code = tt.treatment_type_code;",Yes,8.8,"SELECT t.cost_of_treatment, tt.treatment_type_description FROM Treatments AS t JOIN Treatment_Types AS tt ON t.treatment_type_code = tt.treatment_type_code;",Yes,8.1
+10,What are the cost and treatment type description of each treatment?,medium,"SELECT T1.cost_of_treatment ,  T2.treatment_type_description FROM Treatments AS T1 JOIN treatment_types AS T2 ON T1.treatment_type_code  =  T2.treatment_type_code","SELECT 
+  t.cost_of_treatment,
+  tt.treatment_type_description
+FROM 
+  Treatments t
+JOIN 
+  Treatment_Types tt ON t.treatment_type_code = tt.treatment_type_code;",Yes,3.2,"SELECT t.cost_of_treatment, tt.treatment_type_description FROM Treatments AS t JOIN Treatment_Types AS tt ON t.treatment_type_code = tt.treatment_type_code;",Yes,9.4,"SELECT t.cost_of_treatment, tt.treatment_type_description FROM Treatments AS t JOIN Treatment_Types AS tt ON t.treatment_type_code = tt.treatment_type_code;",Yes,8.4
+11,"List each owner's first name, last name, and the size of his for her dog.",medium,"SELECT T1.first_name ,  T1.last_name ,  T2.size_code FROM Owners AS T1 JOIN Dogs AS T2 ON T1.owner_id  =  T2.owner_id","SELECT 
+  o.first_name,
+  o.last_name,
+  s.size_description
+FROM 
+  Owners o
+JOIN 
+  Dogs d ON o.owner_id = d.owner_id
+JOIN 
+  Sizes s ON d.size_code = s.size_code;",No,4.7,"SELECT o.first_name, o.last_name, d.size_code FROM Owners AS o JOIN Dogs AS d ON o.owner_id = d.owner_id;",Yes,10.2,"SELECT o.first_name, o.last_name, d.size_code FROM owners AS o JOIN Dogs AS d ON o.owner_id = d.owner_id;",Yes,9.3
+12,"What are each owner's first name, last name, and the size of their dog?",medium,"SELECT T1.first_name ,  T1.last_name ,  T2.size_code FROM Owners AS T1 JOIN Dogs AS T2 ON T1.owner_id  =  T2.owner_id","SELECT 
+  o.first_name,
+  o.last_name,
+  d.size_code
+FROM 
+  Owners o
+JOIN 
+  Dogs d ON o.owner_id = d.owner_id;",Yes,3.5,"SELECT o.first_name, o.last_name, d.size_code FROM Owners AS o JOIN Dogs AS d ON o.owner_id = d.owner_id;",Yes,10.7,"SELECT o.first_name, o.last_name, d.size_code FROM Owners AS o JOIN Dogs AS d ON o.owner_id = d.owner_id;",Yes,9.6
+13,List pairs of the owner's first name and the dogs's name.,medium,"SELECT T1.first_name ,  T2.name FROM Owners AS T1 JOIN Dogs AS T2 ON T1.owner_id  =  T2.owner_id","SELECT o.first_name, d.name 
+FROM Owners o 
+JOIN Dogs d ON o.owner_id = d.owner_id;",Yes,3.1,"SELECT o.first_name, d.name FROM Owners AS o JOIN Dogs AS d ON o.owner_id = d.owner_id;",Yes,9.7,"SELECT o.first_name, d.name FROM Owners AS o JOIN Dogs AS d ON o.owner_id = d.owner_id;",Yes,8.9
+14,What are each owner's first name and their dogs's name?,medium,"SELECT T1.first_name ,  T2.name FROM Owners AS T1 JOIN Dogs AS T2 ON T1.owner_id  =  T2.owner_id","SELECT o.first_name, d.name 
+FROM Owners o 
+JOIN Dogs d ON o.owner_id = d.owner_id;",Yes,2.9,"SELECT o.first_name, d.name FROM Owners AS o JOIN Dogs AS d ON o.owner_id = d.owner_id;",Yes,10.8,"SELECT o.first_name, d.name FROM Owners AS o JOIN Dogs AS d ON o.owner_id = d.owner_id;",Yes,9.8
+15,Which dogs are owned by someone who lives in Virginia? List the owner's first name and the dog's name.,medium,"SELECT T1.first_name ,  T2.name FROM Owners AS T1 JOIN Dogs AS T2 ON T1.owner_id  =  T2.owner_id WHERE T1.state  =  'Virginia'","SELECT T1.first_name, T1.name 
+FROM Owners AS T1 
+JOIN Dogs AS T2 ON T1.owner_id = T2.owner_id 
+WHERE T1.state = 'Virginia';",No,3.2,"SELECT o.first_name, d.name FROM Owners AS o JOIN Dogs AS d ON o.owner_id = d.owner_id WHERE o.state = 'Virginia';",Yes,9.9,"SELECT o.first_name, d.name FROM Dogs AS d JOIN Owners AS o ON d.owner_id = o.owner_id WHERE o.city = 'Virginia';",No,8.8
+16,Find the first names of owners living in Virginia and the names of dogs they own.,medium,"SELECT T1.first_name ,  T2.name FROM Owners AS T1 JOIN Dogs AS T2 ON T1.owner_id  =  T2.owner_id WHERE T1.state  =  'Virginia'","SELECT DISTINCT o.first_name, d.name 
+FROM Owners o 
+JOIN Dogs d ON o.owner_id = d.owner_id 
+WHERE o.state = 'Virginia';",Yes,3.3,SELECT o.first_name FROM owners AS o JOIN dogs AS d ON o.owner_id = d.owner_id WHERE o.state = 'Virginia';,No,10.4,"SELECT o.first_name, d.name FROM Owners AS o JOIN Dogs AS d ON o.owner_id = d.owner_id WHERE o.state = 'Virginia';",Yes,10.0
+17,What are the arriving date and the departing date of the dogs who have gone through a treatment?,medium,"SELECT DISTINCT T1.date_arrived ,  T1.date_departed FROM Dogs AS T1 JOIN Treatments AS T2 ON T1.dog_id  =  T2.dog_id","SELECT D.date_arrived, D.date_departed 
+FROM Dogs D 
+JOIN Treatments T ON D.dog_id = T.dog_id 
+WHERE T.treatment_type_code IN (
+  SELECT TT.treatment_type_code 
+  FROM Treatment_Types TT 
+  JOIN Charges C ON TT.treatment_type_code = C.charge_type 
+  WHERE C.charge_amount > 0
+)",No,6.2,"SELECT T1.date_arrived, T1.date_departed FROM Dogs AS T1 JOIN Treatments AS T2 ON T1.dog_id = T2.dog_id;",Yes,10.3,"SELECT d.date_arrived, d.date_departed FROM Dogs AS d JOIN Treatments AS t ON d.dog_id = t.dog_id;",Yes,9.5
+18,Find the arriving date and the departing date of the dogs that received a treatment.,medium,"SELECT DISTINCT T1.date_arrived ,  T1.date_departed FROM Dogs AS T1 JOIN Treatments AS T2 ON T1.dog_id  =  T2.dog_id","SELECT 
+  d.date_arrived,
+  d.date_departed
+FROM 
+  Dogs d
+JOIN 
+  Treatments t ON d.dog_id = t.dog_id
+WHERE 
+  t.treatment_type_code IS NOT NULL;",Yes,3.8,"SELECT T1.date_arrived, T1.date_departed FROM Dogs AS T1 JOIN Treatments AS T2 ON T1.dog_id = T2.dog_id;",Yes,10.4,"SELECT T1.date_arrived, T1.date_departed FROM Dogs AS T1 JOIN Treatments AS T2 ON T1.dog_id = T2.dog_id;",Yes,9.3
+19,List the emails of the professionals who live in the state of Hawaii or the state of Wisconsin.,easy,SELECT email_address FROM Professionals WHERE state  =  'Hawaii' OR state  =  'Wisconsin',"SELECT DISTINCT T1.email_address 
+FROM Professionals AS T1 
+JOIN Owners AS T2 ON T1.owner_id = T2.owner_id 
+WHERE T2.state IN ('HI', 'WI');",No,3.6,"SELECT p.email_address FROM Professionals AS p JOIN States AS s ON p.state = s.code WHERE s.name IN ('Hawaii', 'Wisconsin');",No,10.2,"SELECT T1.email_address FROM Professionals AS T1 JOIN States AS T2 ON T1.state = T2.state_name WHERE T2.state_name IN ('Hawaii', 'Wisconsin');",No,81.8
+20,What are the emails of the professionals living in either the state of Hawaii or the state of Wisconsin?,easy,SELECT email_address FROM Professionals WHERE state  =  'Hawaii' OR state  =  'Wisconsin',"SELECT DISTINCT T1.email_address 
+FROM Professionals AS T1 
+JOIN Owners AS T2 ON T1.owner_id = T2.owner_id 
+WHERE T2.state IN ('HI', 'WI');",No,3.3,"SELECT T1.email_address FROM Professionals AS T1 JOIN States AS T2 ON T1.state = T2.state_name WHERE T2.state_name IN ('Hawaii', 'Wisconsin');",No,9.3,SELECT email_address FROM Professionals WHERE state = 'Hawaii' OR state = 'Wisconsin';,Yes,8.5
+21,What are the arriving date and the departing date of all the dogs?,easy,"SELECT date_arrived ,  date_departed FROM Dogs","SELECT 
+  D.date_arrived,
+  D.date_departed
+FROM 
+  Dogs D
+WHERE 
+  D.date_departed IS NOT NULL;",Yes,2.8,"SELECT T1.date_arrived, T1.date_departed FROM Dogs AS T1;",Yes,8.9,"SELECT date_arrived, date_departed FROM Dogs;",Yes,8.3
+22,List the arrival date and the departure date for all the dogs.,easy,"SELECT date_arrived ,  date_departed FROM Dogs","SELECT T1.date_arrived, T1.date_departed FROM Dogs AS T1 INNER JOIN Treatments AS T2 ON T1.dog_id = T2.dog_id",No,2.8,"SELECT T1.date_arrived, T1.date_departed FROM Dogs AS T1;",Yes,10.1,"SELECT date_arrived, date_departed FROM Dogs;",Yes,9.8
+23,How many dogs went through any treatments?,easy,SELECT count(DISTINCT dog_id) FROM Treatments,SELECT COUNT(DISTINCT T1.dog_id) FROM Treatments AS T1 INNER JOIN Dogs AS T2 ON T1.dog_id = T2.dog_id,Yes,3.2,SELECT COUNT(DISTINCT t.treatment_id) FROM Treatments AS t JOIN Dogs AS d ON t.dog_id = d.dog_id;,No,11.8,SELECT COUNT(*) FROM Treatments;,No,10.5
+24,Count the number of dogs that went through a treatment.,easy,SELECT count(DISTINCT dog_id) FROM Treatments,"SELECT COUNT(DISTINCT t.treatment_id) 
+FROM Treatments t 
+JOIN Dogs d ON t.dog_id = d.dog_id;",No,3.1,SELECT COUNT(*) FROM Dogs JOIN Treatments ON Dogs.dog_id = Treatments.dog_id;,No,11.6,SELECT COUNT(*) FROM Treatments;,No,9.2
+25,How many professionals have performed any treatment to dogs?,easy,SELECT count(DISTINCT professional_id) FROM Treatments,"SELECT COUNT(DISTINCT p.professional_id)
+FROM Professionals p
+JOIN Treatments t ON p.professional_id = t.professional_id;",Yes,2.9,,No,17.0,SELECT COUNT(DISTINCT professional_id) FROM Treatments WHERE dog_id IN (SELECT dog_id FROM Dogs);,Yes,10.4
+26,Find the number of professionals who have ever treated dogs.,easy,SELECT count(DISTINCT professional_id) FROM Treatments,"SELECT COUNT(DISTINCT professional_id) 
+FROM Treatments t
+JOIN Professionals p ON t.professional_id = p.professional_id;",No,3.0,SELECT COUNT(DISTINCT professional_id) FROM Treatments;,Yes,11.3,SELECT COUNT(DISTINCT professional_id) FROM Treatments;,Yes,10.4
+27,"Which professionals live in a city containing the substring 'West'? List his or her role, street, city and state.",easy,"SELECT role_code ,  street ,  city ,  state FROM professionals WHERE city LIKE '%West%'","SELECT P.role_code, P.street, O.city, O.state 
+FROM Professionals P 
+JOIN Owners O ON P.owner_id = O.owner_id 
+WHERE O.city LIKE '%West%'",No,3.0,"SELECT p.role_code, p.street, c.city, c.state FROM Professionals AS p JOIN Cities AS c ON p.city = c.code WHERE c.city LIKE '%West%';",No,10.6,"SELECT DISTINCT c.role_code, c.street, c.city, c.state FROM Professionals AS c WHERE c.city LIKE '%West%';",Yes,28.0
+28,"Find the role, street, city and state of the professionals living in a city that contains the substring 'West'.",easy,"SELECT role_code ,  street ,  city ,  state FROM professionals WHERE city LIKE '%West%'","SELECT p.role_code, p.street, p.city, p.state 
+FROM Professionals p 
+JOIN Owners o ON p.owner_id = o.owner_id 
+WHERE o.city LIKE '%West%' 
+OR p.city LIKE '%West%';",No,4.0,"SELECT p.role_code, p.street, c.city, c.state FROM Professionals AS p JOIN Address AS a ON p.street = a.street JOIN City AS c ON a.city_id = c.id WHERE c.city LIKE '%West%';",No,12.8,"SELECT c.role_code, c.street, c.city, c.state FROM Professionals AS c WHERE c.city LIKE '%West%';",Yes,11.2
+29,"Which owners live in the state whose name contains the substring 'North'? List his first name, last name and email.",easy,"SELECT first_name ,  last_name ,  email_address FROM Owners WHERE state LIKE '%North%'","SELECT 
+  o.first_name,
+  o.last_name,
+  o.email_address
+FROM 
+  Owners o
+JOIN 
+  Dogs d ON o.owner_id = d.owner_id
+WHERE 
+  o.state LIKE '%North%';",Yes,4.0,"SELECT o.first_name, o.last_name, o.email_address FROM Owners AS o JOIN States AS s ON o.state = s.name WHERE s.name LIKE '%North%';",No,12.4,"SELECT o.first_name, o.last_name, o.email_address FROM Owners AS o JOIN States AS s ON o.state = s.name WHERE s.name LIKE '%North%';",No,74.2
+30,"Return the first name, last name and email of the owners living in a state whose name contains the substring 'North'.",easy,"SELECT first_name ,  last_name ,  email_address FROM Owners WHERE state LIKE '%North%'","SELECT o.first_name, o.last_name, o.email_address 
+FROM Owners o 
+JOIN Dogs d ON o.owner_id = d.owner_id 
+WHERE o.state LIKE '%North%' 
+OR d.state LIKE '%North%';",No,3.6,"SELECT o.first_name, o.last_name, o.email_address FROM Owners AS o WHERE o.state LIKE '%North%';",Yes,10.5,"SELECT first_name, last_name, email_address FROM Owners WHERE city LIKE '%North%';",No,56.5
+31,How much does the most recent treatment cost?,easy,SELECT cost_of_treatment FROM Treatments ORDER BY date_of_treatment DESC LIMIT 1,SELECT T1.cost_of_treatment FROM Treatments AS T1 INNER JOIN Dogs AS T2 ON T1.dog_id = T2.dog_id ORDER BY T1.date_of_treatment DESC LIMIT 1,Yes,3.6,SELECT MAX(TREATMENT_ID) * cost_of_treatment FROM Treatments WHERE date_of_treatment = (SELECT MAX(date_of_treatment) FROM Treatments);,No,9.8,SELECT MAX(cost_of_treatment) FROM Treatments WHERE date_of_treatment = (SELECT MAX(date_of_treatment) FROM Treatments);,Yes,8.3
+32,Show me the cost of the most recently performed treatment.,easy,SELECT cost_of_treatment FROM Treatments ORDER BY date_of_treatment DESC LIMIT 1,SELECT T1.cost_of_treatment FROM Treatments AS T1 INNER JOIN Dogs AS T2 ON T1.dog_id = T2.dog_id ORDER BY T1.date_of_treatment DESC LIMIT 1,Yes,3.4,SELECT T1.cost_of_treatment FROM Treatments AS T1 JOIN Dogs AS T2 ON T1.dog_id = T2.dog_id ORDER BY T1.date_of_treatment DESC LIMIT 1;,Yes,10.6,SELECT MAX(cost_of_treatment) FROM Treatments WHERE date_of_treatment = (SELECT MAX(date_of_treatment) FROM Treatments);,Yes,9.8
+33,"List the dog name, age and weight of the dogs who have been abandoned? 1 stands for yes, and 0 stands for no.",easy,"SELECT name ,  age ,  weight FROM Dogs WHERE abandoned_yn  =  1","SELECT T1.name, T1.age, T1.weight 
+FROM Dogs AS T1 
+JOIN Owners AS T2 ON T1.owner_id = T2.owner_id 
+WHERE T1.abandoned_yn = '1'",Yes,3.9,"SELECT T1.name, T1.age, T1.weight FROM Dogs AS T1 INNER JOIN Owners AS T2 ON T1.owner_id = T2.owner_id WHERE T1.abandoned_yn = '1';",Yes,11.8,"SELECT name, age, weight FROM Dogs WHERE abandoned_yn = '1';",Yes,11.1
+34,"What are the dog name, age and weight of the dogs that were abandoned? Note that 1 stands for yes, and 0 stands for no in the tables.",easy,"SELECT name ,  age ,  weight FROM Dogs WHERE abandoned_yn  =  1","SELECT T1.name, T1.age, T1.weight 
+FROM Dogs AS T1 
+JOIN Owners AS T2 ON T1.owner_id = T2.owner_id 
+WHERE T1.abandoned_yn = '1'",Yes,3.9,"SELECT D.name, D.age, D.weight FROM Dogs AS D WHERE D.abandoned_yn = '1';",Yes,11.4,"SELECT name, age, weight FROM Dogs WHERE abandoned_yn = '1';",Yes,10.0
+35,What is the average age of all the dogs?,easy,SELECT avg(age) FROM Dogs,SELECT AVG(T1.age) FROM Dogs AS T1 INNER JOIN Owners AS T2 ON T1.owner_id = T2.owner_id,Yes,3.1,SELECT AVG(age) FROM Dogs;,Yes,9.2,SELECT AVG(age) FROM Dogs;,Yes,8.9
+36,Compute the average age of all the dogs.,easy,SELECT avg(age) FROM Dogs,SELECT AVG(T1.age) FROM Dogs AS T1 INNER JOIN Owners AS T2 ON T1.owner_id = T2.owner_id,Yes,2.7,SELECT AVG(age) FROM Dogs;,Yes,9.8,SELECT AVG(age) FROM Dogs;,Yes,7.7
+37,What is the age of the oldest dog?,easy,SELECT max(age) FROM Dogs,SELECT MAX(T1.age) FROM Dogs AS T1 INNER JOIN Owners AS T2 ON T1.owner_id = T2.owner_id,Yes,2.7,SELECT MAX(age) FROM Dogs;,Yes,10.0,SELECT MAX(age) FROM Dogs;,Yes,9.1
+38,Tell me the age of the oldest dog.,easy,SELECT max(age) FROM Dogs,SELECT MAX(T1.age) FROM Dogs AS T1 INNER JOIN Owners AS T2 ON T1.owner_id = T2.owner_id,Yes,3.5,SELECT MAX(age) FROM Dogs;,Yes,9.5,SELECT MAX(age) FROM Dogs;,Yes,9.6
+39,How much does each charge type costs? List both charge type and amount.,easy,"SELECT charge_type ,  charge_amount FROM Charges","SELECT 
+  c.charge_type,
+  SUM(c.charge_amount) AS total_cost
+FROM 
+  Charges c
+GROUP BY 
+  c.charge_type;",Yes,3.0,"SELECT charge_type, charge_amount FROM Charges;",Yes,9.8,"SELECT charge_type, SUM(charge_amount) FROM Charges GROUP BY charge_type;",Yes,8.9
+40,List each charge type and its amount.,easy,"SELECT charge_type ,  charge_amount FROM Charges","SELECT DISTINCT T1.charge_type, T1.charge_amount 
+FROM Charges AS T1 
+JOIN Treatments AS T2 ON T1.charge_id = T2.charge_id;",No,3.5,"SELECT charge_type, charge_amount FROM Charges;",Yes,9.8,"SELECT charge_type, charge_amount FROM Charges;",Yes,8.0
+41,How much does the most expensive charge type costs?,easy,SELECT max(charge_amount) FROM Charges,SELECT T1.charge_amount FROM Charges AS T1 INNER JOIN Treatments AS T2 ON T1.charge_id = T2.charge_id ORDER BY T1.charge_amount DESC LIMIT 1,No,3.2,SELECT MAX(charge_amount) FROM Charges;,Yes,10.3,SELECT MAX(charge_amount) FROM Charges;,Yes,8.7
+42,What is the charge amount of the most expensive charge type?,easy,SELECT max(charge_amount) FROM Charges,"SELECT T1.charge_amount 
+FROM Charges AS T1 
+JOIN (
+  SELECT charge_type, MAX(charge_amount) as max_charge_amount
+  FROM Charges
+  GROUP BY charge_type
+) AS T2 ON T1.charge_type = T2.charge_type AND T1.charge_amount = T2.max_charge_amount",No,5.4,SELECT MAX(charge_amount) FROM Charges;,Yes,10.8,SELECT charge_amount FROM Charges ORDER BY charge_amount DESC LIMIT 1;,Yes,9.1
+43,"List the email, cell phone and home phone of all the professionals.",easy,"SELECT email_address ,  cell_number ,  home_phone FROM professionals","SELECT 
+  p.email_address,
+  p.cell_number,
+  p.home_phone
+FROM 
+  Professionals p;",Yes,2.7,"SELECT p.email_address, p.cell_number, p.home_phone FROM Professionals AS p;",Yes,10.4,"SELECT email_address, cell_number, home_phone FROM Professionals;",Yes,9.5
+44,"What are the email, cell phone and home phone of each professional?",easy,"SELECT email_address ,  cell_number ,  home_phone FROM professionals","SELECT 
+  p.email_address,
+  p.cell_number,
+  p.home_phone
+FROM 
+  Professionals p;",Yes,2.7,"SELECT ci.email_address, ci.cell_number, ci.home_phone FROM Professionals AS p JOIN Contact_Info AS ci ON p.professional_id = ci.professional_id;",No,11.6,"SELECT email_address, cell_number, home_phone FROM Professionals;",Yes,106.0
+45,What are all the possible breed type and size type combinations?,easy,"SELECT DISTINCT breed_code ,  size_code FROM dogs","SELECT DISTINCT T1.breed_name, T2.size_description 
+FROM Breeds AS T1 
+JOIN Sizes AS T2 ON T1.breed_code = T2.size_code;",No,2.8,"SELECT breed_code, size_code FROM Dogs GROUP BY breed_code, size_code;",Yes,8.9,"SELECT breed_code, size_code FROM Breeds;",No,33.8
+46,Find the distinct breed type and size type combinations for dogs.,easy,"SELECT DISTINCT breed_code ,  size_code FROM dogs","SELECT DISTINCT T1.breed_name, T1.size_description 
+FROM Breeds AS T1 
+JOIN Dogs AS T2 ON T1.breed_code = T2.breed_code 
+JOIN Sizes AS T3 ON T2.size_code = T3.size_code;",No,4.5,"SELECT DISTINCT bt.breed_type, st.size_type FROM Dogs AS d JOIN Treatment_Types AS tt ON d.breed_code = tt.treatment_type_code JOIN Sizes AS st ON d.size_code = st.size_code JOIN Breeds AS bt ON d.breed_code = bt.breed_code;",No,13.9,"SELECT DISTINCT breed_code, size_code FROM Dogs;",Yes,9.9

@@ -1,0 +1,194 @@
+ID,Question,Hardness,Gold SQL,Single_Agent_SQL,Single_Agent_Correct,Single_Agent_Time,Multi_Agent_SQL,Multi_Agent_Correct,Multi_Agent_Time,Multi_Agent_RAG_SQL,Multi_Agent_RAG_Correct,Multi_Agent_RAG_Time
+1,How many continents are there?,easy,SELECT count(*) FROM CONTINENTS;,SELECT COUNT(DISTINCT T1.Continent) FROM continents AS T1,Yes,1.2,SELECT COUNT(*) FROM continents;,Yes,6.2,SELECT COUNT(*) FROM continents;,Yes,7.7
+2,What is the number of continents?,easy,SELECT count(*) FROM CONTINENTS;,SELECT COUNT(DISTINCT T1.Continent) FROM continents AS T1,Yes,1.3,SELECT COUNT(*) FROM continents;,Yes,8.6,SELECT COUNT(*) FROM continents;,Yes,7.9
+3,"How many countries does each continent have? List the continent id, continent name and the number of countries.",medium,"SELECT T1.ContId ,  T1.Continent ,  count(*) FROM CONTINENTS AS T1 JOIN COUNTRIES AS T2 ON T1.ContId  =  T2.Continent GROUP BY T1.ContId;","SELECT 
+  c.ContId,
+  c.Continent,
+  COUNT(DISTINCT c.ContinentId) AS num_countries
+FROM continents c
+GROUP BY c.ContId, c.Continent;",No,2.8,"SELECT c.ContId, c.Continent, COUNT(*) FROM continents AS c JOIN countries AS co ON c.ContId = co.Continent GROUP BY c.ContId, c.Continent;",Yes,11.6,"SELECT c.ContId, c.Continent, COUNT(*) FROM continents AS c JOIN countries AS co ON c.ContId = co.Continent GROUP BY c.ContId, c.Continent;",Yes,24.6
+4,"For each continent, list its id, name, and how many countries it has?",medium,"SELECT T1.ContId ,  T1.Continent ,  count(*) FROM CONTINENTS AS T1 JOIN COUNTRIES AS T2 ON T1.ContId  =  T2.Continent GROUP BY T1.ContId;","SELECT 
+  c.ContId,
+  c.Continent,
+  COUNT(DISTINCT cn.CountryName) AS CountriesCount
+FROM continents c
+JOIN countries cn ON c.Continent = cn.Continent
+GROUP BY c.ContId, c.Continent;",No,3.4,"SELECT c.ContId, c.Continent, COUNT(c.CountryId) FROM continents AS c JOIN countries AS c2 ON c.ContId = c2.Continent GROUP BY c.ContId, c.Continent;",No,10.5,"SELECT c.ContId, c.Continent, COUNT(c.CountryId) FROM countries AS c JOIN continents AS con ON c.Continent = con.ContId GROUP BY con.ContId;",No,71.1
+5,How many countries are listed?,easy,SELECT count(*) FROM COUNTRIES;,SELECT COUNT(DISTINCT T1.CountryName) FROM countries AS T1 INNER JOIN continents AS T2 ON T1.Continent = T2.ContId,Yes,2.0,SELECT COUNT(*) FROM country;,No,6.6,SELECT COUNT(*) FROM country;,No,25.6
+6,How many countries exist?,easy,SELECT count(*) FROM COUNTRIES;,SELECT COUNT(DISTINCT T1.CountryName) FROM countries AS T1 INNER JOIN continents AS T2 ON T1.Continent = T2.ContId,Yes,1.7,SELECT COUNT(*) FROM country;,No,8.0,SELECT COUNT(*) FROM country;,No,30.3
+7,"How many models does each car maker produce? List maker full name, id and the number.",medium,"SELECT T1.FullName ,  T1.Id ,  count(*) FROM CAR_MAKERS AS T1 JOIN MODEL_LIST AS T2 ON T1.Id  =  T2.Maker GROUP BY T1.Id;","SELECT 
+  c.FullName,
+  m.ModelId,
+  COUNT(m.ModelId) AS NumModels
+FROM 
+  car_makers c
+JOIN 
+  model_list m ON c.Id = m.Maker
+GROUP BY 
+  c.FullName, m.ModelId;",No,4.2,"SELECT c.Maker, c.FullName, COUNT(*) FROM car_makers AS c JOIN model_list AS m ON c.Id = m.Maker GROUP BY c.Maker;",No,9.7,"SELECT c.Maker, c.Id, COUNT(m.ModelId) AS ModelCount FROM car_makers AS c JOIN car_names AS m ON c.Id = m.MakeId GROUP BY c.Maker, c.Id;",No,87.7
+8,"What is the full name of each car maker, along with its id and how many models it produces?",medium,"SELECT T1.FullName ,  T1.Id ,  count(*) FROM CAR_MAKERS AS T1 JOIN MODEL_LIST AS T2 ON T1.Id  =  T2.Maker GROUP BY T1.Id;","SELECT 
+  c.Id,
+  c.FullName,
+  COUNT(ml.ModelId) AS NumberOfModels
+FROM 
+  car_makers c
+JOIN 
+  model_list ml ON c.Id = ml.Maker
+GROUP BY 
+  c.Id, c.FullName;",Yes,2.9,"SELECT c.Id, c.Maker, COUNT(m.ModelId) AS ModelCount FROM car_makers AS c JOIN model_list AS m ON c.Id = m.Maker GROUP BY c.Id;",No,11.0,"SELECT c.Id, c.FullName, COUNT(m.MakeId) FROM car_makers AS c JOIN car_names AS m ON c.Id = m.MakeId GROUP BY c.Id;",No,9.0
+9,Which model of the car has the minimum horsepower?,medium,SELECT T1.Model FROM CAR_NAMES AS T1 JOIN CARS_DATA AS T2 ON T1.MakeId  =  T2.Id ORDER BY T2.horsepower ASC LIMIT 1;,"SELECT Model FROM cars_data AS cd 
+JOIN car_names AS cn ON cd.Id = cn.MakeId 
+WHERE cd.Horsepower = ( SELECT MIN(Horsepower) FROM cars_data )",No,2.1,SELECT MIN(Horsepower) FROM cars_data;,No,8.7,SELECT MIN(Horsepower) FROM cars_data AS c;,No,7.9
+10,What is the model of the car with the smallest amount of horsepower?,medium,SELECT T1.Model FROM CAR_NAMES AS T1 JOIN CARS_DATA AS T2 ON T1.MakeId  =  T2.Id ORDER BY T2.horsepower ASC LIMIT 1;,"SELECT Model FROM cars_data AS cd 
+JOIN car_names AS cn ON cd.Id = cn.MakeId 
+WHERE Horsepower = ( SELECT MIN(Horsepower) FROM cars_data )",No,2.0,SELECT Model FROM car_names JOIN cars_data AS cd ON MakeId = Id WHERE Horsepower = 'smallest';,No,10.2,SELECT Model FROM car_names AS c JOIN cars_data AS cd ON c.MakeId = cd.Id ORDER BY Horsepower ASC LIMIT 1;,Yes,12.4
+11,Which of the countries has the most car makers? List the country name.,medium,SELECT T2.CountryName FROM CAR_MAKERS AS T1 JOIN COUNTRIES AS T2 ON T1.Country  =  T2.CountryId GROUP BY T1.Country ORDER BY Count(*) DESC LIMIT 1;,"SELECT T1.CountryName 
+FROM countries AS T1 
+JOIN car_makers AS T2 ON T1.CountryId = T2.Country 
+GROUP BY T1.CountryName 
+ORDER BY COUNT(T2.Id) DESC 
+LIMIT 1;",Yes,3.3,SELECT c.Name FROM country AS c JOIN car_makers AS cm ON c.CountryId = cm.Country ORDER BY cm.Id DESC LIMIT 1;,No,10.9,SELECT c.Name FROM country AS c JOIN car_makers AS cm ON c.CountryId = cm.Country WHERE cm.Id = (SELECT MAX(Id) FROM car_makers);,No,77.6
+12,What is the name of the country with the most car makers?,medium,SELECT T2.CountryName FROM CAR_MAKERS AS T1 JOIN COUNTRIES AS T2 ON T1.Country  =  T2.CountryId GROUP BY T1.Country ORDER BY Count(*) DESC LIMIT 1;,"SELECT T2.CountryName 
+FROM car_makers AS T1 
+JOIN countries AS T2 ON T1.Country = T2.CountryId 
+GROUP BY T2.CountryName 
+ORDER BY COUNT(T1.Id) DESC 
+LIMIT 1;",Yes,3.4,SELECT c.Name FROM countries AS c JOIN car_makers AS cm ON c.CountryId = cm.Country WHERE cm.Id = (SELECT MAX(Id) FROM car_makers);,No,8.6,SELECT c.Name FROM country AS c JOIN car_makers AS cm ON c.CountryId = cm.Country WHERE cm.Id = (SELECT MAX(Id) FROM car_makers);,No,77.6
+13,How many car models are produced by each maker ? Only list the count and the maker full name .,medium,"select count(*) ,  t2.fullname from model_list as t1 join car_makers as t2 on t1.maker  =  t2.id group by t2.id;","SELECT COUNT(DISTINCT c.Maker), cm.FullName 
+FROM car_makers cm 
+JOIN model_list ml ON cm.Id = ml.Maker 
+GROUP BY cm.FullName;",No,2.3,"SELECT COUNT(DISTINCT m.Maker), m.FullName FROM model_list AS ml JOIN car_makers AS c ON ml.Maker = c.Id GROUP BY m.Maker;",No,9.3,"SELECT m.Maker, COUNT(c.Model) FROM car_names AS c JOIN car_makers AS m ON c.MakeId = m.Id GROUP BY m.Maker;",No,15.4
+14,What is the number of car models that are produced by each maker and what is the id and full name of each maker?,medium,"SELECT Count(*) ,  T2.FullName ,  T2.id FROM MODEL_LIST AS T1 JOIN CAR_MAKERS AS T2 ON T1.Maker  =  T2.Id GROUP BY T2.id;","SELECT 
+  c.Id AS MakerId,
+  c.FullName,
+  COUNT(DISTINCT m.ModelId) AS NumModels
+FROM 
+  car_makers c
+JOIN 
+  model_list m ON c.Id = m.Maker
+GROUP BY 
+  c.Id, c.FullName;",Yes,3.3,"SELECT COUNT(DISTINCT ModelId) AS Count, m.Id, m.FullName FROM model_list AS ml JOIN car_makers AS c ON ml.Maker = c.Id JOIN makers AS m ON c.Id = m.Id GROUP BY m.Id;",No,12.0,"SELECT COUNT(cm.MakeId) AS ModelCount, m.Id, m.FullName FROM car_names AS cm JOIN car_makers AS m ON cm.MakeId = m.Id GROUP BY m.Id;",No,14.8
+15,What is the accelerate of the car make amc hornet sportabout (sw)?,medium,SELECT T1.Accelerate FROM CARS_DATA AS T1 JOIN CAR_NAMES AS T2 ON T1.Id  =  T2.MakeId WHERE T2.Make  =  'amc hornet sportabout (sw)';,"SELECT T1.Accelerate 
+FROM cars_data AS T1 
+JOIN car_names AS T2 ON T1.Id = T2.MakeId 
+JOIN model_list AS T3 ON T2.Model = T3.Model 
+JOIN car_makers AS T4 ON T3.Maker = T4.Id 
+WHERE T4.Country = 'US' AND T2.Make = 'AMC' AND T3.Model = 'Hornet Sportabout (SW)'",No,5.7,SELECT c.Accelerate FROM cars_data AS c JOIN model_list AS m ON c.Id = m.ModelId JOIN car_makers AS cm ON m.Maker = cm.Id WHERE cm.FullName = 'AMC Hornet Sportabout (SW)';,No,12.5,SELECT c.Accelerate FROM cars_data AS c JOIN car_names AS cn ON c.Id = cn.MakeId WHERE cn.Model = 'AMC Hornet Sportabout (SW)';,No,11.3
+16,How much does the car accelerate that makes amc hornet sportabout (sw)?,medium,SELECT T1.Accelerate FROM CARS_DATA AS T1 JOIN CAR_NAMES AS T2 ON T1.Id  =  T2.MakeId WHERE T2.Make  =  'amc hornet sportabout (sw)';,"SELECT T1.Accelerate 
+FROM cars_data AS T1 
+JOIN car_names AS T2 ON T1.Id = T2.MakeId 
+WHERE T2.Model = 'AMC Hornet Sportabout (SW)'",No,2.8,SELECT Edispl FROM cars_data WHERE Model = 'amc hornet sportabout (sw)';,No,11.0,SELECT Accelerate FROM cars_data WHERE Make = 'AMC' AND Model = 'Hornet Sportabout' AND Year = 1978;,No,66.1
+17,How many car makers are there in france?,medium,SELECT count(*) FROM CAR_MAKERS AS T1 JOIN COUNTRIES AS T2 ON T1.Country  =  T2.CountryId WHERE T2.CountryName  =  'france';,SELECT COUNT(DISTINCT T1.Maker) FROM car_makers AS T1 INNER JOIN countries AS T2 ON T1.Country = T2.CountryName WHERE T2.CountryName = 'France',No,2.5,SELECT COUNT(DISTINCT c.Maker) FROM car_makers AS c JOIN countries AS f ON c.Country = f.CountryId WHERE f.Name = 'France';,No,8.8,SELECT COUNT(*) FROM car_makers WHERE Country = 'France';,No,8.2
+18,What is the number of makers of care in France?,medium,SELECT count(*) FROM CAR_MAKERS AS T1 JOIN COUNTRIES AS T2 ON T1.Country  =  T2.CountryId WHERE T2.CountryName  =  'france';,SELECT COUNT(DISTINCT T1.Maker) FROM car_makers AS T1 INNER JOIN countries AS T2 ON T1.Country = T2.CountryName WHERE T2.CountryName = 'France',No,2.1,SELECT COUNT(DISTINCT c.Maker) FROM car_makers AS c JOIN countries AS f ON c.Country = f.CountryId WHERE f.Name = 'France';,No,8.7,SELECT COUNT(*) FROM car_makers WHERE Country = 'France';,No,8.8
+19,What is the average miles per gallon(mpg) of the cars with 4 cylinders?,easy,SELECT avg(mpg) FROM CARS_DATA WHERE Cylinders  =  4;,SELECT AVG(T1.MPG) FROM cars_data AS T1 INNER JOIN car_makers AS T2 ON T1.Country = T2.Country WHERE T1.Cylinders = 4,No,3.0,SELECT AVG(c.MPG) FROM cars_data AS c WHERE c.Cylinders = 4;,Yes,10.1,SELECT AVG(MPG) FROM cars_data WHERE Cylinders = 4;,Yes,9.0
+20,What is the average miles per gallon of all the cards with 4 cylinders?,easy,SELECT avg(mpg) FROM CARS_DATA WHERE Cylinders  =  4;,"SELECT AVG(T1.MPG) 
+FROM cars_data AS T1 
+JOIN car_makers AS T2 ON T1.Country = T2.Country 
+JOIN countries AS T3 ON T2.Country = T3.CountryId 
+WHERE T1.Cylinders = 4;",No,4.2,SELECT AVG(c.MPG) FROM cars_data AS c WHERE c.Cylinders = 4;,Yes,10.1,SELECT AVG(MPG) FROM cars_data WHERE Cylinders = 4;,Yes,9.4
+21,What is the smallest weight of the car produced with 8 cylinders on 1974 ?,easy,select min(weight) from cars_data where cylinders  =  8 and year  =  1974,"SELECT MIN(Weight) 
+FROM cars_data 
+WHERE Cylinders = 8 AND Year = 1974;",Yes,1.7,SELECT MIN(Weight) FROM cars_data WHERE Cylinders = 8 AND Year = 1974;,Yes,10.1,SELECT MIN(Weight) FROM cars_data WHERE Cylinders = 8 AND Year = 1974;,Yes,10.0
+22,What is the minimum weight of the car with 8 cylinders produced in 1974 ?,easy,select min(weight) from cars_data where cylinders  =  8 and year  =  1974,"SELECT MIN(Weight) 
+FROM cars_data 
+WHERE Cylinders = 8 AND Year = 1974;",Yes,2.0,SELECT MIN(Weight) FROM cars_data WHERE Cylinders = 8 AND Year = 1974;,Yes,10.2,SELECT MIN(Weight) FROM cars_data WHERE Cylinders = 8 AND Year = 1974;,Yes,9.4
+23,What are all the makers and models?,easy,"SELECT Maker ,  Model FROM MODEL_LIST;","SELECT T1.Maker, T2.Model 
+FROM car_makers AS T1 
+INNER JOIN model_list AS T2 ON T1.Id = T2.Maker",No,2.2,"SELECT Maker, Model FROM car_makers JOIN model_list ON car_makers.Id = model_list.Maker;",No,9.2,"SELECT c.Maker, cn.Model FROM car_makers AS c JOIN car_names AS cn ON c.Id = cn.MakeId;",No,15.7
+24,What are the makers and models?,easy,"SELECT Maker ,  Model FROM MODEL_LIST;","SELECT T1.Maker, T2.Model 
+FROM car_makers AS T1 
+INNER JOIN model_list AS T2 ON T1.Id = T2.Maker",No,2.3,"SELECT Maker, Model FROM car_makers JOIN model_list ON car_makers.Id = model_list.Maker;",No,9.5,"SELECT c.Maker, cn.Model FROM car_makers AS c JOIN car_names AS cn ON c.Id = cn.MakeId;",No,9.8
+25,What is the number of the cars with horsepower more than 150?,easy,SELECT count(*) FROM CARS_DATA WHERE horsepower  >  150;,SELECT COUNT(*) FROM cars_data WHERE Horsepower > '150',Yes,1.6,SELECT COUNT(*) FROM cars_data WHERE Horsepower > '150';,Yes,8.0,SELECT COUNT(*) FROM cars_data WHERE Horsepower > '150';,Yes,8.3
+26,What is the number of cars with a horsepower greater than 150?,easy,SELECT count(*) FROM CARS_DATA WHERE horsepower  >  150;,SELECT COUNT(*) FROM cars_data WHERE Horsepower > '150',Yes,1.3,SELECT COUNT(*) FROM car_names AS cn JOIN cars_data AS c ON cn.MakeId = c.Id WHERE c.Horsepower > '150';,Yes,8.5,SELECT COUNT(*) FROM cars_data WHERE Horsepower > '150';,Yes,8.0
+27,What is the average weight of cars each year?,medium,"SELECT avg(Weight) ,  YEAR FROM CARS_DATA GROUP BY YEAR;","SELECT AVG(CASE WHEN Year = 2010 THEN Weight ELSE NULL END) AS avg_2010,
+       AVG(CASE WHEN Year = 2011 THEN Weight ELSE NULL END) AS avg_2011,
+       AVG(CASE WHEN Year = 2012 THEN Weight ELSE NULL END) AS avg_2012,
+       AVG(CASE WHEN Year = 2013 THEN Weight ELSE NULL END) AS avg_2013,
+       AVG(CASE WHEN Year = 2014 THEN Weight ELSE NULL END) AS avg_2014",No,6.0,SELECT AVG(Weight) FROM cars_data;,No,8.8,SELECT AVG(Weight) FROM cars_data;,No,8.0
+28,What is the average weight and year for each year?,medium,"SELECT avg(Weight) ,  YEAR FROM CARS_DATA GROUP BY YEAR;","SELECT AVG(Weight) AS avg_weight, AVG(Year) AS avg_year 
+FROM cars_data;",No,1.7,"SELECT AVG(Weight) AS avg_weight, AVG(Year) AS avg_year FROM cars_data;",No,9.2,"SELECT AVG(Weight), AVG(Year) FROM cars_data GROUP BY Year;",No,8.4
+29,What is the maximum horsepower and the make of the car models with 3 cylinders?,medium,"SELECT T2.horsepower ,  T1.Make FROM CAR_NAMES AS T1 JOIN CARS_DATA AS T2 ON T1.MakeId  =  T2.Id WHERE T2.cylinders  =  3 ORDER BY T2.horsepower DESC LIMIT 1;","SELECT T1.MPG, T1.Horsepower 
+FROM cars_data AS T1 
+JOIN car_names AS T2 ON T1.Id = T2.MakeId 
+JOIN model_list AS T3 ON T2.Model = T3.Model 
+WHERE T3.Cylinders = 3 
+ORDER BY T1.Horsepower DESC LIMIT 1",No,4.8,SELECT MAX(Horsepower) FROM cars_data WHERE Cylinders = 3;,No,11.3,SELECT MAX(Horsepower) FROM cars_data JOIN car_names ON cars_data.Id = car_names.MakeId WHERE Cylinders = 3;,No,10.5
+30,What is the largest amount of horsepower for the models with 3 cylinders and what make is it?,medium,"SELECT T2.horsepower ,  T1.Make FROM CAR_NAMES AS T1 JOIN CARS_DATA AS T2 ON T1.MakeId  =  T2.Id WHERE T2.cylinders  =  3 ORDER BY T2.horsepower DESC LIMIT 1;","SELECT T1.Model, T2.Make 
+FROM cars_data AS T1 
+JOIN car_names AS T2 ON T1.Id = T2.MakeId 
+WHERE T1.Cylinders = 3 
+GROUP BY T1.Model 
+ORDER BY MAX(T1.Horsepower) DESC LIMIT 1",No,4.0,SELECT MAX(c.Horsepower) FROM cars_data AS c JOIN model_list AS m ON c.Id = m.ModelId WHERE c.Cylinders = 3;,No,10.6,SELECT MAX(Horsepower) FROM cars_data WHERE Cylinders = 3 AND MakeId IN (SELECT MakeId FROM car_names);,No,71.1
+31,"Which model saves the most gasoline? That is to say, have the maximum miles per gallon.",medium,SELECT T1.Model FROM CAR_NAMES AS T1 JOIN CARS_DATA AS T2 ON T1.MakeId  =  T2.Id ORDER BY T2.mpg DESC LIMIT 1;,SELECT Model FROM cars_data AS t1 INNER JOIN car_names AS t2 ON t1.Id = t2.MakeId ORDER BY MPG DESC LIMIT 1;,Yes,2.1,SELECT Model FROM car_names JOIN cars_data ON MakeId = Id WHERE MPG = 'maximum';,No,8.3,SELECT MAX(MPG) FROM cars_data;,No,7.9
+32,What is the car model with the highest mpg ?,medium,select t1.model from car_names as t1 join cars_data as t2 on t1.makeid  =  t2.id order by t2.mpg desc limit 1;,"SELECT Model FROM cars_data AS cd 
+JOIN car_names AS cn ON cd.ModelId = cn.MakeId 
+WHERE cd.MPG = ( SELECT MAX(MPG) FROM cars_data );",No,2.0,SELECT Model FROM model_list ORDER BY MPG DESC LIMIT 1;,No,9.3,SELECT Model FROM models JOIN car_names ON models.ModelId = car_names.MakeId ORDER BY MPG DESC LIMIT 1;,No,66.8
+33,What is the average horsepower of the cars before 1980?,easy,SELECT avg(horsepower) FROM CARS_DATA WHERE YEAR  <  1980;,SELECT AVG(CASE WHEN Year < 1980 THEN Horsepower ELSE NULL END) FROM cars_data,Yes,1.6,SELECT AVG(CarsData.Horsepower) FROM cars_data WHERE CarsData.Year < 1980;,No,7.6,SELECT AVG(Horsepower) FROM cars_data WHERE Year < 1980;,Yes,8.5
+34,What is the average horsepower for all cars produced before 1980 ?,easy,select avg(horsepower) from cars_data where year  <  1980;,"SELECT AVG(T1.Horsepower) 
+FROM cars_data AS T1 
+JOIN car_makers AS T2 ON T1.Country = T2.Country 
+WHERE T1.Year < 1980;",No,2.5,SELECT AVG(CarsData.Horsepower) FROM cars_data AS cd JOIN car_makers AS cm ON cd.Country = cm.Country WHERE cd.Year < 1980;,No,9.6,SELECT AVG(Horsepower) FROM cars_data WHERE Year < 1980;,Yes,8.2
+35,What is the average edispl of the cars of model volvo?,medium,SELECT avg(T2.edispl) FROM CAR_NAMES AS T1 JOIN CARS_DATA AS T2 ON T1.MakeId  =  T2.Id WHERE T1.Model  =  'volvo';,SELECT AVG(Edispl) FROM cars_data AS cd INNER JOIN car_names AS cn ON cd.Id = cn.MakeId WHERE cn.Make = 'Volvo',No,2.3,SELECT AVG(Edispl) FROM cars_data AS c JOIN model_list AS m ON c.Id = m.ModelId WHERE m.Model = 'Volvo';,No,9.8,SELECT AVG(Edispl) FROM cars_data AS cd JOIN car_names AS cn ON cd.Id = cn.MakeId WHERE cn.Model = 'Volvo';,No,10.1
+36,What is the average edispl for all volvos?,medium,SELECT avg(T2.edispl) FROM CAR_NAMES AS T1 JOIN CARS_DATA AS T2 ON T1.MakeId  =  T2.Id WHERE T1.Model  =  'volvo';,"SELECT AVG(Edispl) FROM cars_data AS cd 
+JOIN car_names AS cn ON cd.Id = cn.MakeId 
+JOIN model_list AS ml ON cn.ModelId = ml.ModelId 
+JOIN car_makers AS cm ON ml.Maker = cm.Country 
+WHERE cn.Make = 'VOLVO'",No,4.6,SELECT AVG(Edispl) FROM cars_data WHERE Make = 'Volvo';,No,7.9,SELECT AVG(Edispl) FROM volvo_table;,No,43.4
+37,What is the maximum accelerate for different number of cylinders?,medium,"SELECT max(Accelerate) ,  Cylinders FROM CARS_DATA GROUP BY Cylinders;","SELECT C.Cylinders, MAX(C.Accelerate) as MaxAccelerate
+FROM cars_data C
+GROUP BY C.Cylinders;",Yes,2.8,SELECT MAX(Accelerate) FROM cars_data JOIN car_makers ON cars_data.Country = car_makers.Country WHERE Cylinders > 0;,No,9.1,SELECT MAX(Accelerate) FROM cars_data AS c JOIN cylinders AS cy ON c.Cylinders = cy.Id;,No,59.7
+38,What is the maximum accelerate for all the different cylinders?,medium,"SELECT max(Accelerate) ,  Cylinders FROM CARS_DATA GROUP BY Cylinders;",SELECT MAX(T1.Accelerate) FROM cars_data AS T1 INNER JOIN car_makers AS T2 ON T1.Country = T2.Country WHERE T2.Maker IN ( SELECT Maker FROM model_list GROUP BY Maker ORDER BY COUNT(ModelId) DESC LIMIT 1 ),No,2.9,SELECT MAX(accelerate) FROM cars_data JOIN car_makers ON cars_data.Id = car_makers.Id JOIN model_list ON car_makers.Id = model_list.Maker;,No,9.3,SELECT MAX(Accelerate) FROM cars_data AS c JOIN car_names AS cn ON c.Id = cn.MakeId WHERE NOT c.Cylinders IS NULL;,No,8.8
+39,Which model has the most version(make) of cars?,medium,SELECT Model FROM CAR_NAMES GROUP BY Model ORDER BY count(*) DESC LIMIT 1;,SELECT Model FROM car_names GROUP BY Model ORDER BY COUNT(MakeId) DESC LIMIT 1;,Yes,2.0,SELECT ModelId FROM car_makers JOIN model_list ON car_makers.Id = model_list.Maker GROUP BY ModelId ORDER BY COUNT(*) DESC LIMIT 1;,No,9.1,SELECT Model FROM car_names JOIN model_list ON car_names.MakeId = model_list.ModelId GROUP BY Model ORDER BY COUNT(*) DESC LIMIT 1;,No,84.7
+40,What model has the most different versions?,medium,SELECT Model FROM CAR_NAMES GROUP BY Model ORDER BY count(*) DESC LIMIT 1;,"SELECT Model FROM ( SELECT Model, COUNT(DISTINCT MakeId) AS num_versions FROM car_names GROUP BY Model ORDER BY num_versions DESC LIMIT 1 )",Yes,2.1,SELECT Model FROM model_list GROUP BY Model ORDER BY COUNT(*) DESC LIMIT 1;,No,8.6,SELECT ModelId FROM model_list GROUP BY ModelId ORDER BY COUNT(DISTINCT Model) DESC LIMIT 1;,No,15.7
+41,How many cars have more than 4 cylinders?,easy,SELECT count(*) FROM CARS_DATA WHERE Cylinders  >  4;,"SELECT COUNT(*) FROM cars_data AS cd 
+JOIN car_makers AS cm ON cd.Country = cm.Country 
+WHERE cd.Cylinders > 4;",No,2.1,SELECT COUNT(*) FROM car_makers WHERE Cylinders > 4;,No,7.5,SELECT COUNT(*) FROM cars_data WHERE Cylinders > 4;,Yes,7.5
+42,What is the number of cars with more than 4 cylinders?,easy,SELECT count(*) FROM CARS_DATA WHERE Cylinders  >  4;,SELECT COUNT(*) FROM cars_data WHERE Cylinders > 4,Yes,1.4,SELECT COUNT(*) FROM car_makers WHERE Cylinders > 4;,No,7.9,SELECT COUNT(*) FROM cars_data WHERE Cylinders > 4;,Yes,7.8
+43,how many cars were produced in 1980?,easy,SELECT count(*) FROM CARS_DATA WHERE YEAR  =  1980;,SELECT COUNT(T1.Id) FROM cars_data AS T1 INNER JOIN car_makers AS T2 ON T1.Country = T2.Country WHERE T1.Year = 1980,No,2.7,SELECT COUNT(*) FROM car_makers JOIN cars_data ON car_makers.Id = cars_data.Id WHERE Year = 1980;,No,9.5,SELECT COUNT(*) FROM cars_data WHERE Year = 1980;,Yes,9.2
+44,"In 1980, how many cars were made?",easy,SELECT count(*) FROM CARS_DATA WHERE YEAR  =  1980;,SELECT COUNT(T1.Id) FROM cars_data AS T1 INNER JOIN car_makers AS T2 ON T1.Country = T2.Country WHERE T1.Year = 1980,No,2.8,SELECT COUNT(*) FROM car_makers WHERE Year = 1980;,No,9.5,SELECT COUNT(*) FROM cars_data WHERE Year = 1980;,Yes,8.2
+45,How many car models were produced by the maker with full name American Motor Company?,medium,SELECT count(*) FROM CAR_MAKERS AS T1 JOIN MODEL_LIST AS T2 ON T1.Id  =  T2.Maker WHERE T1.FullName  =  'American Motor Company';,"SELECT COUNT(DISTINCT T1.ModelId) 
+FROM car_names AS T1 
+JOIN model_list AS T2 ON T1.MakeId = T2.Maker 
+JOIN car_makers AS T3 ON T2.Maker = T3.Id 
+WHERE T3.FullName = 'American Motor Company'",No,4.4,SELECT COUNT(*) FROM model_list AS ml JOIN car_makers AS cm ON ml.Maker = cm.Id WHERE cm.FullName = 'American Motor Company';,Yes,9.6,SELECT COUNT(*) FROM model_list AS ml JOIN car_names AS cn ON ml.ModelId = cn.MakeId JOIN car_makers AS cm ON cn.MakeId = cm.Id WHERE cm.FullName = 'American Motor Company';,Yes,10.7
+46,What is the number of car models created by the car maker American Motor Company?,medium,SELECT count(*) FROM CAR_MAKERS AS T1 JOIN MODEL_LIST AS T2 ON T1.Id  =  T2.Maker WHERE T1.FullName  =  'American Motor Company';,SELECT COUNT(DISTINCT T1.ModelId) FROM model_list AS T1 INNER JOIN car_makers AS T2 ON T1.Maker = T2.Id WHERE T2.Country = 'USA' AND T2.FullName = 'American Motor Company';,No,3.5,SELECT COUNT(*) FROM car_model AS cm JOIN car_maker AS cm_m ON cm.Maker = cm_m.Id WHERE cm_m.FullName = 'American Motor Company';,No,11.0,SELECT COUNT(*) FROM car_names AS c JOIN car_makers AS m ON c.MakeId = m.Id WHERE m.FullName = 'American Motor Company';,Yes,9.6
+47,In which years cars were produced weighing no less than 3000 and no more than 4000 ?,easy,select distinct year from cars_data where weight between 3000 and 4000;,SELECT Year FROM cars_data WHERE Weight BETWEEN 3000 AND 4000,Yes,2.2,SELECT Year FROM cars_data WHERE Weight BETWEEN 3000 AND 4000;,Yes,8.1,SELECT Year FROM cars_data WHERE Weight BETWEEN 3000 AND 4000;,Yes,8.0
+48,What are the different years in which there were cars produced that weighed less than 4000 and also cars that weighted more than 3000 ?,easy,select distinct year from cars_data where weight between 3000 and 4000;,"SELECT DISTINCT Year 
+FROM cars_data 
+WHERE Weight < 4000 OR Weight > 3000",Yes,2.0,SELECT DISTINCT Year FROM cars_data WHERE Weight < 4000 INTERSECT SELECT DISTINCT Year FROM cars_data WHERE Weight > 3000;,Yes,9.8,SELECT DISTINCT Year FROM cars_data WHERE Weight < 4000 INTERSECT SELECT DISTINCT Year FROM cars_data WHERE Weight > 3000;,Yes,11.5
+49,What is the horsepower of the car with the largest accelerate?,easy,SELECT T1.horsepower FROM CARS_DATA AS T1 ORDER BY T1.accelerate DESC LIMIT 1;,"SELECT T1.Horsepower 
+FROM cars_data AS T1 
+JOIN model_list AS T2 ON T1.Id = T2.ModelId 
+JOIN car_makers AS T3 ON T2.Maker = T3.Id 
+WHERE T1.Accelerate = ( SELECT MAX(Accelerate) FROM cars_data );",No,4.4,SELECT MAX(CASE WHEN Id = (SELECT Id FROM cars_data ORDER BY Accelerate DESC LIMIT 1) THEN Horsepower END) FROM cars_data;,Yes,9.6,SELECT Horsepower FROM cars_data WHERE Id = (SELECT MAX(Id) FROM cars_data);,No,9.5
+50,What is the horsepower of the car with the greatest accelerate?,easy,SELECT T1.horsepower FROM CARS_DATA AS T1 ORDER BY T1.accelerate DESC LIMIT 1;,"SELECT T1.Horsepower 
+FROM cars_data AS T1 
+JOIN model_list AS T2 ON T1.Id = T2.ModelId 
+JOIN car_makers AS T3 ON T2.Maker = T3.Id 
+WHERE T1.Accelerate = ( SELECT MAX(Accelerate) FROM cars_data );",No,4.3,SELECT MAX(CASE WHEN Id = (SELECT Id FROM cars_data ORDER BY Accelerate DESC LIMIT 1) THEN Horsepower END) FROM cars_data;,Yes,9.3,SELECT Horsepower FROM cars_data WHERE Accelerate = (SELECT MAX(Accelerate) FROM cars_data);,Yes,9.1
+51,"For model volvo, how many cylinders does the car with the least accelerate have?",medium,SELECT T1.cylinders FROM CARS_DATA AS T1 JOIN CAR_NAMES AS T2 ON T1.Id  =  T2.MakeId WHERE T2.Model  =  'volvo' ORDER BY T1.accelerate ASC LIMIT 1;,"SELECT MIN(CarsData.Accelerate) FROM cars_data AS CarsData 
+JOIN car_makers AS CarMakers ON CarsData.Country = CarMakers.Country 
+JOIN model_list AS ModelList ON CarMakers.Id = ModelList.Maker 
+JOIN car_names AS CarNames ON ModelList.ModelId = CarNames.MakeId 
+WHERE CarNames.Model = 'Volvo'",No,5.0,SELECT MIN(Accelerate) FROM cars_data AS c JOIN model_list AS m ON c.Id = m.ModelId WHERE Maker = 'Volvo';,No,9.6,SELECT MIN(Accelerate) FROM cars_data AS c JOIN car_names AS cn ON c.Id = cn.MakeId WHERE cn.Model = 'volvo' GROUP BY c.Id ORDER BY Accelerate LIMIT 1;,No,11.0
+52,"For a volvo model, how many cylinders does the version with least accelerate have?",medium,SELECT T1.cylinders FROM CARS_DATA AS T1 JOIN CAR_NAMES AS T2 ON T1.Id  =  T2.MakeId WHERE T2.Model  =  'volvo' ORDER BY T1.accelerate ASC LIMIT 1;,SELECT MIN(CarsData.Accelerate) FROM car_names AS T1 INNER JOIN model_list AS T2 ON T1.MakeId = T2.Maker INNER JOIN cars_data AS T3 ON T2.ModelId = T3.Id WHERE T1.Model = 'Volvo',No,4.0,SELECT MIN(Cylinders) FROM car_makers JOIN cars_data ON car_makers.Id = cars_data.Id WHERE car_makers.Maker = 'Volvo' AND cars_data.Accelerate = (SELECT MIN(Accelerate) FROM cars_data);,No,12.1,SELECT MIN(c.Cylinders) FROM cars_data AS c JOIN car_names AS cn ON c.Id = cn.MakeId WHERE cn.Model = 'volvo' AND c.Accelerate = (SELECT MIN(Accelerate) FROM cars_data);,No,11.2
+53,How many cars has over 6 cylinders?,easy,SELECT COUNT(*) FROM CARS_DATA WHERE Cylinders  >  6;,SELECT COUNT(T1.Id) FROM cars_data AS T1 INNER JOIN car_makers AS T2 ON T1.Country = T2.Country WHERE T1.Cylinders > 6,No,2.6,SELECT COUNT(*) FROM car_makes AS cm JOIN cars_data AS c ON cm.Id = c.Maker WHERE c.Cylinders > 6;,No,8.8,SELECT COUNT(*) FROM cars_data WHERE Cylinders > 6;,Yes,8.7
+54,What is the number of carsw ith over 6 cylinders?,easy,SELECT COUNT(*) FROM CARS_DATA WHERE Cylinders  >  6;,SELECT COUNT(*) FROM cars_data WHERE Cylinders > 6,Yes,1.5,SELECT COUNT(*) FROM car_makers WHERE Cylinders > 6;,No,8.2,SELECT COUNT(*) FROM cars_data WHERE Cylinders > 6;,Yes,7.9
+55,"For the cars with 4 cylinders, which model has the largest horsepower?",medium,SELECT T1.Model FROM CAR_NAMES AS T1 JOIN CARS_DATA AS T2 ON T1.MakeId  =  T2.Id WHERE T2.Cylinders  =  4 ORDER BY T2.horsepower DESC LIMIT 1;,"SELECT c.Model 
+FROM car_names cn 
+JOIN cars_data cd ON cn.MakeId = cd.Id 
+WHERE cd.Cylinders = 4 
+ORDER BY cd.Horsepower DESC LIMIT 1;",No,3.2,SELECT Model FROM car_names JOIN model_list ON MakeId = MakerID WHERE Cylinders = 4 ORDER BY Horsepower DESC LIMIT 1;,No,11.8,SELECT Model FROM car_names JOIN cars_data ON car_names.MakeId = cars_data.Horsepower WHERE Cylinders = 4 ORDER BY Horsepower DESC LIMIT 1;,No,11.0
+56,"For all of the 4 cylinder cars, which model has the most horsepower?",medium,SELECT T1.Model FROM CAR_NAMES AS T1 JOIN CARS_DATA AS T2 ON T1.MakeId  =  T2.Id WHERE T2.Cylinders  =  4 ORDER BY T2.horsepower DESC LIMIT 1;,"SELECT c.Model 
+FROM car_names cn 
+JOIN cars_data cd ON cn.MakeId = cd.Id 
+WHERE cd.Cylinders = 4 
+GROUP BY cn.Model 
+ORDER BY MAX(cd.Horsepower) DESC 
+LIMIT 1;",No,4.0,SELECT Model FROM car_names JOIN model_list ON MakeId = Maker JOIN cars_data ON Id = ModelId WHERE Cylinders = 4 ORDER BY Horsepower DESC LIMIT 1;,No,11.0,SELECT Model FROM car_names JOIN cars_data AS c ON car_names.MakeId = c.Id WHERE Cylinders = 4 ORDER BY Horsepower DESC LIMIT 1;,Yes,10.1
+57,What is the maximum miles per gallon of the car with 8 cylinders or produced before 1980 ?,easy,select max(mpg) from cars_data where cylinders  =  8 or year  <  1980,"SELECT MAX(MPG) 
+FROM cars_data 
+WHERE Cylinders = 8 OR Year < 1980;",Yes,2.5,SELECT MAX(MPG) FROM cars_data WHERE Cylinders = 8 OR Year < 1980;,Yes,11.3,SELECT MAX(MPG) FROM cars_data WHERE Cylinders = 8 OR Year < 1980;,Yes,11.8
+58,What is the maximum mpg of the cars that had 8 cylinders or that were produced before 1980 ?,easy,select max(mpg) from cars_data where cylinders  =  8 or year  <  1980,"SELECT MAX(MPG) 
+FROM cars_data 
+WHERE Cylinders = 8 OR Year < 1980;",Yes,2.2,SELECT MAX(T1.MPG) FROM cars_data AS T1 JOIN model_list AS T2 ON T1.Id = T2.ModelId WHERE T2.Maker = 8 OR T1.Year < 1980;,Yes,10.2,SELECT MAX(MPG) FROM cars_data WHERE Cylinders = 8 OR Year < 1980;,Yes,10.1

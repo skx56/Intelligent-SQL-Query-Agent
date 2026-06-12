@@ -1,0 +1,137 @@
+ID,Question,Hardness,Gold SQL,Single_Agent_SQL,Single_Agent_Correct,Single_Agent_Time,Multi_Agent_SQL,Multi_Agent_Correct,Multi_Agent_Time,Multi_Agent_RAG_SQL,Multi_Agent_RAG_Correct,Multi_Agent_RAG_Time
+1,How many singers do we have?,easy,SELECT count(*) FROM singer,SELECT COUNT(DISTINCT Singer_ID) FROM singer,Yes,1.1,SELECT COUNT(*) FROM singer;,Yes,5.9,SELECT COUNT(*) FROM singer;,Yes,8.6
+2,What is the total number of singers?,easy,SELECT count(*) FROM singer,SELECT COUNT(*) FROM singer,Yes,0.9,SELECT COUNT(*) FROM singer;,Yes,8.0,SELECT COUNT(*) FROM singer;,Yes,7.5
+3,"Show name, country, age for all singers ordered by age from the oldest to the youngest.",easy,"SELECT name ,  country ,  age FROM singer ORDER BY age DESC","SELECT T1.Name, T1.Country, T1.Age 
+FROM singer AS T1 
+ORDER BY T1.Age DESC;",Yes,1.7,"SELECT s.Name, s.Country, s.Age FROM singer AS s ORDER BY s.Age DESC;",Yes,9.8,"SELECT s.Name, s.Country, s.Age FROM singer AS s ORDER BY s.Age DESC;",Yes,9.0
+4,"What are the names, countries, and ages for every singer in descending order of age?",easy,"SELECT name ,  country ,  age FROM singer ORDER BY age DESC","SELECT T1.Name, T1.Country, T1.Age FROM singer AS T1 INNER JOIN singer_in_concert AS T2 ON T1.Singer_ID = T2.Singer_ID ORDER BY T1.Age DESC",No,2.4,"SELECT s.Name, c.Country, s.Age FROM singer AS s JOIN country AS c ON s.Country = c.Code ORDER BY s.Age DESC;",No,9.5,"SELECT Name, Country, Age FROM singer ORDER BY Age DESC;",Yes,9.1
+5,"What is the average, minimum, and maximum age of all singers from France?",easy,"SELECT avg(age) ,  min(age) ,  max(age) FROM singer WHERE country  =  'France'","SELECT AVG(T1.Age), MIN(T1.Age), MAX(T1.Age) 
+FROM singer AS T1 
+JOIN concert AS T2 ON T1.Singer_ID = T2.Singer_ID 
+WHERE T2.Stadium_ID IN (SELECT Stadium_ID FROM stadium WHERE Location = 'France')",No,3.7,"SELECT AVG(Age), MIN(Age), MAX(Age) FROM singer WHERE Country = 'France';",Yes,9.7,SELECT AVG(Age) FROM singer WHERE Country = 'France' ORDER BY Age LIMIT 1;,No,9.9
+6,"What is the average, minimum, and maximum age for all French singers?",easy,"SELECT avg(age) ,  min(age) ,  max(age) FROM singer WHERE country  =  'France'","SELECT AVG(T1.Age), MIN(T1.Age), MAX(T1.Age) 
+FROM singer AS T1 
+JOIN singer_in_concert AS T2 ON T1.Singer_ID = T2.Singer_ID 
+WHERE T1.Country = 'France'",No,3.4,"SELECT AVG(Age), MIN(Age), MAX(Age) FROM singer WHERE Country = 'France';",Yes,9.2,"SELECT AVG(Age), MIN(Age), MAX(Age) FROM singer WHERE Country = 'France';",Yes,12.4
+7,Show the name and the release year of the song by the youngest singer.,easy,"SELECT song_name ,  song_release_year FROM singer ORDER BY age LIMIT 1","SELECT T1.Name, T1.Song_release_year 
+FROM singer AS T1 
+JOIN singer_in_concert AS T2 ON T1.Singer_ID = T2.Singer_ID 
+WHERE T1.Age = ( SELECT MIN(Age) FROM singer );",No,3.3,"SELECT s.Name, s.Song_Name, s.Song_release_year FROM singer AS s ORDER BY s.Age LIMIT 1;",No,8.5,"SELECT s.Name, s.Song_Name, s.Song_release_year FROM singer AS s ORDER BY s.Age LIMIT 1;",No,8.2
+8,What are the names and release years for all the songs of the youngest singer?,easy,"SELECT song_name ,  song_release_year FROM singer ORDER BY age LIMIT 1","SELECT s.Song_Name, s.Song_release_year 
+FROM singer_in_concert sic 
+JOIN singer s ON sic.Singer_ID = s.Singer_ID 
+WHERE s.Age = (SELECT MIN(Age) FROM singer);",Yes,3.1,"SELECT s.Song_Name, s.Song_release_year FROM singer AS s JOIN singer_in_concert AS sic ON s.Singer_ID = sic.Singer_ID WHERE s.Age = (SELECT MIN(Age) FROM singer);",Yes,9.2,"SELECT s.Song_Name, s.Song_release_year FROM singer AS s JOIN singer_in_concert AS sc ON s.Singer_ID = sc.Singer_ID WHERE s.Age = (SELECT MIN(Age) FROM singer);",Yes,9.4
+9,What are all distinct countries where singers above age 20 are from?,easy,SELECT DISTINCT country FROM singer WHERE age  >  20,SELECT DISTINCT T2.Country FROM singer AS T1 INNER JOIN singer_in_concert AS T2 ON T1.Singer_ID = T2.Singer_ID WHERE T1.Age > 20,No,2.4,SELECT DISTINCT c.Name FROM singer AS s JOIN country AS c ON s.Country = c.Code WHERE s.Age > 20;,No,10.2,SELECT DISTINCT c.Name FROM singer AS s JOIN singer_in_concert AS sc ON s.Singer_ID = sc.Singer_ID WHERE s.Age > 20;,No,64.7
+10,What are  the different countries with singers above age 20?,easy,SELECT DISTINCT country FROM singer WHERE age  >  20,"SELECT DISTINCT T1.Country 
+FROM singer AS T1 
+JOIN singer_in_concert AS T2 ON T1.Singer_ID = T2.Singer_ID 
+WHERE T1.Age > 20;",No,2.2,SELECT DISTINCT c.Name FROM singer AS s JOIN country AS c ON s.Country = c.Code WHERE s.Age > 20;,No,9.0,SELECT DISTINCT c.Name FROM singer AS s JOIN country AS c ON s.Country = c.Code WHERE s.Age > 20;,No,60.8
+11,Show all countries and the number of singers in each country.,medium,"SELECT country ,  count(*) FROM singer GROUP BY country","SELECT s.Country, COUNT(s.Singer_ID) AS Singer_Count
+FROM singer s
+GROUP BY s.Country;",Yes,1.9,"SELECT c.Name, COUNT(s.Singer_ID) FROM country AS c JOIN singer AS s ON c.Code = s.CountryCode GROUP BY c.Name;",No,10.2,"SELECT c.Name, COUNT(DISTINCT si.Singer_ID) FROM country AS c JOIN singer_in_concert AS si ON c.Code = si.Singer_ID GROUP BY c.Name;",No,67.1
+12,How many singers are from each country?,medium,"SELECT country ,  count(*) FROM singer GROUP BY country","SELECT COUNT(DISTINCT Singer_ID) AS num_singers, Country 
+FROM singer 
+GROUP BY Country;",Yes,1.7,SELECT COUNT(DISTINCT c.Country) FROM singer AS s JOIN country AS c ON s.Country = c.Code;,No,7.3,SELECT COUNT(DISTINCT c.Country) FROM singer AS s JOIN country AS c ON s.Country = c.Code;,No,48.5
+13,Show location and name for all stadiums with a capacity between 5000 and 10000.,easy,"SELECT LOCATION ,  name FROM stadium WHERE capacity BETWEEN 5000 AND 10000","SELECT T1.Location, T1.Name 
+FROM stadium AS T1 
+JOIN concert AS T2 ON T1.Stadium_ID = T2.Stadium_ID 
+WHERE T1.Capacity BETWEEN 5000 AND 10000;",Yes,2.9,"SELECT Location, Name FROM stadium WHERE Capacity BETWEEN 5000 AND 10000;",Yes,8.3,"SELECT Location, Name FROM stadium WHERE Capacity BETWEEN 5000 AND 10000;",Yes,8.3
+14,What are the locations and names of all stations with capacity between 5000 and 10000?,easy,"SELECT LOCATION ,  name FROM stadium WHERE capacity BETWEEN 5000 AND 10000","SELECT T1.Location, T1.Name 
+FROM stadium AS T1 
+JOIN concert AS T2 ON T1.Stadium_ID = T2.Stadium_ID 
+WHERE T1.Capacity BETWEEN 5000 AND 10000;",Yes,2.3,"SELECT Location, Name FROM station WHERE Capacity BETWEEN 5000 AND 10000;",No,9.0,"SELECT Location, Name FROM station WHERE Capacity BETWEEN 5000 AND 10000;",No,53.8
+15,What is the maximum capacity and the average of all stadiums ?,easy,"select max(capacity), average from stadium","SELECT MAX(Capacity), AVG(Average) FROM stadium",No,1.4,"SELECT MAX(Capacity), AVG(Average) FROM stadium;",No,8.5,"SELECT MAX(Capacity), AVG(Average) FROM stadium;",No,9.0
+16,What is the average and maximum capacities for all stadiums ?,easy,"select avg(capacity) ,  max(capacity) from stadium","SELECT AVG(Capacity) ,  MAX(Capacity) FROM stadium",Yes,1.1,"SELECT AVG(Capacity) AS AverageCapacity, MAX(Capacity) FROM stadium;",Yes,7.9,"SELECT AVG(Capacity) AS AverageCapacity, MAX(Capacity) FROM stadium;",Yes,8.2
+17,What is the name and capacity for the stadium with highest average attendance?,easy,"SELECT name ,  capacity FROM stadium ORDER BY average DESC LIMIT 1","SELECT T1.Name, T1.Capacity 
+FROM stadium AS T1 
+JOIN (
+  SELECT Stadium_ID, AVG(Average) as avg_attendance 
+  FROM stadium 
+  GROUP BY Stadium_ID 
+  ORDER BY avg_attendance DESC 
+  LIMIT 1
+) AS T2 ON T1.Stadium_ID = T2.Stadium_ID",Yes,3.9,"SELECT Name, Capacity FROM stadium WHERE Average = (SELECT MAX(Average) FROM stadium);",Yes,9.3,"SELECT Name, Capacity FROM stadium WHERE Average = (SELECT MAX(Average) FROM stadium);",Yes,9.5
+18,What is the name and capacity for the stadium with the highest average attendance?,easy,"SELECT name ,  capacity FROM stadium ORDER BY average DESC LIMIT 1","SELECT s.Name, s.Capacity 
+FROM stadium s 
+JOIN (
+  SELECT Stadium_ID, AVG(Average) as avg_attendance 
+  FROM stadium 
+  GROUP BY Stadium_ID 
+  ORDER BY avg_attendance DESC 
+  LIMIT 1
+) t ON s.Stadium_ID = t.Stadium_ID;",Yes,4.0,"SELECT Name, Capacity FROM stadium WHERE Average = (SELECT MAX(Average) FROM stadium);",Yes,9.4,"SELECT Name, Capacity FROM stadium WHERE Average = (SELECT MAX(Average) FROM stadium);",Yes,10.7
+19,How many concerts are there in year 2014 or 2015?,easy,SELECT count(*) FROM concert WHERE YEAR  =  2014 OR YEAR  =  2015,"SELECT COUNT(*) FROM concert WHERE YEAR IN (2014, 2015)",Yes,1.3,SELECT COUNT(*) FROM concert WHERE YEAR = '2014' OR YEAR = '2015';,Yes,9.0,SELECT COUNT(*) FROM concert WHERE Year = '2014' OR Year = '2015';,Yes,9.0
+20,How many concerts occurred in 2014 or 2015?,easy,SELECT count(*) FROM concert WHERE YEAR  =  2014 OR YEAR  =  2015,"SELECT COUNT(*) FROM concert WHERE YEAR IN (2014, 2015)",Yes,1.3,"SELECT COUNT(*) FROM concert WHERE YEAR IN ('2014', '2015');",Yes,9.2,"SELECT COUNT(*) FROM concert WHERE Year IN ('2014', '2015');",Yes,8.8
+21,Show the stadium name and the number of concerts in each stadium.,medium,"SELECT T2.name ,  count(*) FROM concert AS T1 JOIN stadium AS T2 ON T1.stadium_id  =  T2.stadium_id GROUP BY T1.stadium_id","SELECT S.Name, COUNT(C.concert_ID) AS num_concerts
+FROM stadium S
+JOIN concert C ON S.Stadium_ID = C.Stadium_ID
+GROUP BY S.Name;",Yes,2.0,"SELECT s.Name, COUNT(c.concert_ID) FROM concert AS c JOIN stadium AS s ON c.Stadium_ID = s.Stadium_ID GROUP BY s.Stadium_ID;",Yes,10.0,"SELECT s.Name, COUNT(c.concert_ID) FROM concert AS c JOIN stadium AS s ON c.Stadium_ID = s.Stadium_ID GROUP BY s.Name;",Yes,9.6
+22,"For each stadium, how many concerts play there?",medium,"SELECT T2.name ,  count(*) FROM concert AS T1 JOIN stadium AS T2 ON T1.stadium_id  =  T2.stadium_id GROUP BY T1.stadium_id","SELECT s.Stadium_ID, COUNT(c.concert_Name) AS num_concerts
+FROM stadium s
+JOIN singer_in_concert sic ON s.Stadium_ID = sic.Stadium_ID
+JOIN concert c ON sic.concert_ID = c.concert_ID
+GROUP BY s.Stadium_ID;",No,4.0,SELECT COUNT(c.concert_ID) FROM concert AS c JOIN stadium AS s ON c.Stadium_ID = s.Stadium_ID;,No,9.1,SELECT COUNT(*) FROM concert AS c JOIN stadium AS s ON c.Stadium_ID = s.Stadium_ID GROUP BY s.Stadium_ID;,No,8.4
+23,Show the stadium name and capacity with most number of concerts in year 2014 or after.,medium,"SELECT T2.name ,  T2.capacity FROM concert AS T1 JOIN stadium AS T2 ON T1.stadium_id  =  T2.stadium_id WHERE T1.year  >=  2014 GROUP BY T2.stadium_id ORDER BY count(*) DESC LIMIT 1","SELECT s.Name, s.Capacity 
+FROM stadium s 
+JOIN concert c ON s.Stadium_ID = c.Stadium_ID 
+WHERE STRFTIME('%Y', c.Year) >= '2014' 
+GROUP BY s.Stadium_ID 
+ORDER BY COUNT(c.concert_Name) DESC 
+LIMIT 1;",No,3.8,"SELECT s.Name, s.Capacity FROM stadium AS s JOIN concert AS c ON s.Stadium_ID = c.Stadium_ID WHERE c.Year >= '2014' GROUP BY s.Name ORDER BY COUNT(c.concert_ID) DESC LIMIT 1;",Yes,10.5,"SELECT Name, Capacity FROM stadium JOIN concert AS c ON stadium.Stadium_ID = c.Stadium_ID WHERE Year > '2014' GROUP BY stadium.Stadium_ID ORDER BY COUNT(c.concert_ID) DESC LIMIT 1;",No,19.9
+24,What is the name and capacity of the stadium with the most concerts after 2013 ?,medium,"select t2.name ,  t2.capacity from concert as t1 join stadium as t2 on t1.stadium_id  =  t2.stadium_id where t1.year  >  2013 group by t2.stadium_id order by count(*) desc limit 1","SELECT s.Name, s.Capacity 
+FROM stadium s 
+JOIN concert c ON s.Stadium_ID = c.Stadium_ID 
+WHERE STRFTIME('%Y', c.Year) > '2013' 
+GROUP BY s.Stadium_ID 
+ORDER BY COUNT(c.concert_Name) DESC 
+LIMIT 1;",No,3.6,"SELECT s.Name, s.Capacity FROM stadium AS s JOIN concert AS c ON s.Stadium_ID = c.Stadium_ID WHERE c.Year > '2013' GROUP BY s.Stadium_ID ORDER BY COUNT(c.concert_ID) DESC LIMIT 1;",Yes,10.2,"SELECT s.Name, s.Capacity FROM stadium AS s JOIN concert AS c ON s.Stadium_ID = c.Stadium_ID WHERE c.Year > '2013' GROUP BY s.Stadium_ID ORDER BY COUNT(c.concert_ID) DESC LIMIT 1;",Yes,9.8
+25,Which year has most number of concerts?,medium,SELECT YEAR FROM concert GROUP BY YEAR ORDER BY count(*) DESC LIMIT 1,"SELECT YEAR 
+FROM concert 
+GROUP BY YEAR 
+ORDER BY COUNT(concert_ID) DESC 
+LIMIT 1;",Yes,2.1,SELECT Year FROM concert GROUP BY Year ORDER BY COUNT(*) DESC LIMIT 1;,Yes,9.0,SELECT Year FROM concert GROUP BY Year ORDER BY COUNT(*) DESC LIMIT 1;,Yes,9.2
+26,What is the year that had the most concerts?,medium,SELECT YEAR FROM concert GROUP BY YEAR ORDER BY count(*) DESC LIMIT 1,"SELECT YEAR 
+FROM concert 
+GROUP BY YEAR 
+ORDER BY COUNT(concert_ID) DESC 
+LIMIT 1;",Yes,1.4,SELECT Year FROM concert GROUP BY Year ORDER BY COUNT(*) DESC LIMIT 1;,Yes,8.5,SELECT Year FROM concert GROUP BY Year ORDER BY COUNT(*) DESC LIMIT 1;,Yes,8.0
+27,Show the name and theme for all concerts and the number of singers in each concert.,medium,"SELECT T2.concert_name ,  T2.theme ,  count(*) FROM singer_in_concert AS T1 JOIN concert AS T2 ON T1.concert_id  =  T2.concert_id GROUP BY T2.concert_id","SELECT 
+  c.concert_Name,
+  c.Theme,
+  COUNT(DISTINCT si.Singer_ID) AS Singer_Count
+FROM 
+  concert c
+JOIN 
+  singer_in_concert sic ON c.concert_ID = sic.concert_ID
+JOIN 
+  singer si ON sic.Singer_ID = si.Singer_ID
+GROUP BY 
+  c.concert_Name, c.Theme;",Yes,4.6,"SELECT c.concert_Name, c.Theme, COUNT(DISTINCT si.Singer_ID) FROM singer_in_concert AS si JOIN concerts AS c ON si.concert_ID = c.concert_ID GROUP BY c.concert_Name;",No,10.1,"SELECT c.concert_Name, c.Theme, COUNT(DISTINCT si.Singer_ID) FROM concert AS c JOIN singer_in_concert AS si ON c.concert_ID = si.concert_ID GROUP BY c.concert_ID;",Yes,11.6
+28,"What are the names , themes , and number of singers for every concert ?",medium,"select t2.concert_name ,  t2.theme ,  count(*) from singer_in_concert as t1 join concert as t2 on t1.concert_id  =  t2.concert_id group by t2.concert_id","SELECT 
+  c.concert_Name,
+  c.Theme,
+  COUNT(DISTINCT si.Singer_ID) AS Singer_Count
+FROM 
+  concert c
+JOIN 
+  singer_in_concert sic ON c.concert_ID = sic.concert_ID
+JOIN 
+  singer si ON sic.Singer_ID = si.Singer_ID
+GROUP BY 
+  c.concert_Name, c.Theme;",Yes,5.3,"SELECT T1.concert_Name, T2.Theme, COUNT(T3.Singer_ID) FROM concert AS T1 JOIN singer_in_concert AS T2 ON T1.concert_ID = T2.concert_ID JOIN singer AS T3 ON T2.Singer_ID = T3.Singer_ID GROUP BY T1.concert_Name;",No,11.7,"SELECT c.concert_Name, c.Theme, COUNT(DISTINCT si.Singer_ID) FROM concert AS c JOIN singer_in_concert AS si ON c.concert_ID = si.concert_ID GROUP BY c.concert_ID;",Yes,20.2
+29,List singer names and number of concerts for each singer.,medium,"SELECT T2.name ,  count(*) FROM singer_in_concert AS T1 JOIN singer AS T2 ON T1.singer_id  =  T2.singer_id GROUP BY T2.singer_id","SELECT s.Name, COUNT(c.concert_ID) AS num_concerts
+FROM singer s
+JOIN singer_in_concert sic ON s.Singer_ID = sic.Singer_ID
+GROUP BY s.Name;",No,2.6,"SELECT s.Name, COUNT(c.concert_ID) FROM singer AS s JOIN singer_in_concert AS sic ON s.Singer_ID = sic.Singer_ID JOIN concert AS c ON sic.concert_ID = c.concert_ID GROUP BY s.Name;",Yes,9.8,"SELECT s.Name, COUNT(sic.concert_ID) FROM singer AS sic JOIN singer_in_concert AS si ON sic.Singer_ID = si.Singer_ID GROUP BY s.Name;",No,70.4
+30,What are the names of the singers and number of concerts for each person?,medium,"SELECT T2.name ,  count(*) FROM singer_in_concert AS T1 JOIN singer AS T2 ON T1.singer_id  =  T2.singer_id GROUP BY T2.singer_id","SELECT s.Name, COUNT(c.concert_ID) AS num_concerts
+FROM singer s
+JOIN singer_in_concert sic ON s.Singer_ID = sic.Singer_ID
+GROUP BY s.Name;",No,2.4,"SELECT s.Name, COUNT(c.concert_ID) FROM singer AS s JOIN singer_in_concert AS sic ON s.Singer_ID = sic.Singer_ID JOIN concert AS c ON sic.concert_ID = c.concert_ID GROUP BY s.Name;",Yes,8.9,"SELECT Singer_ID, COUNT(*) FROM singer_in_concert GROUP BY Singer_ID;",No,7.9
+31,what is the name and nation of the singer who have a song having 'Hey' in its name?,easy,"SELECT name ,  country FROM singer WHERE song_name LIKE '%Hey%'","SELECT T1.Name, T1.Country 
+FROM singer AS T1 
+JOIN singer_in_concert AS T2 ON T1.Singer_ID = T2.Singer_ID 
+WHERE T2.concert_ID IN (SELECT concert_ID FROM concert WHERE concert_Name LIKE '%Hey%')",No,2.9,"SELECT s.Name, s.Country FROM singer AS s JOIN singer_in_concert AS sic ON s.Singer_ID = sic.Singer_ID JOIN concert AS c ON sic.concert_ID = c.concert_ID JOIN song_table AS st ON sic.Song_Name = st.Name WHERE st.Name LIKE '%Hey%';",No,15.1,"SELECT s.Name, c.Country FROM singer AS s JOIN singer_in_concert AS si ON s.Singer_ID = si.Singer_ID JOIN song_table AS song ON s.Singer_ID = song.Singer_ID WHERE song.Song_Name LIKE '%Hey%';",No,51.9
+32,What is the name and country of origin of every singer who has a song with the word 'Hey' in its title?,easy,"SELECT name ,  country FROM singer WHERE song_name LIKE '%Hey%'","SELECT T1.Name, T1.Country 
+FROM singer AS T1 
+JOIN singer_in_concert AS T2 ON T1.Singer_ID = T2.Singer_ID 
+WHERE T2.concert_ID IN (SELECT concert_ID FROM concert WHERE concert_Name LIKE '%Hey%')",No,3.2,"SELECT s.Name, s.Country FROM singer AS s JOIN singer_in_concert AS sic ON s.Singer_ID = sic.Singer_ID JOIN concert AS c ON sic.concert_ID = c.concert_ID WHERE c.concert_Name LIKE '%Hey%';",No,11.0,"SELECT s.Name, s.Country FROM singer AS s JOIN singer_in_concert AS sc ON s.Singer_ID = sc.Singer_ID JOIN songs AS song ON sc.Singer_ID = song.Singer_ID WHERE song.Title LIKE '%Hey%';",No,102.8

@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Text-to-SQL Evaluation - real_estate_properties</title>
+    <style>
+        :root {
+            --primary: #6366f1;
+            --success: #22c55e;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --bg: #0f172a;
+            --card: #1e293b;
+            --text: #e2e8f0;
+            --muted: #94a3b8;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            padding: 2rem;
+        }
+        .container { max-width: 1400px; margin: 0 auto; }
+        h1 {
+            font-size: 2.5rem;
+            background: linear-gradient(135deg, #6366f1, #a855f7);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 0.5rem;
+        }
+        h2 {
+            color: var(--primary);
+            margin: 2rem 0 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid var(--primary);
+        }
+        .subtitle { color: var(--muted); margin-bottom: 2rem; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem; }
+        .card {
+            background: var(--card);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+        }
+        .card h3 { font-size: 1rem; color: var(--muted); margin-bottom: 0.5rem; }
+        .card .value {
+            font-size: 2.5rem;
+            font-weight: bold;
+        }
+        .success { color: var(--success); }
+        .warning { color: var(--warning); }
+        .danger { color: var(--danger); }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1rem 0;
+            background: var(--card);
+            border-radius: 0.5rem;
+            overflow: hidden;
+        }
+        th, td { padding: 1rem; text-align: left; border-bottom: 1px solid rgba(255,255,255,0.1); }
+        th { background: rgba(99, 102, 241, 0.2); font-weight: 600; }
+        tr:hover { background: rgba(255,255,255,0.05); }
+        .badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        .badge-success { background: rgba(34, 197, 94, 0.2); color: var(--success); }
+        .badge-danger { background: rgba(239, 68, 68, 0.2); color: var(--danger); }
+        .badge-easy { background: rgba(34, 197, 94, 0.2); color: var(--success); }
+        .badge-medium { background: rgba(245, 158, 11, 0.2); color: var(--warning); }
+        .sql-box {
+            background: #0d1117;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            font-family: 'Fira Code', monospace;
+            font-size: 0.85rem;
+            overflow-x: auto;
+            margin: 0.5rem 0;
+            border-left: 3px solid var(--primary);
+        }
+        .progress-bar {
+            height: 8px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 0.5rem;
+        }
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary), #a855f7);
+            border-radius: 4px;
+        }
+        .question-card {
+            background: var(--card);
+            border-radius: 0.75rem;
+            padding: 1.25rem;
+            margin: 1rem 0;
+        }
+        .pipeline-results {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        .pipeline-result {
+            background: rgba(0,0,0,0.2);
+            padding: 1rem;
+            border-radius: 0.5rem;
+        }
+        .pipeline-result h4 { font-size: 0.9rem; margin-bottom: 0.5rem; }
+        .chart-container {
+            background: var(--card);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            margin: 1rem 0;
+        }
+        .chart-container img { max-width: 100%; height: auto; border-radius: 0.5rem; }
+        @media (max-width: 768px) {
+            .pipeline-results { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🤖 Multi-Agent RAG Text-to-SQL</h1>
+        <p class="subtitle">Evaluation Report | Database: <strong>real_estate_properties</strong> | 2025-12-01 14:36 | Total: 3 questions</p>
+        
+        <h2>📊 Summary - 3 Pipeline Karşılaştırması</h2>
+        <div class="grid">
+
+            <div class="card">
+                <h3>Single Agent</h3>
+                <div class="value warning">66.7%</div>
+                <p style="color: var(--muted); font-size: 0.9rem;">Execution Accuracy</p>
+                <div class="progress-bar"><div class="progress-fill" style="width: 66.66666666666666%"></div></div>
+                <div style="margin-top: 1rem; display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; font-size: 0.85rem;">
+                    <div>Set Match: <strong>66.7%</strong></div>
+                    <div>Component: <strong>66.7%</strong></div>
+                    <div>Avg Time: <strong>3.3s</strong></div>
+                    <div>Total: <strong>3 Q</strong></div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>Multi Agent</h3>
+                <div class="value warning">66.7%</div>
+                <p style="color: var(--muted); font-size: 0.9rem;">Execution Accuracy</p>
+                <div class="progress-bar"><div class="progress-fill" style="width: 66.66666666666666%"></div></div>
+                <div style="margin-top: 1rem; display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; font-size: 0.85rem;">
+                    <div>Set Match: <strong>66.7%</strong></div>
+                    <div>Component: <strong>83.3%</strong></div>
+                    <div>Avg Time: <strong>9.2s</strong></div>
+                    <div>Total: <strong>3 Q</strong></div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>Multi Agent RAG</h3>
+                <div class="value warning">66.7%</div>
+                <p style="color: var(--muted); font-size: 0.9rem;">Execution Accuracy</p>
+                <div class="progress-bar"><div class="progress-fill" style="width: 66.66666666666666%"></div></div>
+                <div style="margin-top: 1rem; display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; font-size: 0.85rem;">
+                    <div>Set Match: <strong>66.7%</strong></div>
+                    <div>Component: <strong>75.0%</strong></div>
+                    <div>Avg Time: <strong>8.6s</strong></div>
+                    <div>Total: <strong>3 Q</strong></div>
+                </div>
+            </div>
+
+        </div>
+        
+        <h2>📈 Detaylı Karşılaştırma Tablosu</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Pipeline</th>
+                    <th>Execution Accuracy</th>
+                    <th>Exact Set Match</th>
+                    <th>SELECT Match</th>
+                    <th>FROM Match</th>
+                    <th>WHERE Match</th>
+                    <th>Avg Time</th>
+                </tr>
+            </thead>
+            <tbody>
+
+                <tr>
+                    <td><strong>Single Agent</strong></td>
+                    <td><span class="badge badge-danger">66.7%</span></td>
+                    <td>66.7%</td>
+                    <td>100.0%</td>
+                    <td>33.3%</td>
+                    <td>66.7%</td>
+                    <td>3.3s</td>
+                </tr>
+
+                <tr>
+                    <td><strong>Multi Agent</strong></td>
+                    <td><span class="badge badge-danger">66.7%</span></td>
+                    <td>66.7%</td>
+                    <td>100.0%</td>
+                    <td>100.0%</td>
+                    <td>66.7%</td>
+                    <td>9.2s</td>
+                </tr>
+
+                <tr>
+                    <td><strong>Multi Agent RAG</strong></td>
+                    <td><span class="badge badge-danger">66.7%</span></td>
+                    <td>66.7%</td>
+                    <td>100.0%</td>
+                    <td>66.7%</td>
+                    <td>66.7%</td>
+                    <td>8.6s</td>
+                </tr>
+
+            </tbody>
+        </table>
+        
+        <h2>📊 Grafikler</h2>
+        <div class="grid">
+            <div class="chart-container">
+                <h3>Accuracy Karşılaştırması</h3>
+                <img src="charts/accuracy_comparison.png" alt="Accuracy">
+            </div>
+            <div class="chart-container">
+                <h3>Süre Karşılaştırması</h3>
+                <img src="charts/time_comparison.png" alt="Time">
+            </div>
+            <div class="chart-container">
+                <h3>Component Breakdown</h3>
+                <img src="charts/component_breakdown.png" alt="Components">
+            </div>
+            <div class="chart-container">
+                <h3>Zorluk Seviyesine Göre</h3>
+                <img src="charts/accuracy_by_difficulty.png" alt="Difficulty">
+            </div>
+        </div>
+        
+        <h2>📝 Tüm Soru Sonuçları</h2>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q1</strong>
+                <span class="badge badge-easy">EASY</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">How many available features are there in total?</p>
+            <div class="sql-box">Gold: SELECT count(*) FROM Other_Available_Features</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 2.5s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT COUNT(DISTINCT T2.feature_id) FROM Ref_Feature_Types AS T1 INNER JOIN Other_Available_Feature...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 8.2s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT COUNT(*) FROM Other_Available_Features;</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 7.8s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT COUNT(*) FROM Other_Available_Features;</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q2</strong>
+                <span class="badge badge-medium">MEDIUM</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">What is the feature type name of feature AirCon?</p>
+            <div class="sql-box">Gold: SELECT T2.feature_type_name FROM Other_Available_Features AS T1 JOIN Ref_Feature_Types AS T2 ON T1.feature_type_code  =  T2.feature_type_code WHERE T1.feature_name  =  "AirCon"</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 4.6s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT T2.feature_type_name 
+FROM Other_Property_Features OPF 
+JOIN Other_Available_Features OAF ON ...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 9.5s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT ft.feature_type_name FROM Ref_Feature_Types AS ft JOIN Other_Available_Features AS oaf ON ft....</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 8.1s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT feature_type_name FROM Ref_Feature_Types WHERE feature_type_code = 'AirCon';</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q3</strong>
+                <span class="badge badge-medium">MEDIUM</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">Show the property type descriptions of properties belonging to that code.</p>
+            <div class="sql-box">Gold: SELECT T2.property_type_description FROM Properties AS T1 JOIN Ref_Property_Types AS T2 ON T1.property_type_code  =  T2.property_type_code GROUP BY T1.property_type_code</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 2.9s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT RPT.property_type_description 
+FROM Ref_Property_Types RPT 
+JOIN Properties P ON RPT.property...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 9.8s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT p.property_type_description FROM Properties AS p JOIN Ref_Property_Types AS pt ON p.property_...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 9.8s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT c.property_type_description FROM Properties AS p JOIN Ref_Property_Types AS c ON p.property_t...</div>
+                </div>
+
+            </div>
+        </div>
+
+        <footer style="text-align: center; padding: 2rem; color: var(--muted);">
+            <p>Generated by Multi-Agent RAG Text-to-SQL System</p>
+        </footer>
+    </div>
+</body>
+</html>

@@ -1,0 +1,146 @@
+[
+  {
+    "id": 1,
+    "question": "How many available features are there in total?",
+    "gold_sql": "SELECT count(*) FROM Other_Available_Features",
+    "hardness": "easy",
+    "db_id": "real_estate_properties",
+    "pipelines": {
+      "Single_Agent": {
+        "generated_sql": "SELECT COUNT(DISTINCT T2.feature_id) FROM Ref_Feature_Types AS T1 INNER JOIN Other_Available_Features AS T2 ON T1.feature_type_code = T2.feature_type_code",
+        "execution_time": 2.5443990230560303,
+        "execution_valid": true,
+        "execution_correct": true,
+        "exact_set_match": true,
+        "component_score": 0.75,
+        "select_match": true,
+        "from_match": false,
+        "where_match": true,
+        "groupby_match": true,
+        "error": null
+      },
+      "Multi_Agent": {
+        "generated_sql": "SELECT COUNT(*) FROM Other_Available_Features;",
+        "execution_time": 8.223129749298096,
+        "execution_valid": true,
+        "execution_correct": true,
+        "exact_set_match": true,
+        "component_score": 1.0,
+        "select_match": true,
+        "from_match": true,
+        "where_match": true,
+        "groupby_match": true,
+        "error": null
+      },
+      "Multi_Agent_RAG": {
+        "generated_sql": "SELECT COUNT(*) FROM Other_Available_Features;",
+        "execution_time": 7.780444383621216,
+        "execution_valid": true,
+        "execution_correct": true,
+        "exact_set_match": true,
+        "component_score": 1.0,
+        "select_match": true,
+        "from_match": true,
+        "where_match": true,
+        "groupby_match": true,
+        "error": null
+      }
+    }
+  },
+  {
+    "id": 2,
+    "question": "What is the feature type name of feature AirCon?",
+    "gold_sql": "SELECT T2.feature_type_name FROM Other_Available_Features AS T1 JOIN Ref_Feature_Types AS T2 ON T1.feature_type_code  =  T2.feature_type_code WHERE T1.feature_name  =  \"AirCon\"",
+    "hardness": "medium",
+    "db_id": "real_estate_properties",
+    "pipelines": {
+      "Single_Agent": {
+        "generated_sql": "SELECT T2.feature_type_name \nFROM Other_Property_Features OPF \nJOIN Other_Available_Features OAF ON OPF.feature_id = OAF.feature_id \nJOIN Ref_Feature_Types RFT ON OAF.feature_type_code = RFT.feature_type_code \nWHERE OAF.feature_name = 'AirCon'",
+        "execution_time": 4.61457896232605,
+        "execution_valid": false,
+        "execution_correct": false,
+        "exact_set_match": false,
+        "component_score": 0.5,
+        "select_match": true,
+        "from_match": false,
+        "where_match": false,
+        "groupby_match": true,
+        "error": "Generated SQL error: no such column: T2.feature_type_name"
+      },
+      "Multi_Agent": {
+        "generated_sql": "SELECT ft.feature_type_name FROM Ref_Feature_Types AS ft JOIN Other_Available_Features AS oaf ON ft.feature_type_code = oaf.feature_type_code WHERE oaf.feature_name = 'AirCon';",
+        "execution_time": 9.527269840240479,
+        "execution_valid": true,
+        "execution_correct": true,
+        "exact_set_match": true,
+        "component_score": 0.75,
+        "select_match": true,
+        "from_match": true,
+        "where_match": false,
+        "groupby_match": true,
+        "error": null
+      },
+      "Multi_Agent_RAG": {
+        "generated_sql": "SELECT feature_type_name FROM Ref_Feature_Types WHERE feature_type_code = 'AirCon';",
+        "execution_time": 8.092413902282715,
+        "execution_valid": true,
+        "execution_correct": false,
+        "exact_set_match": false,
+        "component_score": 0.5,
+        "select_match": true,
+        "from_match": false,
+        "where_match": false,
+        "groupby_match": true,
+        "error": null
+      }
+    }
+  },
+  {
+    "id": 3,
+    "question": "Show the property type descriptions of properties belonging to that code.",
+    "gold_sql": "SELECT T2.property_type_description FROM Properties AS T1 JOIN Ref_Property_Types AS T2 ON T1.property_type_code  =  T2.property_type_code GROUP BY T1.property_type_code",
+    "hardness": "medium",
+    "db_id": "real_estate_properties",
+    "pipelines": {
+      "Single_Agent": {
+        "generated_sql": "SELECT RPT.property_type_description \nFROM Ref_Property_Types RPT \nJOIN Properties P ON RPT.property_type_code = P.property_type_code;",
+        "execution_time": 2.8901381492614746,
+        "execution_valid": true,
+        "execution_correct": true,
+        "exact_set_match": true,
+        "component_score": 0.75,
+        "select_match": true,
+        "from_match": true,
+        "where_match": true,
+        "groupby_match": false,
+        "error": null
+      },
+      "Multi_Agent": {
+        "generated_sql": "SELECT p.property_type_description FROM Properties AS p JOIN Ref_Property_Types AS pt ON p.property_type_code = pt.property_type_code;",
+        "execution_time": 9.764561176300049,
+        "execution_valid": false,
+        "execution_correct": false,
+        "exact_set_match": false,
+        "component_score": 0.75,
+        "select_match": true,
+        "from_match": true,
+        "where_match": true,
+        "groupby_match": false,
+        "error": "Generated SQL error: no such column: p.property_type_description"
+      },
+      "Multi_Agent_RAG": {
+        "generated_sql": "SELECT c.property_type_description FROM Properties AS p JOIN Ref_Property_Types AS c ON p.property_type_code = c.property_type_code;",
+        "execution_time": 9.846619844436646,
+        "execution_valid": true,
+        "execution_correct": true,
+        "exact_set_match": true,
+        "component_score": 0.75,
+        "select_match": true,
+        "from_match": true,
+        "where_match": true,
+        "groupby_match": false,
+        "error": null
+      }
+    }
+  }
+]

@@ -1,0 +1,2911 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Text-to-SQL Evaluation - world_1</title>
+    <style>
+        :root {
+            --primary: #6366f1;
+            --success: #22c55e;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --bg: #0f172a;
+            --card: #1e293b;
+            --text: #e2e8f0;
+            --muted: #94a3b8;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            padding: 2rem;
+        }
+        .container { max-width: 1400px; margin: 0 auto; }
+        h1 {
+            font-size: 2.5rem;
+            background: linear-gradient(135deg, #6366f1, #a855f7);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 0.5rem;
+        }
+        h2 {
+            color: var(--primary);
+            margin: 2rem 0 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid var(--primary);
+        }
+        .subtitle { color: var(--muted); margin-bottom: 2rem; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem; }
+        .card {
+            background: var(--card);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+        }
+        .card h3 { font-size: 1rem; color: var(--muted); margin-bottom: 0.5rem; }
+        .card .value {
+            font-size: 2.5rem;
+            font-weight: bold;
+        }
+        .success { color: var(--success); }
+        .warning { color: var(--warning); }
+        .danger { color: var(--danger); }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1rem 0;
+            background: var(--card);
+            border-radius: 0.5rem;
+            overflow: hidden;
+        }
+        th, td { padding: 1rem; text-align: left; border-bottom: 1px solid rgba(255,255,255,0.1); }
+        th { background: rgba(99, 102, 241, 0.2); font-weight: 600; }
+        tr:hover { background: rgba(255,255,255,0.05); }
+        .badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        .badge-success { background: rgba(34, 197, 94, 0.2); color: var(--success); }
+        .badge-danger { background: rgba(239, 68, 68, 0.2); color: var(--danger); }
+        .badge-easy { background: rgba(34, 197, 94, 0.2); color: var(--success); }
+        .badge-medium { background: rgba(245, 158, 11, 0.2); color: var(--warning); }
+        .sql-box {
+            background: #0d1117;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            font-family: 'Fira Code', monospace;
+            font-size: 0.85rem;
+            overflow-x: auto;
+            margin: 0.5rem 0;
+            border-left: 3px solid var(--primary);
+        }
+        .progress-bar {
+            height: 8px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 0.5rem;
+        }
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary), #a855f7);
+            border-radius: 4px;
+        }
+        .question-card {
+            background: var(--card);
+            border-radius: 0.75rem;
+            padding: 1.25rem;
+            margin: 1rem 0;
+        }
+        .pipeline-results {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        .pipeline-result {
+            background: rgba(0,0,0,0.2);
+            padding: 1rem;
+            border-radius: 0.5rem;
+        }
+        .pipeline-result h4 { font-size: 0.9rem; margin-bottom: 0.5rem; }
+        .chart-container {
+            background: var(--card);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            margin: 1rem 0;
+        }
+        .chart-container img { max-width: 100%; height: auto; border-radius: 0.5rem; }
+        @media (max-width: 768px) {
+            .pipeline-results { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🤖 Multi-Agent RAG Text-to-SQL</h1>
+        <p class="subtitle">Evaluation Report | Database: <strong>world_1</strong> | 2025-12-21 20:25 | Total: 84 questions</p>
+        
+        <h2>📊 Summary - 3 Pipeline Comparison</h2>
+        <div class="grid">
+
+            <div class="card">
+                <h3>Single Agent</h3>
+                <div class="value danger">44.0%</div>
+                <p style="color: var(--muted); font-size: 0.9rem;">Execution Accuracy</p>
+                <div class="progress-bar"><div class="progress-fill" style="width: 44.047619047619044%"></div></div>
+                <div style="margin-top: 1rem; display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; font-size: 0.85rem;">
+                    <div>Set Match: <strong>44.0%</strong></div>
+                    <div>Component: <strong>60.7%</strong></div>
+                    <div>Avg Time: <strong>2.9s</strong></div>
+                    <div>Total: <strong>84 Q</strong></div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>Multi Agent</h3>
+                <div class="value warning">52.4%</div>
+                <p style="color: var(--muted); font-size: 0.9rem;">Execution Accuracy</p>
+                <div class="progress-bar"><div class="progress-fill" style="width: 52.38095238095239%"></div></div>
+                <div style="margin-top: 1rem; display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; font-size: 0.85rem;">
+                    <div>Set Match: <strong>52.4%</strong></div>
+                    <div>Component: <strong>73.3%</strong></div>
+                    <div>Avg Time: <strong>10.1s</strong></div>
+                    <div>Total: <strong>84 Q</strong></div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>Multi Agent RAG</h3>
+                <div class="value warning">59.5%</div>
+                <p style="color: var(--muted); font-size: 0.9rem;">Execution Accuracy</p>
+                <div class="progress-bar"><div class="progress-fill" style="width: 59.523809523809526%"></div></div>
+                <div style="margin-top: 1rem; display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; font-size: 0.85rem;">
+                    <div>Set Match: <strong>59.5%</strong></div>
+                    <div>Component: <strong>75.0%</strong></div>
+                    <div>Avg Time: <strong>11.4s</strong></div>
+                    <div>Total: <strong>84 Q</strong></div>
+                </div>
+            </div>
+
+        </div>
+        
+        <h2>📈 Detailed Comparison Table</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Pipeline</th>
+                    <th>Execution Accuracy</th>
+                    <th>Exact Set Match</th>
+                    <th>SELECT Match</th>
+                    <th>FROM Match</th>
+                    <th>WHERE Match</th>
+                    <th>GROUP BY Match</th>
+                    <th>ORDER BY Match</th>
+                    <th>Avg Time</th>
+                </tr>
+            </thead>
+            <tbody>
+
+                <tr>
+                    <td><strong>Single Agent</strong></td>
+                    <td><span class="badge badge-danger">44.0%</span></td>
+                    <td>44.0%</td>
+                    <td>79.8%</td>
+                    <td>44.0%</td>
+                    <td>22.6%</td>
+                    <td>83.3%</td>
+                    <td>73.8%</td>
+                    <td>2.9s</td>
+                </tr>
+
+                <tr>
+                    <td><strong>Multi Agent</strong></td>
+                    <td><span class="badge badge-danger">52.4%</span></td>
+                    <td>52.4%</td>
+                    <td>85.7%</td>
+                    <td>81.0%</td>
+                    <td>28.6%</td>
+                    <td>90.5%</td>
+                    <td>81.0%</td>
+                    <td>10.1s</td>
+                </tr>
+
+                <tr>
+                    <td><strong>Multi Agent RAG</strong></td>
+                    <td><span class="badge badge-danger">59.5%</span></td>
+                    <td>59.5%</td>
+                    <td>84.5%</td>
+                    <td>86.9%</td>
+                    <td>28.6%</td>
+                    <td>91.7%</td>
+                    <td>83.3%</td>
+                    <td>11.4s</td>
+                </tr>
+
+            </tbody>
+        </table>
+        
+        <h2>📊 Charts</h2>
+        <div class="grid">
+            <div class="chart-container">
+                <h3>Accuracy Comparison</h3>
+                <img src="charts/accuracy_comparison.png" alt="Accuracy">
+            </div>
+            <div class="chart-container">
+                <h3>Time Comparison</h3>
+                <img src="charts/time_comparison.png" alt="Time">
+            </div>
+            <div class="chart-container">
+                <h3>Component Breakdown</h3>
+                <img src="charts/component_breakdown.png" alt="Components">
+            </div>
+            <div class="chart-container">
+                <h3>By Difficulty Level</h3>
+                <img src="charts/accuracy_by_difficulty.png" alt="Difficulty">
+            </div>
+        </div>
+        
+        <h2>📝 All Question Results</h2>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q1</strong>
+                <span class="badge badge-easy">EASY</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">What are the names of all the countries that became independent after 1950?</p>
+            <div class="sql-box">Gold: SELECT Name FROM country WHERE IndepYear  >  1950</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 2.1s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT c.Name 
+FROM country c 
+JOIN countrylanguage cl ON c.Code = cl.CountryCode 
+WHERE c.IndepYear...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 7.9s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT Name FROM country WHERE IndepYear > 1950;</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 8.9s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT Name FROM country WHERE IndepYear > 1950;</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q2</strong>
+                <span class="badge badge-easy">EASY</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">Give the names of the nations that were founded after 1950.</p>
+            <div class="sql-box">Gold: SELECT Name FROM country WHERE IndepYear  >  1950</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 2.2s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT c.Name 
+FROM country c 
+JOIN countrylanguage cl ON c.Code = cl.CountryCode 
+WHERE c.IndepYear...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 10.2s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT Name FROM country WHERE IndepYear > 1950;</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 10.5s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT Name FROM country WHERE IndepYear > 1950;</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q3</strong>
+                <span class="badge badge-easy">EASY</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">How many countries have a republic as their form of government?</p>
+            <div class="sql-box">Gold: SELECT count(*) FROM country WHERE GovernmentForm  =  "Republic"</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 2.7s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT COUNT(DISTINCT T1.Code) FROM country AS T1 INNER JOIN countrylanguage AS T2 ON T1.Code = T2.C...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 11.0s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT COUNT(*) FROM country WHERE GovernmentForm = 'Republic';</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 10.7s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT COUNT(*) FROM country WHERE GovernmentForm = 'Republic';</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q4</strong>
+                <span class="badge badge-easy">EASY</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">How many countries have governments that are republics?</p>
+            <div class="sql-box">Gold: SELECT count(*) FROM country WHERE GovernmentForm  =  "Republic"</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 2.9s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT COUNT(DISTINCT T2.Code) FROM country AS T1 INNER JOIN countrylanguage AS T2 ON T1.Code = T2.C...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 10.2s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT COUNT(*) FROM country WHERE GovernmentForm = 'Republic';</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 11.0s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT COUNT(*) FROM country WHERE GovernmentForm = 'Republic';</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q5</strong>
+                <span class="badge badge-easy">EASY</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">What is the total surface area of the countries in the Caribbean region?</p>
+            <div class="sql-box">Gold: SELECT sum(SurfaceArea) FROM country WHERE Region  =  "Caribbean"</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 2.7s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT SUM(T1.SurfaceArea) FROM country AS T1 INNER JOIN countryregion AS T2 ON T1.Code = T2.Code WH...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 10.6s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT SUM(SurfaceArea) FROM country WHERE Region = 'Caribbean';</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 10.4s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT SUM(SurfaceArea) FROM country WHERE Region = 'Caribbean';</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q6</strong>
+                <span class="badge badge-easy">EASY</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">How much surface area do the countires in the Carribean cover together?</p>
+            <div class="sql-box">Gold: SELECT sum(SurfaceArea) FROM country WHERE Region  =  "Caribbean"</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 3.2s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT SUM(T1.SurfaceArea) FROM country AS T1 INNER JOIN countrylanguage AS T2 ON T1.Code = T2.Count...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 10.4s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT SUM(SurfaceArea) FROM country WHERE Continent = 'Caribbean';</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 10.4s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT SUM(SurfaceArea) FROM country WHERE Region = 'Caribbean';</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q7</strong>
+                <span class="badge badge-easy">EASY</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">Which continent is Anguilla in?</p>
+            <div class="sql-box">Gold: SELECT Continent FROM country WHERE Name  =  "Anguilla"</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 2.3s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT T2.Continent FROM city AS T1 INNER JOIN country AS T2 ON T1.CountryCode = T2.Code WHERE T1.Na...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 9.6s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT c.Continent FROM country AS c JOIN city AS ci ON c.Code = ci.CountryCode WHERE ci.Name = 'Ang...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 8.8s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT c.Continent FROM country AS c WHERE c.Code = 'ANG';</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q8</strong>
+                <span class="badge badge-easy">EASY</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">What is the continent name which Anguilla belongs to?</p>
+            <div class="sql-box">Gold: SELECT Continent FROM country WHERE Name  =  "Anguilla"</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 2.8s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT T2.Continent FROM country AS T1 INNER JOIN countrylanguage AS T2 ON T1.Code = T2.CountryCode ...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 9.6s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT c.Continent FROM country AS c JOIN city AS ci ON c.Code = ci.CountryCode WHERE ci.Name = 'Ang...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 8.8s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT c.Continent FROM country AS c WHERE c.Code = 'ANG';</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q9</strong>
+                <span class="badge badge-medium">MEDIUM</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">Which region is the city Kabul located in?</p>
+            <div class="sql-box">Gold: SELECT Region FROM country AS T1 JOIN city AS T2 ON T1.Code  =  T2.CountryCode WHERE T2.Name  =  "Kabul"</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 2.4s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT T2.Region FROM city AS T1 INNER JOIN country AS T2 ON T1.CountryCode = T2.Code WHERE T1.Name ...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 10.2s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT r.Region FROM country AS c JOIN city AS ci ON c.Code = ci.CountryCode JOIN region_table AS r ...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 11.2s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT c.Region FROM country AS c JOIN city AS ci ON c.Code = ci.CountryCode WHERE ci.Name = 'Kabul'...</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q10</strong>
+                <span class="badge badge-medium">MEDIUM</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">What region is Kabul in?</p>
+            <div class="sql-box">Gold: SELECT Region FROM country AS T1 JOIN city AS T2 ON T1.Code  =  T2.CountryCode WHERE T2.Name  =  "Kabul"</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 2.6s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT T2.Region FROM city AS T1 INNER JOIN country AS T2 ON T1.CountryCode = T2.Code WHERE T1.Name ...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 10.2s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT r.Region FROM country AS c JOIN city AS ci ON c.Code = ci.CountryCode WHERE ci.Name = 'Kabul'...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 64.1s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT r.Region FROM city AS c JOIN country AS co ON c.CountryCode = co.Code WHERE c.Name = 'Kabul';</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q11</strong>
+                <span class="badge badge-medium">MEDIUM</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">Which language is the most popular in Aruba?</p>
+            <div class="sql-box">Gold: SELECT T2.Language FROM country AS T1 JOIN countrylanguage AS T2 ON T1.Code  =  T2.CountryCode WHERE T1.Name  =  "Aruba" ORDER BY Percentage DESC LIMIT 1</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 2.8s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT T1.Language FROM countrylanguage AS T1 INNER JOIN country AS T2 ON T1.CountryCode = T2.Code W...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 9.2s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT cl.Language FROM countrylanguage AS cl JOIN country AS c ON cl.CountryCode = c.Code WHERE c.N...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 9.4s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT cl.Language FROM countrylanguage AS cl JOIN country AS c ON cl.CountryCode = c.Code WHERE c.N...</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q12</strong>
+                <span class="badge badge-medium">MEDIUM</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">What language is predominantly spoken in Aruba?</p>
+            <div class="sql-box">Gold: SELECT T2.Language FROM country AS T1 JOIN countrylanguage AS T2 ON T1.Code  =  T2.CountryCode WHERE T1.Name  =  "Aruba" ORDER BY Percentage DESC LIMIT 1</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 2.5s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT T2.Language FROM country AS T1 INNER JOIN countrylanguage AS T2 ON T1.Code = T2.CountryCode W...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 9.0s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT cl.Language FROM countrylanguage AS cl JOIN country AS c ON cl.CountryCode = c.Code WHERE c.N...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 8.7s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT cl.Language FROM country AS c JOIN countrylanguage AS cl ON c.Code = cl.CountryCode WHERE c.N...</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q13</strong>
+                <span class="badge badge-easy">EASY</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">What are the population and life expectancies in Brazil?</p>
+            <div class="sql-box">Gold: SELECT Population ,  LifeExpectancy FROM country WHERE Name  =  "Brazil"</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 3.5s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT T1.Population, T1.LifeExpectancy 
+FROM country AS T1 
+JOIN countrylanguage AS T2 ON T1.Code =...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 9.7s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT c.Population, c.LifeExpectancy FROM country AS c WHERE c.Name = 'Brazil';</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 9.3s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT Population, LifeExpectancy FROM country WHERE Name = 'Brazil';</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q14</strong>
+                <span class="badge badge-easy">EASY</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">Give me Brazil’s population and life expectancies.</p>
+            <div class="sql-box">Gold: SELECT Population ,  LifeExpectancy FROM country WHERE Name  =  "Brazil"</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 3.9s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT T1.Population, T1.LifeExpectancy 
+FROM country AS T1 
+JOIN countrylanguage AS T2 ON T1.Code =...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 9.9s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT Population, LifeExpectancy FROM country WHERE Name = 'Brazil';</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 9.7s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT Population, LifeExpectancy FROM country WHERE Name = 'Brazil';</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q15</strong>
+                <span class="badge badge-easy">EASY</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">What are the region and population of Angola?</p>
+            <div class="sql-box">Gold: SELECT Population ,  Region FROM country WHERE Name  =  "Angola"</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 2.7s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT T2.Region, T2.Population FROM country AS T1 INNER JOIN countrylanguage AS T2 ON T1.Code = T2....</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 10.5s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT Region, Population FROM country WHERE Name = 'Angola';</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 9.8s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT Region, Population FROM country WHERE Code = 'ANG';</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q16</strong>
+                <span class="badge badge-easy">EASY</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">What region does Angola belong to and what is its population?</p>
+            <div class="sql-box">Gold: SELECT Population ,  Region FROM country WHERE Name  =  "Angola"</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 3.0s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT T2.Region, T1.Population 
+FROM country AS T1 
+JOIN countrylanguage AS T2 ON T1.Code = T2.Coun...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 10.5s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT r.Region, c.Population FROM country AS c JOIN region AS r ON c.Region = r.Code WHERE c.Name =...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 66.9s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT r.Region, c.Population FROM country AS c JOIN region AS r ON c.Region = r.Name WHERE c.Code =...</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q17</strong>
+                <span class="badge badge-easy">EASY</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">What is the average expected life expectancy for countries in the region of Central Africa?</p>
+            <div class="sql-box">Gold: SELECT avg(LifeExpectancy) FROM country WHERE Region  =  "Central Africa"</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 2.6s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT AVG(T1.LifeExpectancy) FROM country AS T1 INNER JOIN countryregion AS T2 ON T1.Code = T2.Coun...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 9.3s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT AVG(LifeExpectancy) FROM country WHERE Region = 'Central Africa';</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 8.9s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT AVG(LifeExpectancy) FROM country WHERE Region = 'Central Africa';</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q18</strong>
+                <span class="badge badge-easy">EASY</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">How long is the people’s average life expectancy in Central Africa?</p>
+            <div class="sql-box">Gold: SELECT avg(LifeExpectancy) FROM country WHERE Region  =  "Central Africa"</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 2.8s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT AVG(T1.LifeExpectancy) 
+FROM country AS T1 
+JOIN countrylanguage AS T2 ON T1.Code = T2.Countr...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 9.0s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT AVG(lifeExpectancy) FROM country WHERE Continent = 'Africa';</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 8.7s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT AVG(lifeExpectancy) FROM country WHERE Continent = 'Africa';</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q19</strong>
+                <span class="badge badge-easy">EASY</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">What is the name of country that has the shortest life expectancy in Asia?</p>
+            <div class="sql-box">Gold: SELECT Name FROM country WHERE Continent  =  "Asia" ORDER BY LifeExpectancy LIMIT 1</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 4.8s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT T1.Name 
+FROM country AS T1 
+JOIN countrylanguage AS T2 ON T1.Code = T2.CountryCode 
+JOIN cou...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 9.3s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT Name FROM country WHERE Continent = 'Asia' AND LifeExpectancy = (SELECT MIN(LifeExpectancy) F...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 9.6s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT Name FROM country WHERE Continent = 'Asia' AND LifeExpectancy = (SELECT MIN(LifeExpectancy) F...</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q20</strong>
+                <span class="badge badge-easy">EASY</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">Give the name of the country in Asia with the lowest life expectancy.</p>
+            <div class="sql-box">Gold: SELECT Name FROM country WHERE Continent  =  "Asia" ORDER BY LifeExpectancy LIMIT 1</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 3.9s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT T1.Name 
+FROM country AS T1 
+JOIN countrylanguage AS T2 ON T1.Code = T2.CountryCode 
+WHERE T1...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 11.2s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT Name FROM country WHERE Continent = 'Asia' ORDER BY LifeExpectancy LIMIT 1;</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 10.4s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT Name FROM country WHERE Continent = 'Asia' ORDER BY LifeExpectancy LIMIT 1;</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q21</strong>
+                <span class="badge badge-easy">EASY</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">What is the total population and maximum GNP in Asia?</p>
+            <div class="sql-box">Gold: SELECT sum(Population) ,  max(GNP) FROM country WHERE Continent  =  "Asia"</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 3.9s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT SUM(c.Population), MAX(c.GNP) 
+FROM country c 
+JOIN countrylanguage cl ON c.Code = cl.Country...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 10.5s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT SUM(Population) FROM country WHERE Continent = 'Asia' AND Population > 0;</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 10.3s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT SUM(Population) FROM country WHERE Continent = 'Asia' AND GNP = (SELECT MAX(GNP) FROM country...</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q22</strong>
+                <span class="badge badge-easy">EASY</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">How many people live in Asia, and what is the largest GNP among them?</p>
+            <div class="sql-box">Gold: SELECT sum(Population) ,  max(GNP) FROM country WHERE Continent  =  "Asia"</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 3.3s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT T1.Population, MAX(T2.GNP) FROM country AS T1 INNER JOIN countrylanguage AS T2 ON T1.Code = T...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 10.5s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT SUM(Population) FROM country WHERE Continent = 'Asia' AND Population > 0 ORDER BY GNP DESC LI...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 10.0s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT SUM(Population) FROM country WHERE Continent = 'Asia' AND Population > 0 ORDER BY GNP DESC LI...</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q23</strong>
+                <span class="badge badge-easy">EASY</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">What is the average life expectancy in African countries that are republics?</p>
+            <div class="sql-box">Gold: SELECT avg(LifeExpectancy) FROM country WHERE Continent  =  "Africa" AND GovernmentForm  =  "Republic"</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 4.8s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT AVG(T2.LifeExpectancy) 
+FROM country AS T1 
+JOIN countrylanguage AS T2 ON T1.Code = T2.Countr...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 9.2s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT AVG(LifeExpectancy) FROM country WHERE Continent = 'Africa' AND GovernmentForm = 'Republic';</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 9.3s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT AVG(LifeExpectancy) FROM country WHERE Continent = 'Africa' AND GovernmentForm = 'Republic';</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q24</strong>
+                <span class="badge badge-easy">EASY</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">Give the average life expectancy for countries in Africa which are republics?</p>
+            <div class="sql-box">Gold: SELECT avg(LifeExpectancy) FROM country WHERE Continent  =  "Africa" AND GovernmentForm  =  "Republic"</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 4.3s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT AVG(T1.LifeExpectancy) 
+FROM country AS T1 
+JOIN countrylanguage AS T2 ON T1.Code = T2.Countr...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 9.2s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT AVG(LifeExpectancy) FROM country WHERE Continent = 'Africa' AND GovernmentForm = 'Republic';</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 9.2s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT AVG(LifeExpectancy) FROM country WHERE Continent = 'Africa' AND GovernmentForm = 'Republic';</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q25</strong>
+                <span class="badge badge-easy">EASY</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">What is the total surface area of the continents Asia and Europe?</p>
+            <div class="sql-box">Gold: SELECT sum(SurfaceArea) FROM country WHERE Continent  =  "Asia" OR Continent  =  "Europe"</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 2.4s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT SUM(T1.SurfaceArea) FROM country AS T1 INNER JOIN countrycontinent AS T2 ON T1.Code = T2.Code...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 9.7s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT SUM(SurfaceArea) FROM country WHERE Continent IN ('Asia', 'Europe');</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 9.7s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT SUM(SurfaceArea) FROM country WHERE Continent IN ('Asia', 'Europe');</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q26</strong>
+                <span class="badge badge-easy">EASY</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">Give the total surface area covered by countries in Asia or Europe.</p>
+            <div class="sql-box">Gold: SELECT sum(SurfaceArea) FROM country WHERE Continent  =  "Asia" OR Continent  =  "Europe"</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 2.8s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT SUM(T1.SurfaceArea) FROM country AS T1 INNER JOIN countrylanguage AS T2 ON T1.Code = T2.Count...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 10.6s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT SUM(SurfaceArea) FROM country WHERE Continent IN ('Asia', 'Europe');</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 10.2s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT SUM(SurfaceArea) FROM country WHERE Continent IN ('Asia', 'Europe');</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q27</strong>
+                <span class="badge badge-easy">EASY</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">How many people live in Gelderland district?</p>
+            <div class="sql-box">Gold: SELECT sum(Population) FROM city WHERE District  =  "Gelderland"</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 2.3s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT T1.Population FROM city AS T1 INNER JOIN country AS T2 ON T1.CountryCode = T2.Code WHERE T1.D...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 9.3s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT Population FROM city WHERE District = 'Gelderland';</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 8.9s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT COUNT(*) FROM city WHERE District = 'Gelderland';</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q28</strong>
+                <span class="badge badge-easy">EASY</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">What is the total population of Gelderland district?</p>
+            <div class="sql-box">Gold: SELECT sum(Population) FROM city WHERE District  =  "Gelderland"</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 2.3s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT SUM(T1.Population) FROM city AS T1 INNER JOIN country AS T2 ON T1.CountryCode = T2.Code WHERE...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 10.0s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT SUM(Population) FROM city WHERE District = 'Gelderland';</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 9.0s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT SUM(Population) FROM city WHERE District = 'Gelderland';</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q29</strong>
+                <span class="badge badge-easy">EASY</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">What is the average GNP and total population in all nations whose government is US territory?</p>
+            <div class="sql-box">Gold: SELECT avg(GNP) ,  sum(population) FROM country WHERE GovernmentForm  =  "US Territory"</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 1.9s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT AVG(GNP) ,  SUM(Population) 
+FROM country 
+WHERE GovernmentForm = 'US territory'</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 13.9s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT AVG(GNP), SUM(Population) FROM country WHERE Code IN (SELECT Code FROM us_territory);</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 12.0s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT AVG(GNP), SUM(Population) FROM country WHERE Code2 = 'US';</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q30</strong>
+                <span class="badge badge-easy">EASY</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">Give the mean GNP and total population of nations which are considered US territory.</p>
+            <div class="sql-box">Gold: SELECT avg(GNP) ,  sum(population) FROM country WHERE GovernmentForm  =  "US Territory"</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 2.1s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT AVG(GNP) ,  SUM(Population) FROM country WHERE Code IN ( SELECT Code FROM country WHERE Name ...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 9.7s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT AVG(GNP) AS mean_GNP, SUM(Population) FROM country WHERE Code = 'US';</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 10.0s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT AVG(GNP) FROM country WHERE Code = 'US';</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q31</strong>
+                <span class="badge badge-easy">EASY</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">How many unique languages are spoken in the world?</p>
+            <div class="sql-box">Gold: SELECT count(DISTINCT LANGUAGE) FROM countrylanguage</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 1.5s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT COUNT(DISTINCT Language) FROM countrylanguage</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 9.1s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT COUNT(DISTINCT cl.Language) FROM countrylanguage AS cl;</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 9.1s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT COUNT(DISTINCT Language) FROM countrylanguage;</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q32</strong>
+                <span class="badge badge-easy">EASY</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">What is the number of distinct languages used around the world?</p>
+            <div class="sql-box">Gold: SELECT count(DISTINCT LANGUAGE) FROM countrylanguage</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 1.5s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT COUNT(DISTINCT Language) FROM countrylanguage</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 8.7s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT COUNT(DISTINCT Language) FROM countrylanguage;</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 8.8s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT COUNT(DISTINCT Language) FROM countrylanguage;</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q33</strong>
+                <span class="badge badge-easy">EASY</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">How many type of governments are in Africa?</p>
+            <div class="sql-box">Gold: SELECT count(DISTINCT GovernmentForm) FROM country WHERE Continent  =  "Africa"</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 1.7s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT COUNT(DISTINCT GovernmentForm) FROM country WHERE Continent = 'Africa'</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 9.6s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT COUNT(DISTINCT GovernmentForm) FROM country WHERE Continent = 'Africa';</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 9.2s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT COUNT(DISTINCT GovernmentForm) FROM country WHERE Continent = 'Africa';</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q34</strong>
+                <span class="badge badge-easy">EASY</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">How many different forms of governments are there in Africa?</p>
+            <div class="sql-box">Gold: SELECT count(DISTINCT GovernmentForm) FROM country WHERE Continent  =  "Africa"</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 1.9s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT COUNT(DISTINCT GovernmentForm) FROM country WHERE Continent = 'Africa'</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 10.9s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT COUNT(DISTINCT GovernmentForm) FROM country WHERE Continent = 'Africa';</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 10.3s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT COUNT(DISTINCT GovernmentForm) FROM country WHERE Continent = 'Africa';</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q35</strong>
+                <span class="badge badge-medium">MEDIUM</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">What is the total number of languages used in Aruba?</p>
+            <div class="sql-box">Gold: SELECT COUNT(T2.Language) FROM country AS T1 JOIN countrylanguage AS T2 ON T1.Code  =  T2.CountryCode WHERE T1.Name  =  "Aruba"</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 2.9s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT COUNT(DISTINCT T1.Language) FROM countrylanguage AS T1 INNER JOIN country AS T2 ON T1.Country...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 11.0s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT COUNT(*) FROM countrylanguage AS cl JOIN country AS c ON cl.CountryCode = c.Code WHERE c.Name...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 10.1s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT COUNT(*) FROM countrylanguage WHERE CountryCode = 'ABW';</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q36</strong>
+                <span class="badge badge-medium">MEDIUM</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">How many languages are spoken in Aruba?</p>
+            <div class="sql-box">Gold: SELECT COUNT(T2.Language) FROM country AS T1 JOIN countrylanguage AS T2 ON T1.Code  =  T2.CountryCode WHERE T1.Name  =  "Aruba"</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 2.6s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT COUNT(DISTINCT T2.Language) FROM country AS T1 INNER JOIN countrylanguage AS T2 ON T1.Code = ...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 11.1s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT COUNT(DISTINCT cl.Language) FROM countrylanguage AS cl JOIN country AS c ON cl.CountryCode = ...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 9.7s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT COUNT(*) FROM countrylanguage WHERE CountryCode = 'ABW';</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q37</strong>
+                <span class="badge badge-medium">MEDIUM</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">How many official languages does Afghanistan have?</p>
+            <div class="sql-box">Gold: SELECT COUNT(*) FROM country AS T1 JOIN countrylanguage AS T2 ON T1.Code  =  T2.CountryCode WHERE T1.Name  =  "Afghanistan" AND IsOfficial  =  "T"</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 3.0s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT COUNT(T1.Language) FROM countrylanguage AS T1 INNER JOIN country AS T2 ON T1.CountryCode = T2...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 9.8s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT COUNT(DISTINCT cl.Language) FROM countrylanguage AS cl JOIN country AS c ON cl.CountryCode = ...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 8.7s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT COUNT(*) FROM countrylanguage WHERE CountryCode = 'AFN' AND IsOfficial = 't';</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q38</strong>
+                <span class="badge badge-medium">MEDIUM</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">How many official languages are spoken in Afghanistan?</p>
+            <div class="sql-box">Gold: SELECT COUNT(*) FROM country AS T1 JOIN countrylanguage AS T2 ON T1.Code  =  T2.CountryCode WHERE T1.Name  =  "Afghanistan" AND IsOfficial  =  "T"</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 3.5s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT COUNT(DISTINCT T2.Language) FROM country AS T1 INNER JOIN countrylanguage AS T2 ON T1.Code = ...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 10.3s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT COUNT(DISTINCT cl.Language) FROM countrylanguage AS cl JOIN country AS c ON cl.CountryCode = ...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 10.2s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT COUNT(*) FROM countrylanguage WHERE CountryCode = 'AFN' AND IsOfficial = 't';</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q39</strong>
+                <span class="badge badge-medium">MEDIUM</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">What is name of the country that speaks the largest number of languages?</p>
+            <div class="sql-box">Gold: SELECT T1.Name FROM country AS T1 JOIN countrylanguage AS T2 ON T1.Code  =  T2.CountryCode GROUP BY T1.Name ORDER BY COUNT(*) DESC LIMIT 1</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 3.1s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT T1.Name 
+FROM country AS T1 
+JOIN countrylanguage AS T2 ON T1.Code = T2.CountryCode 
+GROUP BY...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 11.6s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT cl.Language FROM countrylanguage AS cl JOIN country AS c ON cl.CountryCode = c.Code GROUP BY ...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 10.6s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT c.Name FROM country AS c JOIN countrylanguage AS cl ON c.Code = cl.CountryCode GROUP BY c.Nam...</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q40</strong>
+                <span class="badge badge-medium">MEDIUM</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">Give the name of the nation that uses the greatest amount of languages.</p>
+            <div class="sql-box">Gold: SELECT T1.Name FROM country AS T1 JOIN countrylanguage AS T2 ON T1.Code  =  T2.CountryCode GROUP BY T1.Name ORDER BY COUNT(*) DESC LIMIT 1</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 3.5s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT T1.Name 
+FROM country AS T1 
+JOIN countrylanguage AS T2 ON T1.Code = T2.CountryCode 
+GROUP BY...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 9.7s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT cl.Language FROM countrylanguage AS cl GROUP BY cl.CountryCode ORDER BY COUNT(cl.Language) DE...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 9.4s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT cl.Language FROM countrylanguage AS cl JOIN country AS c ON cl.CountryCode = c.Code GROUP BY ...</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q41</strong>
+                <span class="badge badge-medium">MEDIUM</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">Which continent has the most diverse languages?</p>
+            <div class="sql-box">Gold: SELECT T1.Continent FROM country AS T1 JOIN countrylanguage AS T2 ON T1.Code  =  T2.CountryCode GROUP BY T1.Continent ORDER BY COUNT(*) DESC LIMIT 1</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 3.4s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT T1.Continent 
+FROM country AS T1 
+JOIN countrylanguage AS T2 ON T1.Code = T2.CountryCode 
+GRO...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 11.8s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT c.Continent, COUNT(DISTINCT cl.Language) FROM countrylanguage AS cl JOIN country AS c ON cl.C...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 11.4s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT c.Continent, COUNT(DISTINCT cl.Language) FROM countrylanguage AS cl JOIN country AS c ON cl.C...</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q42</strong>
+                <span class="badge badge-medium">MEDIUM</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">Which continent speaks the most languages?</p>
+            <div class="sql-box">Gold: SELECT T1.Continent FROM country AS T1 JOIN countrylanguage AS T2 ON T1.Code  =  T2.CountryCode GROUP BY T1.Continent ORDER BY COUNT(*) DESC LIMIT 1</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 3.7s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT T1.Continent FROM country AS T1 INNER JOIN countrylanguage AS T2 ON T1.Code = T2.CountryCode ...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 10.6s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT cl.Percentage FROM countrylanguage AS cl JOIN country AS c ON cl.CountryCode = c.Code GROUP B...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 10.4s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT c.Continent, COUNT(cl.Language) FROM countrylanguage AS cl JOIN country AS c ON cl.CountryCod...</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q43</strong>
+                <span class="badge badge-medium">MEDIUM</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">What is the number of distinct continents where Chinese is spoken?</p>
+            <div class="sql-box">Gold: SELECT COUNT( DISTINCT Continent) FROM country AS T1 JOIN countrylanguage AS T2 ON T1.Code  =  T2.CountryCode WHERE T2.Language  =  "Chinese"</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 3.5s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT COUNT(DISTINCT T2.Continent) FROM countrylanguage AS T1 INNER JOIN country AS T2 ON T1.Countr...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 10.3s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT COUNT(DISTINCT c.Continent) FROM countrylanguage AS cl JOIN country AS c ON cl.CountryCode = ...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 10.1s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT COUNT(DISTINCT c.Continent) FROM countrylanguage AS cl JOIN country AS c ON cl.CountryCode = ...</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q44</strong>
+                <span class="badge badge-medium">MEDIUM</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">How many continents speak Chinese?</p>
+            <div class="sql-box">Gold: SELECT COUNT( DISTINCT Continent) FROM country AS T1 JOIN countrylanguage AS T2 ON T1.Code  =  T2.CountryCode WHERE T2.Language  =  "Chinese"</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 3.0s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT COUNT(DISTINCT T2.Continent) FROM countrylanguage AS T1 INNER JOIN country AS T2 ON T1.Countr...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 11.0s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT COUNT(DISTINCT cl.Language) FROM countrylanguage AS cl JOIN country AS c ON cl.CountryCode = ...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 15.2s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT COUNT(DISTINCT cl.CountryCode) FROM countrylanguage AS cl JOIN country AS c ON cl.CountryCode...</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q45</strong>
+                <span class="badge badge-medium">MEDIUM</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">What are the regions that use English or Dutch?</p>
+            <div class="sql-box">Gold: SELECT DISTINCT T1.Region FROM country AS T1 JOIN countrylanguage AS T2 ON T1.Code  =  T2.CountryCode WHERE T2.Language  =  "English" OR T2.Language  =  "Dutch"</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 2.9s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT T2.Region 
+FROM countrylanguage AS T1 
+JOIN country AS T2 ON T1.CountryCode = T2.Code 
+WHERE ...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 10.8s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT r.Region FROM countrylanguage AS cl JOIN country AS c ON cl.CountryCode = c.Code WHERE cl.Lan...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 17.5s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT c.Region FROM country AS c JOIN countrylanguage AS cl ON c.Code = cl.CountryCode WHERE Langua...</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q46</strong>
+                <span class="badge badge-medium">MEDIUM</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">Which regions speak Dutch or English?</p>
+            <div class="sql-box">Gold: SELECT DISTINCT T1.Region FROM country AS T1 JOIN countrylanguage AS T2 ON T1.Code  =  T2.CountryCode WHERE T2.Language  =  "English" OR T2.Language  =  "Dutch"</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 2.8s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT T1.Region 
+FROM country AS T1 
+JOIN countrylanguage AS T2 ON T1.Code = T2.CountryCode 
+WHERE ...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 10.5s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT cl.Percentage FROM countrylanguage AS cl JOIN country AS c ON cl.CountryCode = c.Code WHERE c...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 10.6s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT cl.Percentage FROM countrylanguage AS cl JOIN country AS c ON cl.CountryCode = c.Code WHERE c...</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q47</strong>
+                <span class="badge badge-medium">MEDIUM</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">Which language is the most popular on the Asian continent?</p>
+            <div class="sql-box">Gold: SELECT T2.Language FROM country AS T1 JOIN countrylanguage AS T2 ON T1.Code  =  T2.CountryCode WHERE T1.Continent  =  "Asia" GROUP BY T2.Language ORDER BY COUNT (*) DESC LIMIT 1</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 4.0s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT T1.Language FROM country AS T1 INNER JOIN countrylanguage AS T2 ON T1.Code = T2.CountryCode W...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 11.1s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT cl.Language FROM country AS c JOIN countrylanguage AS cl ON c.Code = cl.CountryCode WHERE c.C...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 10.3s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT cl.Language FROM country AS c JOIN countrylanguage AS cl ON c.Code = cl.CountryCode WHERE c.C...</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q48</strong>
+                <span class="badge badge-medium">MEDIUM</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">What is the language that is used by the largest number of Asian nations?</p>
+            <div class="sql-box">Gold: SELECT T2.Language FROM country AS T1 JOIN countrylanguage AS T2 ON T1.Code  =  T2.CountryCode WHERE T1.Continent  =  "Asia" GROUP BY T2.Language ORDER BY COUNT (*) DESC LIMIT 1</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 4.0s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT T1.Language FROM country AS T1 INNER JOIN countrylanguage AS T2 ON T1.Code = T2.CountryCode W...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 10.8s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT cl.Language FROM countrylanguage AS cl JOIN country AS c ON cl.CountryCode = c.Code WHERE c.C...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 12.2s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT cl.Language FROM country AS c JOIN countrylanguage AS cl ON c.Code = cl.CountryCode WHERE c.C...</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q49</strong>
+                <span class="badge badge-medium">MEDIUM</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">Find the city with the largest population that uses English.</p>
+            <div class="sql-box">Gold: SELECT T1.Name ,  T1.Population FROM city AS T1 JOIN countrylanguage AS T2 ON T1.CountryCode  =  T2.CountryCode WHERE T2.Language  =  "English" ORDER BY T1.Population DESC LIMIT 1</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 3.8s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT c.Name FROM country AS c 
+JOIN countrylanguage AS cl ON c.Code = cl.CountryCode 
+WHERE cl.Lan...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 11.3s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT c.Name FROM countrylanguage AS cl JOIN country AS c ON cl.CountryCode = c.Code WHERE cl.Langu...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 10.9s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT c.Name FROM city AS c JOIN countrylanguage AS cl ON c.CountryCode = cl.CountryCode WHERE cl.L...</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q50</strong>
+                <span class="badge badge-medium">MEDIUM</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">What is the most populace city that speaks English?</p>
+            <div class="sql-box">Gold: SELECT T1.Name ,  T1.Population FROM city AS T1 JOIN countrylanguage AS T2 ON T1.CountryCode  =  T2.CountryCode WHERE T2.Language  =  "English" ORDER BY T1.Population DESC LIMIT 1</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 3.8s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT T1.Name FROM countrylanguage AS T1 INNER JOIN country AS T2 ON T1.CountryCode = T2.Code WHERE...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 11.2s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT c.Name FROM countrylanguage AS cl JOIN country AS c ON cl.CountryCode = c.Code WHERE cl.Langu...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 9.8s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT c.Name FROM city AS c JOIN countrylanguage AS cl ON c.CountryCode = cl.CountryCode WHERE cl.L...</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q51</strong>
+                <span class="badge badge-easy">EASY</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">Find the name, population and expected life length of asian country with the largest area?</p>
+            <div class="sql-box">Gold: SELECT Name ,  Population ,  LifeExpectancy FROM country WHERE Continent  =  "Asia" ORDER BY SurfaceArea DESC LIMIT 1</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 3.6s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT c.Name, c.Population, c.LifeExpectancy 
+FROM country c 
+JOIN countrylanguage cl ON c.Code = c...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 13.0s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT c.Name, c.Population, c.LifeExpectancy FROM country AS c JOIN continent AS con ON c.Continent...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 24.1s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT Name, Population, LifeExpectancy FROM country WHERE Continent = 'Asia' AND SurfaceArea = (SEL...</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q52</strong>
+                <span class="badge badge-easy">EASY</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">What are the name, population, and life expectancy of the largest Asian country by land?</p>
+            <div class="sql-box">Gold: SELECT Name ,  Population ,  LifeExpectancy FROM country WHERE Continent  =  "Asia" ORDER BY SurfaceArea DESC LIMIT 1</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 4.8s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT T1.Name, T1.Population, T1.LifeExpectancy 
+FROM country AS T1 
+JOIN countrylanguage AS T2 ON ...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 10.6s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT c.Name, c.Population, c.LifeExpectancy FROM country AS c WHERE c.Continent = 'Asia' ORDER BY ...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 10.6s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT Name, Population, LifeExpectancy FROM country WHERE Continent = 'Asia' ORDER BY SurfaceArea D...</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q53</strong>
+                <span class="badge badge-medium">MEDIUM</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">What is the official language spoken in the country whose head of state is Beatrix?</p>
+            <div class="sql-box">Gold: SELECT T2.Language FROM country AS T1 JOIN countrylanguage AS T2 ON T1.Code  =  T2.CountryCode WHERE T1.HeadOfState  =  "Beatrix" AND T2.IsOfficial  =  "T"</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 2.3s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT T1.Language FROM countrylanguage AS T1 INNER JOIN country AS T2 ON T1.CountryCode = T2.Code W...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 10.4s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT cl.Language FROM countrylanguage AS cl JOIN country AS c ON cl.CountryCode = c.Code WHERE c.H...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 8.9s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT cl.Language FROM country AS c JOIN countrylanguage AS cl ON c.Code = cl.CountryCode WHERE c.H...</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q54</strong>
+                <span class="badge badge-medium">MEDIUM</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">What is the official language used in the country the name of whose head of state is Beatrix.</p>
+            <div class="sql-box">Gold: SELECT T2.Language FROM country AS T1 JOIN countrylanguage AS T2 ON T1.Code  =  T2.CountryCode WHERE T1.HeadOfState  =  "Beatrix" AND T2.IsOfficial  =  "T"</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 2.4s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT T2.Language FROM country AS T1 INNER JOIN countrylanguage AS T2 ON T1.Code = T2.CountryCode W...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 9.4s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT cl.Language FROM countrylanguage AS cl JOIN country AS c ON cl.CountryCode = c.Code WHERE c.H...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 9.2s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT cl.Language FROM country AS c JOIN countrylanguage AS cl ON c.Code = cl.CountryCode WHERE c.H...</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q55</strong>
+                <span class="badge badge-medium">MEDIUM</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">What is the total number of unique official languages spoken in the countries that are founded before 1930?</p>
+            <div class="sql-box">Gold: SELECT count(DISTINCT T2.Language) FROM country AS T1 JOIN countrylanguage AS T2 ON T1.Code  =  T2.CountryCode WHERE  IndepYear  <  1930 AND T2.IsOfficial  =  "T"</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 3.2s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT COUNT(DISTINCT T1.Language) 
+FROM countrylanguage AS T1 
+JOIN country AS T2 ON T1.CountryCode...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 11.3s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT COUNT(DISTINCT cl.Language) FROM countrylanguage AS cl JOIN country AS c ON cl.CountryCode = ...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 11.6s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT COUNT(DISTINCT cl.Language) FROM countrylanguage AS cl JOIN country AS c ON cl.CountryCode = ...</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q56</strong>
+                <span class="badge badge-medium">MEDIUM</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">For the countries founded before 1930, what is the total number of distinct official languages?</p>
+            <div class="sql-box">Gold: SELECT count(DISTINCT T2.Language) FROM country AS T1 JOIN countrylanguage AS T2 ON T1.Code  =  T2.CountryCode WHERE  IndepYear  <  1930 AND T2.IsOfficial  =  "T"</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 3.3s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT COUNT(DISTINCT T2.Language) 
+FROM country AS T1 
+JOIN countrylanguage AS T2 ON T1.Code = T2.C...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 10.1s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT COUNT(DISTINCT cl.Language) FROM countrylanguage AS cl JOIN country AS c ON cl.CountryCode = ...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 9.8s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT COUNT(DISTINCT cl.Language) FROM countrylanguage AS cl JOIN country AS c ON cl.CountryCode = ...</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q57</strong>
+                <span class="badge badge-easy">EASY</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">What are the country codes of countries where people use languages other than English?</p>
+            <div class="sql-box">Gold: SELECT DISTINCT CountryCode FROM countrylanguage WHERE LANGUAGE != "English"</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 2.7s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT c.Code 
+FROM country c 
+JOIN countrylanguage cl ON c.Code = cl.CountryCode 
+WHERE cl.Language...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 9.3s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT c.Code FROM country AS c JOIN countrylanguage AS cl ON c.Code = cl.CountryCode WHERE cl.Langu...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 9.2s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT cl.CountryCode FROM countrylanguage AS cl JOIN country AS c ON cl.CountryCode = c.Code WHERE ...</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q58</strong>
+                <span class="badge badge-easy">EASY</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">Give the country codes for countries in which people speak langauges that are not English.</p>
+            <div class="sql-box">Gold: SELECT DISTINCT CountryCode FROM countrylanguage WHERE LANGUAGE != "English"</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 3.6s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT c.Code 
+FROM country c 
+JOIN countrylanguage cl ON c.Code = cl.CountryCode 
+WHERE cl.Language...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 9.2s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT c.Code FROM country AS c JOIN countrylanguage AS cl ON c.Code = cl.CountryCode WHERE cl.Langu...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 9.3s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT cl.CountryCode FROM countrylanguage AS cl JOIN country AS c ON cl.CountryCode = c.Code WHERE ...</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q59</strong>
+                <span class="badge badge-easy">EASY</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">What are the name, independence year, and surface area of the country with the smallest population?</p>
+            <div class="sql-box">Gold: SELECT Name ,  SurfaceArea ,  IndepYear FROM country ORDER BY Population LIMIT 1</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 2.5s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT c.Name, c.IndepYear, c.SurfaceArea 
+FROM country c 
+WHERE c.Population = (SELECT MIN(Populati...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 10.0s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT Name, IndepYear, SurfaceArea FROM country ORDER BY Population LIMIT 1;</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 9.2s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT Name, IndepYear, SurfaceArea FROM country ORDER BY Population LIMIT 1;</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q60</strong>
+                <span class="badge badge-easy">EASY</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">Give the name, year of independence, and surface area of the country that has the lowest population.</p>
+            <div class="sql-box">Gold: SELECT Name ,  SurfaceArea ,  IndepYear FROM country ORDER BY Population LIMIT 1</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 2.3s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT c.Name, c.IndepYear, c.SurfaceArea 
+FROM country c 
+WHERE c.Population = (SELECT MIN(Populati...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 11.2s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT Name, IndepYear, SurfaceArea FROM country ORDER BY Population LIMIT 1;</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 8.8s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT Name, IndepYear, SurfaceArea FROM country ORDER BY Population LIMIT 1;</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q61</strong>
+                <span class="badge badge-easy">EASY</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">What are the population, name and leader of the country with the largest area?</p>
+            <div class="sql-box">Gold: SELECT Name ,  population ,  HeadOfState FROM country ORDER BY SurfaceArea DESC LIMIT 1</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 2.2s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT c.Population, c.Name, c.HeadOfState 
+FROM country c 
+WHERE c.SurfaceArea = (SELECT MAX(Surfac...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 9.8s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT c.Population, c.Name, c.HeadOfState FROM country AS c ORDER BY SurfaceArea DESC LIMIT 1;</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 9.7s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT c.Population, c.Name, c.HeadOfState FROM country AS c ORDER BY SurfaceArea DESC LIMIT 1;</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q62</strong>
+                <span class="badge badge-easy">EASY</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">Give the name, population, and head of state for the country that has the largest area.</p>
+            <div class="sql-box">Gold: SELECT Name ,  population ,  HeadOfState FROM country ORDER BY SurfaceArea DESC LIMIT 1</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 2.4s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT c.Name, c.Population, c.HeadOfState 
+FROM country c 
+WHERE c.SurfaceArea = (SELECT MAX(Surfac...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 10.8s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT c.Name, c.Population, c.HeadOfState FROM country AS c ORDER BY SurfaceArea DESC LIMIT 1;</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 10.2s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT Name, Population, HeadOfState FROM country ORDER BY SurfaceArea DESC LIMIT 1;</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q63</strong>
+                <span class="badge badge-easy">EASY</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">What are the names and areas of countries with the top 5 largest area?</p>
+            <div class="sql-box">Gold: SELECT Name ,  SurfaceArea FROM country ORDER BY SurfaceArea DESC LIMIT 5</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 2.0s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT c.Name, c.SurfaceArea 
+FROM country c 
+ORDER BY c.SurfaceArea DESC 
+LIMIT 5;</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 8.2s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT Name, SurfaceArea FROM country ORDER BY SurfaceArea DESC LIMIT 5;</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 7.8s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT Name, SurfaceArea FROM country ORDER BY SurfaceArea DESC LIMIT 5;</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q64</strong>
+                <span class="badge badge-easy">EASY</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">Return the names and surface areas of the 5 largest countries.</p>
+            <div class="sql-box">Gold: SELECT Name ,  SurfaceArea FROM country ORDER BY SurfaceArea DESC LIMIT 5</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 2.0s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT c.Name, c.SurfaceArea 
+FROM country c 
+ORDER BY c.Population DESC 
+LIMIT 5;</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 8.0s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT Name, SurfaceArea FROM country ORDER BY Population DESC LIMIT 5;</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 9.2s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT Name, SurfaceArea FROM country ORDER BY SurfaceArea DESC LIMIT 5;</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q65</strong>
+                <span class="badge badge-easy">EASY</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">What are names of countries with the top 3 largest population?</p>
+            <div class="sql-box">Gold: SELECT Name FROM country ORDER BY Population DESC LIMIT 3</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 2.7s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT c.Name 
+FROM country c 
+JOIN (
+  SELECT Code, Population 
+  FROM country 
+  ORDER BY Populati...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 10.0s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT Name FROM country ORDER BY Population DESC LIMIT 3;</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 9.6s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT Name FROM country ORDER BY Population DESC LIMIT 3;</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q66</strong>
+                <span class="badge badge-easy">EASY</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">Return the names of the 3 most populated countries.</p>
+            <div class="sql-box">Gold: SELECT Name FROM country ORDER BY Population DESC LIMIT 3</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 2.4s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT T1.Name FROM country AS T1 INNER JOIN countrylanguage AS T2 ON T1.Code = T2.CountryCode GROUP...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 9.0s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT Name FROM country ORDER BY Population DESC LIMIT 3;</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 8.4s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT Name FROM country ORDER BY Population DESC LIMIT 3;</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q67</strong>
+                <span class="badge badge-easy">EASY</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">What are the names of the nations with the 3 lowest populations?</p>
+            <div class="sql-box">Gold: SELECT Name FROM country ORDER BY Population ASC LIMIT 3</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 3.0s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT c.Name 
+FROM country c 
+JOIN countrylanguage cl ON c.Code = cl.CountryCode 
+WHERE c.Populatio...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 8.8s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT Name FROM city ORDER BY Population LIMIT 3;</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 8.0s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT Name FROM country ORDER BY Population ASC LIMIT 3;</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q68</strong>
+                <span class="badge badge-easy">EASY</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">Return the names of the 3 countries with the fewest people.</p>
+            <div class="sql-box">Gold: SELECT Name FROM country ORDER BY Population ASC LIMIT 3</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 2.7s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT T1.Name 
+FROM country AS T1 
+JOIN countrylanguage AS T2 ON T1.Code = T2.CountryCode 
+GROUP BY...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 9.5s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT Name FROM country ORDER BY Population ASC LIMIT 3;</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 8.1s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT Name FROM country ORDER BY Population ASC LIMIT 3;</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q69</strong>
+                <span class="badge badge-easy">EASY</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">how many countries are in Asia?</p>
+            <div class="sql-box">Gold: SELECT count(*) FROM country WHERE continent  =  "Asia"</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 3.7s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT COUNT(DISTINCT T1.Code) FROM country AS T1 INNER JOIN countrylanguage AS T2 ON T1.Code = T2.C...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 8.2s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT COUNT(*) FROM country WHERE Continent = 'Asia';</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 8.3s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT COUNT(*) FROM country WHERE Continent = 'Asia';</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q70</strong>
+                <span class="badge badge-easy">EASY</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">Count the number of countries in Asia.</p>
+            <div class="sql-box">Gold: SELECT count(*) FROM country WHERE continent  =  "Asia"</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 2.4s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT COUNT(DISTINCT T1.Code) FROM country AS T1 INNER JOIN countrylanguage AS T2 ON T1.Code = T2.C...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 9.3s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT COUNT(*) FROM country WHERE Continent = 'Asia';</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 8.6s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT COUNT(*) FROM country WHERE Continent = 'Asia';</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q71</strong>
+                <span class="badge badge-easy">EASY</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">What are the names of the countries that are in the continent of Europe and have a population of 80000?</p>
+            <div class="sql-box">Gold: SELECT Name FROM country WHERE continent  =  "Europe" AND Population  =  "80000"</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 2.7s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT T1.Name 
+FROM country AS T1 
+JOIN countrylanguage AS T2 ON T1.Code = T2.CountryCode 
+WHERE T1...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 11.5s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT Name FROM country WHERE Continent = 'Europe' AND Population = 80000;</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 9.2s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT Name FROM country WHERE Continent = 'Europe' AND Population = 80000;</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q72</strong>
+                <span class="badge badge-easy">EASY</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">Give the names of countries that are in Europe and have a population equal to 80000.</p>
+            <div class="sql-box">Gold: SELECT Name FROM country WHERE continent  =  "Europe" AND Population  =  "80000"</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 2.6s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT c.Name 
+FROM country c 
+JOIN countrylanguage cl ON c.Code = cl.CountryCode 
+WHERE c.Continent...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 10.8s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT Name FROM country WHERE Continent = 'Europe' AND Population = 80000;</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 8.7s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT Name FROM country WHERE Continent = 'Europe' AND Population = 80000;</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q73</strong>
+                <span class="badge badge-easy">EASY</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">What is the total population and average area of countries in the continent of North America whose area is bigger than 3000 ?</p>
+            <div class="sql-box">Gold: select sum(population) ,  avg(surfacearea) from country where continent  =  "north america" and surfacearea  >  3000</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 4.4s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT 
+    SUM(c.Population) AS TotalPopulation,
+    AVG(c.SurfaceArea) AS AverageArea
+FROM 
+    co...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 9.8s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT SUM(Population), AVG(SurfaceArea) FROM country WHERE Continent = 'North America' AND SurfaceA...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 11.3s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT SUM(Population) FROM country WHERE Continent = 'North America' AND SurfaceArea > 3000;</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q74</strong>
+                <span class="badge badge-easy">EASY</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">Give the total population and average surface area corresponding to countries in North America that have a surface area greater than 3000 .</p>
+            <div class="sql-box">Gold: select sum(population) ,  avg(surfacearea) from country where continent  =  "north america" and surfacearea  >  3000</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 4.3s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT 
+    c.Population,
+    AVG(c.SurfaceArea) AS AverageSurfaceArea
+FROM 
+    country c
+JOIN 
+   ...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 10.1s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT SUM(Population), AVG(SurfaceArea) FROM country WHERE Continent = 'North America' AND SurfaceA...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 11.9s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT SUM(Population), AVG(SurfaceArea) FROM country WHERE Continent = 'North America' AND SurfaceA...</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q75</strong>
+                <span class="badge badge-easy">EASY</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">What are the cities whose population is between 160000 and 900000?</p>
+            <div class="sql-box">Gold: SELECT name FROM city WHERE Population BETWEEN 160000 AND 900000</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 2.6s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT T1.Name 
+FROM city AS T1 
+JOIN country AS T2 ON T1.CountryCode = T2.Code 
+WHERE T1.Population...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 8.3s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT Name FROM city WHERE Population BETWEEN 160000 AND 900000;</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 7.5s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT Name FROM city WHERE Population BETWEEN 160000 AND 900000;</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q76</strong>
+                <span class="badge badge-easy">EASY</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">Return the names of cities that have a population between 160000 and 900000 .</p>
+            <div class="sql-box">Gold: select name from city where population between 160000 and 900000</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 2.5s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT T1.Name 
+FROM city AS T1 
+JOIN country AS T2 ON T1.CountryCode = T2.Code 
+WHERE T1.Population...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 9.3s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT Name FROM city WHERE Population BETWEEN 160000 AND 900000;</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 8.9s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT Name FROM city WHERE Population BETWEEN 160000 AND 900000;</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q77</strong>
+                <span class="badge badge-medium">MEDIUM</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">Which language is spoken by the largest number of countries?</p>
+            <div class="sql-box">Gold: SELECT LANGUAGE FROM countrylanguage GROUP BY LANGUAGE ORDER BY count(*) DESC LIMIT 1</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 1.7s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT Language FROM countrylanguage GROUP BY Language ORDER BY COUNT(CountryCode) DESC LIMIT 1;</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 9.2s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT cl.Language FROM countrylanguage AS cl GROUP BY cl.Language ORDER BY COUNT(cl.CountryCode) DE...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 10.6s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT cl.Language FROM countrylanguage AS cl GROUP BY cl.Language ORDER BY COUNT(cl.CountryCode) DE...</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q78</strong>
+                <span class="badge badge-medium">MEDIUM</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">Give the language that is spoken in the most countries.</p>
+            <div class="sql-box">Gold: SELECT LANGUAGE FROM countrylanguage GROUP BY LANGUAGE ORDER BY count(*) DESC LIMIT 1</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 2.2s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT Language 
+FROM countrylanguage 
+GROUP BY Language 
+ORDER BY COUNT(CountryCode) DESC 
+LIMIT 1;</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 9.6s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT cl.Language FROM countrylanguage AS cl GROUP BY cl.Language ORDER BY COUNT(cl.CountryCode) DE...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ✅</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 9.0s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT cl.Language FROM countrylanguage AS cl GROUP BY cl.Language ORDER BY COUNT(cl.CountryCode) DE...</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q79</strong>
+                <span class="badge badge-medium">MEDIUM</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">What is the language spoken by the largest percentage of people in each country?</p>
+            <div class="sql-box">Gold: SELECT LANGUAGE ,  CountryCode ,  max(Percentage) FROM countrylanguage GROUP BY CountryCode</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 3.1s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT c.Name, cl.Language, cl.Percentage 
+FROM country c 
+JOIN countrylanguage cl ON c.Code = cl.Co...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 11.8s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT cl.Language FROM countrylanguage AS cl JOIN country AS c ON cl.CountryCode = c.Code GROUP BY ...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 10.4s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT cl.Language, SUM(cl.Percentage) AS TotalPercentage FROM countrylanguage AS cl GROUP BY cl.Lan...</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q80</strong>
+                <span class="badge badge-medium">MEDIUM</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">What are the country codes of the different countries, and what are the languages spoken by the greatest percentage of people for each?</p>
+            <div class="sql-box">Gold: SELECT LANGUAGE ,  CountryCode ,  max(Percentage) FROM countrylanguage GROUP BY CountryCode</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 4.0s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT 
+  c.Code,
+  cl.Language,
+  cl.Percentage
+FROM 
+  country c
+JOIN 
+  countrylanguage cl ON c.C...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 10.2s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT cl.CountryCode, cl.Language FROM countrylanguage AS cl GROUP BY cl.CountryCode ORDER BY SUM(c...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 10.6s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT cl.CountryCode, cl.Language FROM countrylanguage AS cl GROUP BY cl.CountryCode ORDER BY SUM(c...</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q81</strong>
+                <span class="badge badge-medium">MEDIUM</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">What is the total number of countries where Spanish is spoken by the largest percentage of people?</p>
+            <div class="sql-box">Gold: SELECT count(*) ,   max(Percentage) FROM countrylanguage WHERE LANGUAGE  =  "Spanish" GROUP BY CountryCode</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 2.9s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT COUNT(DISTINCT c.Code) FROM countrylanguage cl 
+JOIN country c ON cl.CountryCode = c.Code 
+WH...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 11.0s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT COUNT(*) FROM countrylanguage AS cl JOIN country AS c ON cl.CountryCode = c.Code WHERE cl.Lan...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 10.4s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT COUNT(*) FROM countrylanguage AS cl JOIN country AS c ON cl.CountryCode = c.Code WHERE Langua...</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q82</strong>
+                <span class="badge badge-medium">MEDIUM</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">Count the number of countries for which Spanish is the predominantly spoken language.</p>
+            <div class="sql-box">Gold: SELECT count(*) ,   max(Percentage) FROM countrylanguage WHERE LANGUAGE  =  "Spanish" GROUP BY CountryCode</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 2.6s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT COUNT(DISTINCT c.Code) FROM countrylanguage cl 
+JOIN country c ON cl.CountryCode = c.Code 
+WH...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 9.3s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT COUNT(*) FROM countrylanguage AS cl JOIN country AS c ON cl.CountryCode = c.Code WHERE cl.Lan...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 8.6s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT COUNT(*) FROM countrylanguage AS cl JOIN country AS c ON cl.CountryCode = c.Code WHERE Langua...</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q83</strong>
+                <span class="badge badge-medium">MEDIUM</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">What are the codes of countries where Spanish is spoken by the largest percentage of people?</p>
+            <div class="sql-box">Gold: SELECT CountryCode ,  max(Percentage) FROM countrylanguage WHERE LANGUAGE  =  "Spanish" GROUP BY CountryCode</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 2.9s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT c.Code 
+FROM countrylanguage cl 
+JOIN country c ON cl.CountryCode = c.Code 
+WHERE cl.Language...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 9.4s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT cl.CountryCode FROM countrylanguage AS cl WHERE Percentage = (SELECT MAX(Percentage) FROM cou...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 9.6s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT cl.CountryCode FROM countrylanguage AS cl JOIN country AS c ON cl.CountryCode = c.Code WHERE ...</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong>Q84</strong>
+                <span class="badge badge-medium">MEDIUM</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">Return the codes of countries for which Spanish is the predominantly spoken language.</p>
+            <div class="sql-box">Gold: SELECT CountryCode ,  max(Percentage) FROM countrylanguage WHERE LANGUAGE  =  "Spanish" GROUP BY CountryCode</div>
+            <div class="pipeline-results">
+
+                <div class="pipeline-result">
+                    <h4>Single Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 2.9s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT T1.Code 
+FROM country AS T1 
+JOIN countrylanguage AS T2 ON T1.Code = T2.CountryCode 
+WHERE T2...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 9.6s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT cl.CountryCode FROM countrylanguage AS cl JOIN country AS c ON cl.CountryCode = c.Code WHERE ...</div>
+                </div>
+
+                <div class="pipeline-result">
+                    <h4>Multi Agent RAG ❌</h4>
+                    <div style="font-size: 0.8rem; color: var(--muted);">Time: 9.1s</div>
+                    <div class="sql-box" style="font-size: 0.75rem;">SELECT cl.CountryCode FROM countrylanguage AS cl JOIN country AS c ON cl.CountryCode = c.Code WHERE ...</div>
+                </div>
+
+            </div>
+        </div>
+
+        <footer style="text-align: center; padding: 2rem; color: var(--muted);">
+            <p>Generated by Multi-Agent RAG Text-to-SQL System</p>
+        </footer>
+    </div>
+</body>
+</html>
