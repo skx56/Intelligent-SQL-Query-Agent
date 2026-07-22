@@ -26,6 +26,20 @@ The Intelligent SQL Query Agent translates natural language into database querie
 
 The repository is organized around agent modules, RAG utilities, pipeline variants, evaluation scripts, and example entry points. FAISS-backed schema embeddings provide retrieval context while SQLAlchemy and sqlglot support database and SQL handling.
 
+## Architecture Diagram
+
+```mermaid
+flowchart TD
+  Question["Natural Language Question"] --> Planner["Planner Agent"]
+  Planner --> Schema["Schema Agent"]
+  Schema --> RAG["FAISS Schema Retrieval"]
+  RAG --> SQLAgent["SQL Generation Agent"]
+  SQLAgent --> Executor["Execution Agent"]
+  Executor --> Database["SQL Database"]
+  Executor --> Evaluator["Evaluator Agent"]
+  Evaluator --> Answer["Validated Query and Result"]
+```
+
 ## Technology Stack
 
 - LangChain and LangGraph for orchestration patterns.
