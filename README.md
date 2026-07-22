@@ -29,6 +29,7 @@ The repository is organized around agent modules, RAG utilities, pipeline varian
 ## Architecture Diagram
 
 ```mermaid
+%%{init: {"flowchart": {"nodeSpacing": 55, "rankSpacing": 70, "curve": "basis"}, "themeVariables": {"fontSize": "16px", "fontFamily": "Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif"}}}%%
 flowchart TD
   Question["Natural Language Question"] --> Planner["Planner Agent"]
   Planner --> Schema["Schema Agent"]
@@ -37,18 +38,18 @@ flowchart TD
   SQLAgent --> Executor["Execution Agent"]
   Executor --> Database["SQL Database"]
   Executor --> Evaluator["Evaluator Agent"]
-  Evaluator --> Answer["Validated Query and Result"]
+  Evaluator --> Answer["Validated Query and<br/>Result"]
 
-  classDef inputs fill:#FEE2E2,stroke:#DC2626,color:#7F1D1D,stroke-width:2px;
-  classDef process fill:#ECFCCB,stroke:#65A30D,color:#365314,stroke-width:2px;
-  classDef data fill:#DBEAFE,stroke:#2563EB,color:#1E3A8A,stroke-width:2px;
-  classDef agent fill:#FAE8FF,stroke:#C026D3,color:#701A75,stroke-width:2px;
-  classDef output fill:#DCFCE7,stroke:#16A34A,color:#14532D,stroke-width:2px;
+  classDef inputs fill:#FEE2E2,stroke:#DC2626,color:#7F1D1D,stroke-width:2.5px;
+  classDef process fill:#ECFCCB,stroke:#65A30D,color:#365314,stroke-width:2.5px;
+  classDef data fill:#DBEAFE,stroke:#2563EB,color:#1E3A8A,stroke-width:2.5px;
+  classDef agent fill:#FAE8FF,stroke:#C026D3,color:#701A75,stroke-width:2.5px;
+  classDef output fill:#DCFCE7,stroke:#16A34A,color:#14532D,stroke-width:2.5px;
   class Question,Planner,Database inputs;
   class Schema,RAG,Executor,Evaluator process;
   class SQLAgent agent;
   class Answer output;
-  linkStyle default stroke:#52525B,stroke-width:2px;
+  linkStyle default stroke:#52525B,stroke-width:2.5px;
 ```
 
 ## Technology Stack
